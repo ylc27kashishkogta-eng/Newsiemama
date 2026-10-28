@@ -8,6 +8,14 @@ export interface FeedResponse {
   sourceNote: string;
 }
 
+const TOPIC_NAMES: Record<TopicCategory, string> = {
+  economy: 'Markets & Economy',
+  tech: 'Technology & AI',
+  policy: 'Policy & Governance',
+  world: 'World Intelligence',
+  climate: 'Climate & Energy',
+};
+
 // Curated public RSS endpoints of reputable publishers with official syndication
 const PUBLIC_RSS_FEEDS: { category: TopicCategory; source: string; url: string }[] = [
   {
@@ -78,7 +86,11 @@ export const feedService = {
     );
 
     // If filter produced very few, include all sample stories to maintain broadsheet fullness
-    const finalStories = matchingStories.length >= 3 ? matchingStories : SAMPLE_STORIES;
+    const rawStories = matchingStories.length >= 3 ? matchingStories : SAMPLE_STORIES;
+    const finalStories = rawStories.map((s) => ({
+      ...s,
+      curatedReason: s.curatedReason || `Because you follow ${TOPIC_NAMES[s.category] || s.category}`,
+    }));
 
     return {
       stories: finalStories,

@@ -6,6 +6,8 @@ interface ProfileContextType {
   currentProfile: ReaderProfile;
   profiles: ReaderProfile[];
   hasCompletedOnboarding: boolean;
+  reducedMotion: boolean;
+  toggleReducedMotion: () => void;
   switchProfile: (id: string) => void;
   updateTopics: (topics: TopicCategory[]) => void;
   setVoicePreset: (preset: VoicePreset) => void;
@@ -15,8 +17,13 @@ interface ProfileContextType {
   createNewProfile: (name: string, ageRange: AgeRange, topics: TopicCategory[], preset: VoicePreset) => ReaderProfile;
   toggleSaveArticle: (articleId: string) => void;
   isArticleSaved: (articleId: string) => boolean;
+  markArticleAsRead: (articleId: string) => void;
+  isArticleRead: (articleId: string) => boolean;
+  toggleStoryFeedback: (articleId: string, feedback: 'more' | 'less') => void;
+  getStoryFeedback: (articleId: string) => 'more' | 'less' | null;
   completeOnboarding: () => void;
   resetToWelcome: () => void;
+  resetAllPreferences: () => void;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -27,12 +34,28 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(() =>
     storageService.hasCompletedOnboarding()
   );
+  const [reducedMotion, setReducedMotion] = useState<boolean>(() =>
+    storageService.getReducedMotion()
+  );
 
   const currentProfile = profiles.find((p) => p.id === activeId) || profiles[0] || DEFAULT_PROFILES[0];
 
   useEffect(() => {
     storageService.setActiveProfileId(activeId);
   }, [activeId]);
+
+  useEffect(() => {
+    storageService.setReducedMotion(reducedMotion);
+    if (reducedMotion) {
+      document.documentElement.classList.add('reduce-motion');
+    } else {
+      document.documentElement.classList.remove('reduce-motion');
+    }
+  }, [reducedMotion]);
+
+  const toggleReducedMotion = () => {
+    setReducedMotion((prev) => !prev);
+  };
 
   const switchProfile = (id: string) => {
     setActiveId(id);
@@ -96,10 +119,10 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const toggleSaveArticle = (articleId: string) => {
-    const isSaved = currentProfile.savedArticleIds.includes(articleId);
+    const isSaved = (currentProfile.savedArticleIds || []).includes(articleId);
     const savedArticleIds = isSaved
-      ? currentProfile.savedArticleIds.filter((id) => id !== articleId)
-      : [...currentProfile.savedArticleIds, articleId];
+      ? (currentProfile.savedArticleIds || []).filter((id) => id !== articleId)
+      : [...(currentProfile.savedArticleIds || []), articleId];
 
     const updated: ReaderProfile = { ...currentProfile, savedArticleIds };
     setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -107,7 +130,59 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const isArticleSaved = (articleId: string) => {
-    return currentProfile.savedArticleIds.includes(articleId);
+    return (currentProfile.savedArticleIds || []).includes(articleId);
+  };
+
+  const markArticleAsRead = (articleId: string) => {
+    const currentRead = currentProfile.readStoryIds || [];
+    if (!currentRead.includes(articleId)) {
+      const readStoryIds = [...currentRead, articleId];
+      const updated: ReaderProfile = { ...currentProfile, readStoryIds };
+      setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      storageService.updateProfile(updated);
+    }
+  };
+
+  const isArticleRead = (articleId: string) => {
+    return (currentProfile.readStoryIds || []).includes(articleId);
+  };
+
+  const toggleStoryFeedback = (articleId: string, feedback: 'more' | 'less') => {
+    const currentLiked = currentProfile.likedStoryIds || [];
+    const currentDisliked = currentProfile.dislikedStoryIds || [];
+
+    let newLiked = [...currentLiked];
+    let newDisliked = [...currentDisliked];
+
+    if (feedback === 'more') {
+      if (newLiked.includes(articleId)) {
+        newLiked = newLiked.filter((id) => id !== articleId);
+      } else {
+        newLiked.push(articleId);
+        newDisliked = newDisliked.filter((id) => id !== articleId);
+      }
+    } else {
+      if (newDisliked.includes(articleId)) {
+        newDisliked = newDisliked.filter((id) => id !== articleId);
+      } else {
+        newDisliked.push(articleId);
+        newLiked = newLiked.filter((id) => id !== articleId);
+      }
+    }
+
+    const updated: ReaderProfile = {
+      ...currentProfile,
+      likedStoryIds: newLiked,
+      dislikedStoryIds: newDisliked,
+    };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
+  };
+
+  const getStoryFeedback = (articleId: string): 'more' | 'less' | null => {
+    if ((currentProfile.likedStoryIds || []).includes(articleId)) return 'more';
+    if ((currentProfile.dislikedStoryIds || []).includes(articleId)) return 'less';
+    return null;
   };
 
   const completeOnboarding = () => {
@@ -120,12 +195,21 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setHasCompletedOnboarding(false);
   };
 
+  const resetAllPreferences = () => {
+    storageService.resetAllPreferences();
+    setProfiles(DEFAULT_PROFILES);
+    setActiveId(DEFAULT_PROFILES[0].id);
+    setHasCompletedOnboarding(false);
+  };
+
   return (
     <ProfileContext.Provider
       value={{
         currentProfile,
         profiles,
         hasCompletedOnboarding,
+        reducedMotion,
+        toggleReducedMotion,
         switchProfile,
         updateTopics,
         setVoicePreset,
@@ -135,8 +219,13 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         createNewProfile,
         toggleSaveArticle,
         isArticleSaved,
+        markArticleAsRead,
+        isArticleRead,
+        toggleStoryFeedback,
+        getStoryFeedback,
         completeOnboarding,
         resetToWelcome,
+        resetAllPreferences,
       }}
     >
       {children}

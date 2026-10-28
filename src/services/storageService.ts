@@ -1,8 +1,9 @@
 import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange } from '../types';
 
-const PROFILES_STORAGE_KEY = 'curio_newspaper_profiles_v2';
-const ACTIVE_PROFILE_ID_KEY = 'curio_active_profile_id_v2';
-const ONBOARDING_COMPLETED_KEY = 'curio_onboarding_completed_v2';
+const PROFILES_STORAGE_KEY = 'curio_newspaper_profiles_v3';
+const ACTIVE_PROFILE_ID_KEY = 'curio_active_profile_id_v3';
+const ONBOARDING_COMPLETED_KEY = 'curio_onboarding_completed_v3';
+const REDUCED_MOTION_KEY = 'curio_reduced_motion_v1';
 
 export const DEFAULT_PROFILES: ReaderProfile[] = [
   {
@@ -13,6 +14,9 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     topics: ['economy', 'tech'],
     voicePreset: 'conversational',
     savedArticleIds: ['story-1', 'story-2'],
+    readStoryIds: ['story-1'],
+    likedStoryIds: ['story-2'],
+    dislikedStoryIds: [],
     createdAt: '2026-10-28T06:00:00Z',
     hasCompletedWelcome: true,
     customVoice: {
@@ -32,6 +36,9 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     topics: ['policy', 'world', 'climate'],
     voicePreset: 'executive',
     savedArticleIds: ['story-3', 'story-7'],
+    readStoryIds: [],
+    likedStoryIds: ['story-3'],
+    dislikedStoryIds: [],
     createdAt: '2026-10-28T06:00:00Z',
     hasCompletedWelcome: true,
     customVoice: {
@@ -53,7 +60,17 @@ export const storageService = {
         return DEFAULT_PROFILES;
       }
       const parsed = JSON.parse(data);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PROFILES;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Ensure new array fields are initialized
+        return parsed.map((p) => ({
+          ...p,
+          readStoryIds: p.readStoryIds || [],
+          likedStoryIds: p.likedStoryIds || [],
+          dislikedStoryIds: p.dislikedStoryIds || [],
+          savedArticleIds: p.savedArticleIds || [],
+        }));
+      }
+      return DEFAULT_PROFILES;
     } catch {
       return DEFAULT_PROFILES;
     }
@@ -83,6 +100,14 @@ export const storageService = {
     localStorage.setItem(ACTIVE_PROFILE_ID_KEY, id);
   },
 
+  getReducedMotion(): boolean {
+    return localStorage.getItem(REDUCED_MOTION_KEY) === 'true';
+  },
+
+  setReducedMotion(val: boolean): void {
+    localStorage.setItem(REDUCED_MOTION_KEY, val ? 'true' : 'false');
+  },
+
   updateProfile(updated: ReaderProfile): void {
     const profiles = this.getProfiles();
     const index = profiles.findIndex((p) => p.id === updated.id);
@@ -108,6 +133,9 @@ export const storageService = {
       topics,
       voicePreset,
       savedArticleIds: [],
+      readStoryIds: [],
+      likedStoryIds: [],
+      dislikedStoryIds: [],
       createdAt: new Date().toISOString(),
       hasCompletedWelcome: true,
     };
@@ -117,5 +145,16 @@ export const storageService = {
     this.setActiveProfileId(id);
     this.setCompletedOnboarding(true);
     return newProfile;
+  },
+
+  resetAllPreferences(): void {
+    try {
+      localStorage.removeItem(PROFILES_STORAGE_KEY);
+      localStorage.removeItem(ACTIVE_PROFILE_ID_KEY);
+      localStorage.removeItem(ONBOARDING_COMPLETED_KEY);
+      localStorage.removeItem('curio_byok_api_key');
+    } catch (e) {
+      console.warn('Failed to clear storage:', e);
+    }
   }
 };

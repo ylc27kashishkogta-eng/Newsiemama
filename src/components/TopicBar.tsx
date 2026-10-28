@@ -1,12 +1,13 @@
 import React from 'react';
 import { TopicCategory } from '../types';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, Bookmark } from 'lucide-react';
 
 interface TopicBarProps {
-  selectedTopic: TopicCategory | 'all';
-  onSelectTopic: (topic: TopicCategory | 'all') => void;
+  selectedTopic: TopicCategory | 'all' | 'saved';
+  onSelectTopic: (topic: TopicCategory | 'all' | 'saved') => void;
   availableTopics: TopicCategory[];
   totalStoriesCount: number;
+  savedStoriesCount: number;
   onOpenCustomizeTopics: () => void;
 }
 
@@ -23,6 +24,7 @@ export const TopicBar: React.FC<TopicBarProps> = ({
   onSelectTopic,
   availableTopics,
   totalStoriesCount,
+  savedStoriesCount,
   onOpenCustomizeTopics,
 }) => {
   return (
@@ -57,6 +59,20 @@ export const TopicBar: React.FC<TopicBarProps> = ({
             </button>
           );
         })}
+
+        {/* Saved for Later Filter Pill */}
+        <button
+          onClick={() => onSelectTopic('saved')}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+            selectedTopic === 'saved'
+              ? 'bg-[#b9533f] text-white border-[#b9533f] shadow-2xs'
+              : 'bg-[#ffffff] text-[#5c5449] border-[#d8ccc0] hover:border-[#b9533f] hover:text-[#b9533f]'
+          }`}
+          title="View articles you saved for later"
+        >
+          <Bookmark className="w-3 h-3" />
+          <span>Saved ({savedStoriesCount})</span>
+        </button>
 
         {/* Customize Topics Pill */}
         <button

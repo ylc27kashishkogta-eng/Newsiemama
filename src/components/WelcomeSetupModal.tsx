@@ -1,7 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { TopicCategory, VoicePreset, AgeRange } from '../types';
-import { Sparkles, ArrowRight, Check, BookOpen, Clock, Coffee, Heart, User } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  Check,
+  BookOpen,
+  Clock,
+  Coffee,
+  User,
+  Radio,
+  FileText,
+  TrendingUp,
+  HelpCircle,
+  Eye,
+  SlidersHorizontal
+} from 'lucide-react';
 
 interface WelcomeSetupModalProps {
   isOpen: boolean;
@@ -20,7 +34,7 @@ const AGE_OPTIONS: { id: AgeRange; label: string; subtext: string }[] = [
 ];
 
 const TOPICS: { id: TopicCategory; title: string; desc: string; icon: string }[] = [
-  { id: 'economy', title: 'Markets & Economy', desc: 'RBI rates, industrial growth & startups', icon: '📈' },
+  { id: 'economy', title: 'Markets & Economy', desc: 'RBI rates, industrial capex & startups', icon: '📈' },
   { id: 'tech', title: 'Technology & AI', desc: 'Open models, semiconductors & chips', icon: '⚡' },
   { id: 'policy', title: 'Policy & Governance', desc: 'Freight corridors, infrastructure & rules', icon: '🏛️' },
   { id: 'world', title: 'World Intelligence', desc: 'Global trade, energy & diplomacy', icon: '🌍' },
@@ -44,7 +58,7 @@ const STYLES: { id: VoicePreset; title: string; desc: string; icon: React.ReactN
     id: 'storyteller',
     title: 'Storyteller',
     desc: 'Narrative journalism setting the scene, human context, and how it unfolds.',
-    icon: <BookOpen className="w-5 h-5 text-[#d68175]" />,
+    icon: <BookOpen className="w-5 h-5 text-[#b9533f]" />,
   },
 ];
 
@@ -61,14 +75,14 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
   const [name, setName] = useState<string>(effectiveEditing ? currentProfile.name : '');
   const [ageRange, setAgeRange] = useState<AgeRange>(effectiveEditing ? currentProfile.ageRange : '25-34');
   const [selectedTopics, setSelectedTopics] = useState<TopicCategory[]>(
-    effectiveEditing ? currentProfile.topics : ['economy', 'tech']
+    effectiveEditing ? currentProfile.topics : ['tech', 'economy']
   );
   const [selectedStyle, setSelectedStyle] = useState<VoicePreset>(
     effectiveEditing ? currentProfile.voicePreset : 'conversational'
   );
 
-  // Sync state if modal opens in edit mode
-  React.useEffect(() => {
+  // Sync state when modal opens in edit mode
+  useEffect(() => {
     if (isOpen) {
       setStep(1);
       if (effectiveEditing) {
@@ -79,7 +93,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
       } else {
         setName('');
         setAgeRange('25-34');
-        setSelectedTopics(['economy', 'tech']);
+        setSelectedTopics(['tech', 'economy']);
         setSelectedStyle('conversational');
       }
     }
@@ -97,7 +111,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = name.trim() || 'Reader';
 
@@ -110,26 +124,31 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
     onClose();
   };
 
+  const primaryTopic = selectedTopics[0] || 'tech';
+  const primaryTopicInfo = TOPICS.find((t) => t.id === primaryTopic) || TOPICS[0];
+  const activeStyleInfo = STYLES.find((s) => s.id === selectedStyle) || STYLES[1];
+  const activeAgeInfo = AGE_OPTIONS.find((a) => a.id === ageRange) || AGE_OPTIONS[3];
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/45 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-[#ffffff] rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-[#e9e3da] animate-paper-fade text-[#1e1b18]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-[#faf7f2] rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-[#e4dcd3] animate-paper-fade text-[#1e1b18]">
         {/* Onboarding Header Banner */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f7ebe8] text-[#b9533f] rounded-full text-xs font-semibold tracking-wider uppercase mb-2 border border-[#faecea]">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f5e6e1] text-[#963f2e] rounded-full text-xs font-semibold tracking-wider uppercase mb-2 border border-[#e8cecb]">
+            <Sparkles className="w-3.5 h-3.5 text-[#b9533f]" />
             <span>{effectiveEditing ? 'Customize Reader Setup' : 'Welcome to Curio Dispatch'}</span>
           </div>
           <h2 className="font-masthead text-2xl sm:text-3xl font-bold text-[#1e1b18]">
             {effectiveEditing ? 'Update Your Reading Preferences' : 'Your Personal Daily Newspaper'}
           </h2>
-          <p className="font-serif-editorial italic text-xs sm:text-sm text-[#57524b] mt-1">
-            Let’s craft a calm, curated edition tailored precisely to you in 30 seconds.
+          <p className="font-serif-editorial italic text-xs sm:text-sm text-[#5c5449] mt-1">
+            A calm, distraction-free morning broadsheet synthesized in your preferred voice.
           </p>
         </div>
 
-        {/* Step Progression Indicators */}
+        {/* 5-Step Progression Indicators */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          {[1, 2, 3, 4].map((s) => (
+          {[1, 2, 3, 4, 5].map((s) => (
             <div
               key={s}
               className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -137,39 +156,39 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                   ? 'w-8 bg-[#b9533f]'
                   : step > s
                   ? 'w-4 bg-[#4e6c58]'
-                  : 'w-4 bg-[#e9e3da]'
+                  : 'w-4 bg-[#ded4c7]'
               }`}
             />
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleFinish} className="space-y-6">
           {/* STEP 1: NAME */}
           {step === 1 && (
             <div className="space-y-4 animate-paper-fade">
               <div>
                 <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
-                  What should we call you?
+                  1. What should we call you?
                 </label>
-                <p className="text-xs text-[#57524b] mb-3">
+                <p className="text-xs text-[#5c5449] mb-3">
                   This will be printed on your morning broadsheet masthead (e.g. <em>“Aarav’s Daily Briefing”</em>).
                 </p>
                 <div className="relative">
-                  <User className="w-5 h-5 absolute left-3.5 top-3 text-[#8a837a]" />
+                  <User className="w-5 h-5 absolute left-3.5 top-3.5 text-[#8f887d]" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name or nickname (e.g. Aarav Sharma)"
-                    className="w-full pl-11 pr-4 py-3 bg-[#faf7f2] border border-[#e9e3da] rounded-2xl text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-[#b9533f] focus:bg-white transition-all"
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-[#cbbfb0] rounded-2xl text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-[#b9533f] transition-all"
                     autoFocus
                     required
                   />
                 </div>
               </div>
 
-              <div className="p-3.5 bg-[#f8f1ec] rounded-2xl border border-[#faecea] text-xs text-[#57524b] leading-relaxed">
-                🔒 <strong>Device-only profile:</strong> No password or email needed. Your preferences are saved exclusively on this browser.
+              <div className="p-3.5 bg-[#fbf5ee] rounded-2xl border border-[#ecdacb] text-xs text-[#5c5449] leading-relaxed">
+                🔒 <strong>On-Device Profile:</strong> No passwords, emails, or tracking. Stored purely inside your browser’s LocalStorage.
               </div>
 
               <div className="flex justify-end pt-2">
@@ -177,10 +196,10 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                   type="button"
                   onClick={() => setStep(2)}
                   disabled={!name.trim()}
-                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963d2b] disabled:opacity-40 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963f2e] disabled:opacity-40 text-[#faf7f2] rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <span>Continue</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -191,14 +210,14 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
             <div className="space-y-4 animate-paper-fade">
               <div>
                 <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
-                  Choose your age range
+                  2. What is your age range?
                 </label>
-                <p className="text-xs text-[#57524b] mb-3">
-                  Used solely to adapt storytelling analogies and reading complexity — never shared.
+                <p className="text-xs text-[#5c5449] mb-3">
+                  Used strictly to calibrate vocabulary complexity and real-world analogies (e.g., student vs. career vs. macro).
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
                 {AGE_OPTIONS.map((opt) => {
                   const isSelected = ageRange === opt.id;
                   return (
@@ -206,19 +225,17 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                       key={opt.id}
                       type="button"
                       onClick={() => setAgeRange(opt.id)}
-                      className={`p-3 text-left rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-[#b9533f] bg-[#f7ebe8] ring-1 ring-[#b9533f] shadow-xs'
-                          : 'border-[#e9e3da] hover:border-[#d68175] bg-[#faf7f2] hover:bg-white'
+                          ? 'border-[#b9533f] bg-[#fbf0ec] ring-1 ring-[#b9533f] shadow-xs'
+                          : 'border-[#e4dcd3] bg-white hover:border-[#cbbfb0] hover:bg-[#fcf9f5]'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-xs text-[#1e1b18]">{opt.label}</span>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="font-bold text-xs sm:text-sm text-[#1e1b18]">{opt.label}</span>
                         {isSelected && <Check className="w-3.5 h-3.5 text-[#b9533f]" />}
                       </div>
-                      <span className="text-[11px] text-[#57524b] leading-tight font-serif-editorial">
-                        {opt.subtext}
-                      </span>
+                      <span className="text-[11px] text-[#6e685f] leading-tight block">{opt.subtext}</span>
                     </button>
                   );
                 })}
@@ -228,57 +245,58 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-4 py-2 text-xs font-semibold text-[#57524b] hover:text-[#1e1b18] cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963d2b] text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
-                  <span>Select Topics</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Continue</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: TOPICS */}
+          {/* STEP 3: TOPICS OF INTEREST */}
           {step === 3 && (
             <div className="space-y-4 animate-paper-fade">
               <div>
                 <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
-                  Which topics do you want to follow?
+                  3. Which subjects do you want on your front page?
                 </label>
-                <p className="text-xs text-[#57524b] mb-3">
-                  Select at least one. We’ll curate your morning broadsheet from these categories.
+                <p className="text-xs text-[#5c5449] mb-3">
+                  Choose the sections that matter most. Each story will show a personalized “Because you follow...” tag.
                 </p>
               </div>
 
               <div className="space-y-2">
-                {TOPICS.map((t) => {
-                  const isChecked = selectedTopics.includes(t.id);
+                {TOPICS.map((topic) => {
+                  const isChecked = selectedTopics.includes(topic.id);
                   return (
                     <div
-                      key={t.id}
-                      onClick={() => handleToggleTopic(t.id)}
-                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                      key={topic.id}
+                      onClick={() => handleToggleTopic(topic.id)}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         isChecked
-                          ? 'border-[#b9533f] bg-[#f7ebe8]/70 shadow-xs'
-                          : 'border-[#e9e3da] bg-[#faf7f2] hover:bg-white'
+                          ? 'border-[#b9533f] bg-[#fbf0ec] shadow-xs'
+                          : 'border-[#e4dcd3] bg-white hover:border-[#cbbfb0]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{t.icon}</span>
+                        <span className="text-xl">{topic.icon}</span>
                         <div>
-                          <div className="text-xs font-bold text-[#1e1b18]">{t.title}</div>
-                          <div className="text-[11px] text-[#57524b] font-serif-editorial">{t.desc}</div>
+                          <div className="font-bold text-xs sm:text-sm text-[#1e1b18]">{topic.title}</div>
+                          <div className="text-[11px] text-[#6e685f]">{topic.desc}</div>
                         </div>
                       </div>
+
                       <div
                         className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
-                          isChecked ? 'bg-[#b9533f] text-white' : 'border border-[#d6cdc4] bg-white'
+                          isChecked ? 'bg-[#b9533f] text-white' : 'border border-[#cbbfb0] bg-white'
                         }`}
                       >
                         {isChecked && <Check className="w-3.5 h-3.5 stroke-3" />}
@@ -292,7 +310,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-4 py-2 text-xs font-semibold text-[#57524b] hover:text-[#1e1b18] cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
                 >
                   Back
                 </button>
@@ -300,10 +318,10 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                   type="button"
                   onClick={() => setStep(4)}
                   disabled={selectedTopics.length === 0}
-                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963d2b] disabled:opacity-40 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963f2e] disabled:opacity-40 text-[#faf7f2] rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
-                  <span>Choose Explanation Voice</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Continue</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -314,9 +332,9 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
             <div className="space-y-4 animate-paper-fade">
               <div>
                 <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
-                  How should we explain stories to you?
+                  4. How would you like stories explained?
                 </label>
-                <p className="text-xs text-[#57524b] mb-3">
+                <p className="text-xs text-[#5c5449] mb-3">
                   Every article can be translated into this conversational narrative style on demand.
                 </p>
               </div>
@@ -330,17 +348,17 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                       onClick={() => setSelectedStyle(st.id)}
                       className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
                         isSelected
-                          ? 'border-[#b9533f] bg-[#f7ebe8] ring-1 ring-[#b9533f] shadow-xs'
-                          : 'border-[#e9e3da] bg-[#faf7f2] hover:bg-white'
+                          ? 'border-[#b9533f] bg-[#fbf0ec] ring-1 ring-[#b9533f] shadow-xs'
+                          : 'border-[#e4dcd3] bg-white hover:border-[#cbbfb0]'
                       }`}
                     >
-                      <div className="p-2 rounded-xl bg-white shadow-xs">{st.icon}</div>
+                      <div className="p-2 rounded-xl bg-[#faf7f2] shadow-xs">{st.icon}</div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-0.5">
-                          <span className="font-bold text-xs text-[#1e1b18]">{st.title}</span>
+                          <span className="font-bold text-xs sm:text-sm text-[#1e1b18]">{st.title}</span>
                           {isSelected && <span className="text-[10px] font-bold text-[#b9533f]">Selected</span>}
                         </div>
-                        <p className="text-xs text-[#57524b] leading-relaxed font-serif-editorial">
+                        <p className="text-xs text-[#5c5449] leading-relaxed font-serif-editorial">
                           {st.desc}
                         </p>
                       </div>
@@ -349,20 +367,126 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                 })}
               </div>
 
-              <div className="flex justify-between items-center pt-3 border-t border-[#e9e3da]">
+              <div className="flex justify-between items-center pt-2">
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="px-4 py-2 text-xs font-semibold text-[#57524b] hover:text-[#1e1b18] cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
                 >
                   Back
                 </button>
                 <button
-                  type="submit"
-                  className="px-6 py-3 bg-[#b9533f] hover:bg-[#963d2b] text-white rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all transform active:scale-98 cursor-pointer"
+                  type="button"
+                  onClick={() => setStep(5)}
+                  className="px-6 py-2.5 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-white" />
-                  <span>{effectiveEditing ? 'Save My Preferences' : 'Launch My Daily Broadsheet 🗞️'}</span>
+                  <span>Preview Broadsheet</span>
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: LIVE NEWSPAPER PREVIEW (Special First-Visit Preview) */}
+          {step === 5 && (
+            <div className="space-y-5 animate-paper-fade">
+              <div>
+                <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
+                  5. Preview Your Personal Newspaper
+                </label>
+                <p className="text-xs text-[#5c5449]">
+                  Here is how your morning edition broadsheet looks before you step inside:
+                </p>
+              </div>
+
+              {/* Broadsheet Miniature Preview Container */}
+              <div className="bg-[#ffffff] border-2 border-[#1e1b18] rounded-2xl p-5 shadow-md space-y-4">
+                {/* Miniature Masthead */}
+                <div className="border-b-2 border-[#1e1b18] pb-3 text-center">
+                  <div className="flex items-center justify-between text-[10px] font-mono-meta text-[#6e685f] uppercase tracking-wider mb-1">
+                    <span>VOL. I — NO. 42</span>
+                    <span>OCTOBER 28, 2026</span>
+                    <span className="text-[#4e6c58] font-bold">● MORNING EDITION</span>
+                  </div>
+
+                  <h3 className="font-masthead text-xl sm:text-2xl font-bold text-[#1e1b18]">
+                    {name.trim() ? `${name.trim()}'s Daily Briefing` : "Your Daily Briefing"}
+                  </h3>
+                  <p className="font-serif-editorial italic text-xs text-[#5c5449]">
+                    Curated for {name.trim() || 'Reader'} • Calibrated for {activeAgeInfo.label} • {activeStyleInfo.title}
+                  </p>
+                </div>
+
+                {/* Setup Summary Tags */}
+                <div className="flex flex-wrap items-center gap-1.5 justify-center py-1">
+                  {selectedTopics.map((t) => {
+                    const top = TOPICS.find((item) => item.id === t);
+                    return (
+                      <span
+                        key={t}
+                        className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#faf7f2] text-[#1e1b18] border border-[#d8ccc0]"
+                      >
+                        {top?.title || t}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Sample Story Card Inside Preview */}
+                <div className="bg-[#faf7f2] p-3.5 rounded-xl border border-[#e4dcd3] text-left">
+                  <div className="flex items-center justify-between text-[10px] font-mono-meta mb-1.5">
+                    <span className="font-bold text-[#3b5744] bg-[#edf2ee] px-2 py-0.5 rounded-full border border-[#cbe0d0] flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5 text-[#4e6c58]" />
+                      <span>Because you follow {primaryTopicInfo.title}</span>
+                    </span>
+                    <span className="text-[#8f887d]">Verified Demo Story</span>
+                  </div>
+
+                  <h4 className="font-serif-editorial font-bold text-sm text-[#1e1b18] mb-1">
+                    {primaryTopic === 'tech'
+                      ? 'ISRO Completes Critical Autonomous Docking Test for Space Station'
+                      : 'RBI Signals Measured Liquidity Path as Core Inflation Moderates to 3.8%'}
+                  </h4>
+
+                  <p className="font-serif-editorial text-xs text-[#5c5449] mb-2">
+                    {primaryTopic === 'tech'
+                      ? 'Miniaturized test craft achieve sub-millimeter latching alignment in orbit.'
+                      : 'Monetary Policy Committee maintains neutral stance with room for selective growth.'}
+                  </p>
+
+                  {/* 3-part narrative sample preview */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-[#e8dacd] text-[10px]">
+                    <div className="p-1.5 rounded-lg bg-white border border-[#ece4dc]">
+                      <strong className="text-[#b9533f] block">1. What happened?</strong>
+                      <span className="text-[#6e685f] text-[9px]">Grounded facts</span>
+                    </div>
+                    <div className="p-1.5 rounded-lg bg-white border border-[#ece4dc]">
+                      <strong className="text-[#4e6c58] block">2. Why it matters</strong>
+                      <span className="text-[#6e685f] text-[9px]">Tailored to you</span>
+                    </div>
+                    <div className="p-1.5 rounded-lg bg-white border border-[#ece4dc]">
+                      <strong className="text-[#7c5e3f] block">3. What is next?</strong>
+                      <span className="text-[#6e685f] text-[9px]">Future outlook</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="flex justify-between items-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(4)}
+                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
+                >
+                  Adjust Choices
+                </button>
+                <button
+                  type="submit"
+                  className="px-7 py-3 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all transform active:scale-98 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 text-[#fcdcd4]" />
+                  <span>{effectiveEditing ? 'Save My Preferences' : 'Enter My Newspaper 🗞️'}</span>
                 </button>
               </div>
             </div>

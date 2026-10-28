@@ -1,6 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
-import { RefreshCw, Users, Mic, Sparkles, SlidersHorizontal, Check } from 'lucide-react';
+import {
+  RefreshCw,
+  Users,
+  Mic,
+  Sparkles,
+  SlidersHorizontal,
+  Check,
+  RotateCcw,
+  BookOpen,
+  Sparkle,
+  Gauge
+} from 'lucide-react';
 
 interface MastheadProps {
   onRefresh: () => void;
@@ -11,6 +22,8 @@ interface MastheadProps {
   onEditSetup: () => void;
   refreshedAt: string;
   isLiveFeed: boolean;
+  totalStoriesCount: number;
+  readStoriesCount: number;
 }
 
 export const Masthead: React.FC<MastheadProps> = ({
@@ -22,8 +35,11 @@ export const Masthead: React.FC<MastheadProps> = ({
   onEditSetup,
   refreshedAt,
   isLiveFeed,
+  totalStoriesCount,
+  readStoriesCount,
 }) => {
-  const { currentProfile } = useProfile();
+  const { currentProfile, reducedMotion, toggleReducedMotion, resetAllPreferences } = useProfile();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
@@ -47,11 +63,18 @@ export const Masthead: React.FC<MastheadProps> = ({
     storyteller: 'Storyteller',
   };
 
+  const percentage = totalStoriesCount > 0 ? Math.round((readStoriesCount / totalStoriesCount) * 100) : 0;
+
+  const handleReset = () => {
+    resetAllPreferences();
+    setShowResetConfirm(false);
+  };
+
   return (
     <header className="border-double-bottom pb-6 mb-8 pt-4">
-      {/* Returning Reader Welcome & Continuity Bar */}
-      <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-xl px-4 py-2.5 mb-4 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-[#3a332a]">
+      {/* Returning Reader Welcome & Continuity Ribbon */}
+      <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-2xl px-4 py-3 mb-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#3a332a]">
           <span className="w-5 h-5 rounded-full bg-[#4e6c58] text-white flex items-center justify-center font-bold text-[10px]">
             <Check className="w-3 h-3" />
           </span>
@@ -68,10 +91,10 @@ export const Masthead: React.FC<MastheadProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           <button
             onClick={onEditSetup}
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-[#faf7f2] text-[#1e1b18] font-medium rounded-lg border border-[#d8ccc0] shadow-2xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-[#faf7f2] text-[#1e1b18] font-semibold rounded-xl border border-[#d8ccc0] shadow-2xs transition-colors cursor-pointer"
             title="Edit your name, age range, topics, and voice choices"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-[#b9533f]" />
@@ -80,28 +103,101 @@ export const Masthead: React.FC<MastheadProps> = ({
 
           <button
             onClick={onOpenProfiles}
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#ede4da] hover:bg-[#e2d7cb] text-[#3a332a] font-medium rounded-lg transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ede4da] hover:bg-[#e2d7cb] text-[#3a332a] font-semibold rounded-xl transition-colors cursor-pointer"
             title="Switch reader profile"
           >
             <Users className="w-3.5 h-3.5 text-[#6e685f]" />
             <span>Switch Reader</span>
           </button>
+
+          {!showResetConfirm ? (
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] text-[#8f887d] hover:text-[#b9533f] transition-colors cursor-pointer"
+              title="Reset preferences and restart welcome setup"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
+            </button>
+          ) : (
+            <div className="inline-flex items-center gap-1 bg-white border border-[#b9533f] px-2 py-1 rounded-lg text-[11px] animate-paper-fade">
+              <span className="text-[#b9533f] font-semibold">Reset all?</span>
+              <button
+                onClick={handleReset}
+                className="px-1.5 py-0.5 bg-[#b9533f] text-white rounded font-bold cursor-pointer hover:bg-[#963f2e]"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="px-1.5 py-0.5 text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Daily Reading Progress Indicator */}
+      <div className="bg-[#faf6f0] border border-[#e2d5c7] rounded-xl px-4 py-2.5 mb-4 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-4 h-4 text-[#4e6c58]" />
+          <span className="font-semibold text-[#1e1b18]">
+            Today's Reading Progress:
+          </span>
+          <span className="text-[#5c5449] font-mono-meta">
+            {readStoriesCount} of {totalStoriesCount} stories read ({percentage}%)
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* Visual progress bar */}
+          <div className="w-full sm:w-48 h-2 bg-[#e8ded5] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#4e6c58] transition-all duration-500 rounded-full"
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+
+          {percentage === 100 && (
+            <span className="text-[11px] font-bold text-[#3b5744] bg-[#edf2ee] px-2 py-0.5 rounded-full whitespace-nowrap animate-paper-fade">
+              ✨ Caught up!
+            </span>
+          )}
         </div>
       </div>
 
       {/* Top Utility Ribbon */}
       <div className="flex flex-wrap items-center justify-between text-xs text-[#6e685f] border-b border-[#e4dcd3] pb-2 mb-4 font-mono-meta tracking-wider uppercase">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="font-semibold text-[#1e1b18]">VOL. I — NO. 42</span>
-          <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline text-[#1e1b18] font-semibold">{todayFormatted}</span>
+          <span>•</span>
+          <span className="text-[#1e1b18] font-semibold">{todayFormatted}</span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Reduced Motion Toggle */}
+          <button
+            onClick={toggleReducedMotion}
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] transition-colors cursor-pointer ${
+              reducedMotion
+                ? 'bg-[#1e1b18] text-[#faf7f2] border-[#1e1b18]'
+                : 'bg-white text-[#6e685f] border-[#d8ccc0] hover:border-[#1e1b18]'
+            }`}
+            title="Toggle reduced motion animations for smoother low-movement reading"
+          >
+            <Gauge className="w-3 h-3" />
+            <span>Motion: {reducedMotion ? 'Reduced' : 'Full'}</span>
+          </button>
+
+          <span>•</span>
+
           <span className="flex items-center gap-1.5 text-[#4e6c58] font-medium">
             <span className="w-2 h-2 rounded-full bg-[#4e6c58] animate-pulse"></span>
             {isLiveFeed ? 'Live RSS Syndication' : 'Morning Edition Snapshot'}
           </span>
+
           <span>•</span>
           <span className="text-[#8f887d]">Refreshed: {refreshedAt}</span>
         </div>

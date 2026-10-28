@@ -14,6 +14,7 @@ export const SAMPLE_STORIES: Story[] = [
     readingMinutes: 3,
     isLeadStory: true,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Markets & Economy',
   },
   {
     id: 'story-2',
@@ -27,6 +28,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'tech',
     readingMinutes: 4,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Technology & AI',
   },
   {
     id: 'story-3',
@@ -40,6 +42,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'policy',
     readingMinutes: 3,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Policy & Governance',
   },
   {
     id: 'story-4',
@@ -53,6 +56,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'tech',
     readingMinutes: 3,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Technology & AI',
   },
   {
     id: 'story-5',
@@ -66,6 +70,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'economy',
     readingMinutes: 4,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Markets & Economy',
   },
   {
     id: 'story-6',
@@ -79,6 +84,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'climate',
     readingMinutes: 3,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Climate & Energy',
   },
   {
     id: 'story-7',
@@ -92,6 +98,7 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'world',
     readingMinutes: 4,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow World Intelligence',
   },
   {
     id: 'story-8',
@@ -105,5 +112,6 @@ export const SAMPLE_STORIES: Story[] = [
     category: 'policy',
     readingMinutes: 3,
     sourceMode: 'snapshot',
+    curatedReason: 'Because you follow Policy & Governance',
   }
 ];

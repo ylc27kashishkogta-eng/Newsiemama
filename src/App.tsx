@@ -15,7 +15,7 @@ import { Newspaper } from 'lucide-react';
 
 const NewspaperApp: React.FC = () => {
   const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
-  const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all'>('all');
+  const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all' | 'saved'>('all');
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -83,10 +83,16 @@ const NewspaperApp: React.FC = () => {
     }
   };
 
-  // Filter stories by current topic selection
+  // Filter stories by current topic selection (including 'saved' for later)
   const filteredStories = selectedTopic === 'all'
     ? stories
+    : selectedTopic === 'saved'
+    ? stories.filter((s) => (currentProfile.savedArticleIds || []).includes(s.id))
     : stories.filter((s) => s.category === selectedTopic);
+
+  const totalStoriesCount = stories.length;
+  const readStoriesCount = stories.filter((s) => (currentProfile.readStoryIds || []).includes(s.id)).length;
+  const savedStoriesCount = (currentProfile.savedArticleIds || []).length;
 
   return (
     <div className="min-h-screen bg-[#faf7f2] text-[#1e1b18] flex flex-col justify-between selection:bg-[#f5e6e1] selection:text-[#963f2e]">
@@ -104,6 +110,8 @@ const NewspaperApp: React.FC = () => {
           }}
           refreshedAt={refreshedAt}
           isLiveFeed={isLiveFeed}
+          totalStoriesCount={totalStoriesCount}
+          readStoriesCount={readStoriesCount}
         />
 
         {/* Topic Filter Ribbon & Customizer */}
@@ -111,7 +119,8 @@ const NewspaperApp: React.FC = () => {
           selectedTopic={selectedTopic}
           onSelectTopic={setSelectedTopic}
           availableTopics={currentProfile.topics}
-          totalStoriesCount={stories.length}
+          totalStoriesCount={totalStoriesCount}
+          savedStoriesCount={savedStoriesCount}
           onOpenCustomizeTopics={() => setIsCustomizeTopicsOpen(true)}
         />
 

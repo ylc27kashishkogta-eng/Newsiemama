@@ -36,6 +36,9 @@ export interface ReaderProfile {
   voicePreset: VoicePreset;
   customVoice?: CustomVoiceProfile;
   savedArticleIds: string[];
+  readStoryIds: string[];
+  likedStoryIds: string[];
+  dislikedStoryIds: string[];
   createdAt: string;
   hasCompletedWelcome?: boolean;
 }
@@ -54,6 +57,7 @@ export interface Story {
   imageUrl?: string;
   isLeadStory?: boolean;
   sourceMode: 'rss' | 'snapshot';
+  curatedReason?: string;
 }
 
 export interface VisualExplainerItem {
@@ -81,6 +85,7 @@ export interface StoryExplanation {
   activePreset: VoicePreset;
   isCustomVoiced: boolean;
   ageAdaptedNote?: string;
+  predictionDisclaimer?: string;
 }
 
 export interface EditionMetadata {

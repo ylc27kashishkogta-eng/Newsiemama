@@ -58,6 +58,7 @@ export const toneEngine = {
         activePreset: preset,
         isCustomVoiced: isCustom,
         ageAdaptedNote,
+        predictionDisclaimer: 'Exploratory forward scenario based on current reporting. Not a guaranteed outcome or prediction.',
       };
     }
 
@@ -103,6 +104,7 @@ export const toneEngine = {
         activePreset: 'executive',
         isCustomVoiced: isCustom,
         ageAdaptedNote,
+        predictionDisclaimer: 'Exploratory forward scenario based on current reporting. Not a guaranteed outcome.',
       };
     }
 
@@ -124,6 +126,7 @@ export const toneEngine = {
         activePreset: 'storyteller',
         isCustomVoiced: isCustom,
         ageAdaptedNote,
+        predictionDisclaimer: 'Exploratory forward scenario based on current reporting. Not a guaranteed outcome.',
       };
     }
 
@@ -145,6 +148,7 @@ export const toneEngine = {
       activePreset: 'conversational',
       isCustomVoiced: isCustom,
       ageAdaptedNote,
+      predictionDisclaimer: 'Exploratory forward scenario based on current reporting. Not a guaranteed outcome.',
     };
   }
 };

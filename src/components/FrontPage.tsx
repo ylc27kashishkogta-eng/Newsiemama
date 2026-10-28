@@ -3,7 +3,7 @@ import { Story, VoicePreset } from '../types';
 import { LeadStoryCard } from './LeadStoryCard';
 import { StoryCard } from './StoryCard';
 import { QuickTicker } from './QuickTicker';
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Bookmark } from 'lucide-react';
 
 interface FrontPageProps {
   stories: Story[];
@@ -24,10 +24,11 @@ export const FrontPage: React.FC<FrontPageProps> = ({
 }) => {
   if (stories.length === 0) {
     return (
-      <div className="bg-[#ffffff] rounded-2xl border border-[#e4dcd3] p-12 text-center my-8">
-        <h3 className="font-serif-editorial text-xl font-bold text-[#1e1b18] mb-2">No Stories Matching Selected Topics</h3>
+      <div className="bg-[#ffffff] rounded-2xl border border-[#e4dcd3] p-12 text-center my-8 animate-paper-fade">
+        <Bookmark className="w-8 h-8 text-[#b9533f] mx-auto mb-3 opacity-60" />
+        <h3 className="font-serif-editorial text-xl font-bold text-[#1e1b18] mb-2">No Stories in This View</h3>
         <p className="text-sm text-[#6e685f] max-w-md mx-auto">
-          Try selecting additional topics above or click "Refresh Edition" in the masthead to poll for latest news updates.
+          If you selected Saved Stories, bookmark any article across your edition to read it here. Otherwise, try selecting All Topics above.
         </p>
       </div>
     );

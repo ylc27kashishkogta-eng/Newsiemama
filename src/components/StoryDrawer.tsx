@@ -17,7 +17,12 @@ import {
   Clock,
   Layers,
   Lightbulb,
-  ShieldCheck
+  ShieldCheck,
+  ThumbsUp,
+  ThumbsDown,
+  Info,
+  Radio,
+  FileText
 } from 'lucide-react';
 
 interface StoryDrawerProps {
@@ -26,12 +31,29 @@ interface StoryDrawerProps {
 }
 
 export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
-  const { currentProfile, toggleSaveArticle, isArticleSaved, setVoicePreset } = useProfile();
+  const {
+    currentProfile,
+    toggleSaveArticle,
+    isArticleSaved,
+    setVoicePreset,
+    markArticleAsRead,
+    toggleStoryFeedback,
+    getStoryFeedback,
+  } = useProfile();
+
   const [activePreset, setActivePreset] = useState<VoicePreset>(currentProfile.voicePreset);
   const [explanation, setExplanation] = useState<StoryExplanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDefaultSavedNotice, setIsDefaultSavedNotice] = useState(false);
   const [isEasyReadingMode, setIsEasyReadingMode] = useState(false);
+  const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
+
+  // Mark article as read whenever opened
+  useEffect(() => {
+    if (story) {
+      markArticleAsRead(story.id);
+    }
+  }, [story]);
 
   // Sync preset when story or profile changes
   useEffect(() => {
@@ -77,11 +99,21 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
   if (!story) return null;
 
   const isSaved = isArticleSaved(story.id);
+  const feedback = getStoryFeedback(story.id);
 
   const handleSetAsDefault = () => {
     setVoicePreset(activePreset);
     setIsDefaultSavedNotice(true);
     setTimeout(() => setIsDefaultSavedNotice(false), 2000);
+  };
+
+  const handleFeedback = (type: 'more' | 'less') => {
+    toggleStoryFeedback(story.id, type);
+    const msg = type === 'more' 
+      ? "Got it! We'll prioritize stories like this in your edition." 
+      : "Understood. We'll downrank stories like this in future editions.";
+    setFeedbackNotice(msg);
+    setTimeout(() => setFeedbackNotice(null), 3000);
   };
 
   return (
@@ -94,7 +126,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
         <div>
           {/* Drawer Top Navigation Bar */}
           <div className="sticky top-0 bg-[#faf7f2]/95 backdrop-blur-md z-10 border-b border-[#e4dcd3] px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono-meta text-xs font-bold uppercase tracking-wider text-[#b9533f] bg-[#f5e6e1] px-2.5 py-0.5 rounded-full border border-[#e8cecb]">
                 {story.category}
               </span>
@@ -106,7 +138,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               <button
                 onClick={() => toggleSaveArticle(story.id)}
                 className="p-2 text-[#6e685f] hover:text-[#1e1b18] hover:bg-[#ede5dc] transition-colors rounded-lg cursor-pointer"
-                title={isSaved ? 'Saved to reading list' : 'Save article'}
+                title={isSaved ? 'Saved to reading list' : 'Save article for later'}
               >
                 {isSaved ? <BookmarkCheck className="w-5 h-5 text-[#b9533f]" /> : <Bookmark className="w-5 h-5" />}
               </button>
@@ -121,6 +153,27 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
           </div>
 
           <div className="p-6 sm:p-8">
+            {/* Why This Story is in Your Edition (Personalization Transparency) */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#edf2ee] text-[#3b5744] border border-[#cbe0d0]">
+                <Sparkles className="w-3.5 h-3.5 text-[#4e6c58]" />
+                <span>{story.curatedReason || `Because you follow ${story.category}`}</span>
+              </span>
+
+              {/* Source Mode Trust Indicator */}
+              {story.sourceMode === 'rss' ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2d6a4f] bg-[#e8f5e9] px-2.5 py-0.5 rounded-full border border-[#c8e6c9]">
+                  <Radio className="w-3 h-3 text-[#2d6a4f] animate-pulse" />
+                  <span>Live RSS Feed</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#7c5e3f] bg-[#fbf2e3] px-2.5 py-0.5 rounded-full border border-[#edd8be]">
+                  <FileText className="w-3 h-3 text-[#7c5e3f]" />
+                  <span>Bundled Demo Story</span>
+                </span>
+              )}
+            </div>
+
             {/* Story Title & Deck */}
             <h2 className="font-serif-editorial text-2xl sm:text-3xl font-extrabold text-[#1e1b18] leading-snug mb-3">
               {story.title}
@@ -131,7 +184,6 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
             {/* Reading Mode Selector & Tone Switcher */}
             <div className="bg-[#f0e8df] p-3 rounded-2xl mb-6 border border-[#e2d7cc] space-y-3">
-              {/* Tone selection buttons */}
               <div>
                 <div className="flex items-center justify-between mb-1.5 px-1">
                   <span className="text-xs font-mono-meta uppercase tracking-wider text-[#6e685f] font-bold">
@@ -219,7 +271,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                   </span>
                   <div>
                     <h3 className="font-serif-editorial font-bold text-sm text-[#1e1b18]">
-                      {currentProfile.name.split(' ')[0]}’s Guided Narrative
+                      {currentProfile.name.split(' ')[0]}’s Storytelling Narrative
                     </h3>
                     <p className="text-[11px] text-[#8f887d]">
                       {isEasyReadingMode ? 'Plain language & short sections active' : `${activePreset} storytelling format`}
@@ -265,22 +317,22 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                   )}
 
                   {/* 1. What Happened? */}
-                  <div className="bg-[#faf7f2] p-4 rounded-xl border border-[#ede5dc]">
+                  <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b9533f] mb-1.5 font-mono-meta">
                       <HelpCircle className="w-4 h-4" />
-                      <span>1. What Happened?</span>
+                      <span>1. What happened?</span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
                       {explanation.whatHappened}
                     </p>
                   </div>
 
-                  {/* 2. Why Does It Matter? */}
+                  {/* 2. Why It Matters To You */}
                   {explanation.whyItMatters && explanation.whyItMatters.length > 0 && (
-                    <div className="bg-[#faf7f2] p-4 rounded-xl border border-[#ede5dc]">
+                    <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
                       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#4e6c58] mb-2 font-mono-meta">
                         <TrendingUp className="w-4 h-4" />
-                        <span>2. Why Does It Matter?</span>
+                        <span>2. Why it matters to you</span>
                       </div>
                       <ul className="space-y-2">
                         {explanation.whyItMatters.map((point, i) => (
@@ -293,19 +345,27 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </div>
                   )}
 
-                  {/* 3. What Could Happen Next? */}
-                  <div className="bg-[#faf7f2] p-4 rounded-xl border border-[#ede5dc]">
+                  {/* 3. What Might Happen Next? */}
+                  <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#7c5e3f] mb-1.5 font-mono-meta">
                       <ArrowRight className="w-4 h-4" />
-                      <span>3. What Could Happen Next?</span>
+                      <span>3. What might happen next?</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
+                    <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial mb-3">
                       {explanation.whatCouldHappenNext}
                     </p>
+
+                    {/* Trust and Prediction Guard Disclaimer */}
+                    <div className="bg-[#fff9f4] border border-[#f0dcce] rounded-lg p-2.5 text-[11px] text-[#8a5d3b] flex items-center gap-2">
+                      <Info className="w-3.5 h-3.5 shrink-0 text-[#b9533f]" />
+                      <span>
+                        <strong>Exploratory Outlook:</strong> Scenarios reflect current verified facts. Not a guaranteed financial, legal, or policy prediction.
+                      </span>
+                    </div>
                   </div>
 
                   {/* 4. Simple Everyday Example or Analogy */}
-                  <div className="bg-[#fffdfa] p-4 rounded-xl border-2 border-dashed border-[#e4d5c5]">
+                  <div className="bg-[#fffdfa] p-4.5 rounded-xl border-2 border-dashed border-[#e4d5c5]">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b9533f] mb-1.5 font-mono-meta">
                       <Lightbulb className="w-4 h-4 text-[#c76550]" />
                       <span>Everyday Analogy</span>
@@ -315,7 +375,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </p>
                   </div>
 
-                  {/* Optional Visual Explainer Card (Steps, Timeline, Comparison) */}
+                  {/* Visual Explainer (Steps, Timeline, Comparison) */}
                   {explanation.visualExplainer && (
                     <div className="bg-[#faf6f0] border border-[#e2d5c7] rounded-xl p-4 sm:p-5">
                       <div className="flex items-center gap-2 mb-1">
@@ -366,7 +426,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </div>
                   )}
 
-                  {/* Bottom Line / Conversational Takeaway */}
+                  {/* Bottom Line Takeaway */}
                   {explanation.conversationalTakeaway && (
                     <div className="bg-[#fbf4eb] rounded-xl p-4 border border-[#e8dacb] text-xs sm:text-sm text-[#2d2720] leading-relaxed">
                       <strong className="text-[#963f2e] font-bold block mb-1 uppercase tracking-wider text-[11px] font-mono-meta">
@@ -377,6 +437,52 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                   )}
                 </div>
               ) : null}
+            </div>
+
+            {/* Shape the Edition: More like this / Less like this */}
+            <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-2xl p-4 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold text-[#1e1b18] block">
+                    Shape your future editions:
+                  </span>
+                  <span className="text-[11px] text-[#6e685f]">
+                    Help Curio Dispatch understand which topics matter most to you.
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleFeedback('more')}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                      feedback === 'more'
+                        ? 'bg-[#4e6c58] text-white border-[#4e6c58]'
+                        : 'bg-white text-[#4e6c58] border-[#cbe0d0] hover:bg-[#edf2ee]'
+                    }`}
+                  >
+                    <ThumbsUp className="w-3.5 h-3.5" />
+                    <span>More like this</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleFeedback('less')}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                      feedback === 'less'
+                        ? 'bg-[#b9533f] text-white border-[#b9533f]'
+                        : 'bg-white text-[#b9533f] border-[#f0d4ce] hover:bg-[#fbf0ec]'
+                    }`}
+                  >
+                    <ThumbsDown className="w-3.5 h-3.5" />
+                    <span>Less like this</span>
+                  </button>
+                </div>
+              </div>
+
+              {feedbackNotice && (
+                <div className="mt-2 text-center text-xs font-medium text-[#3b5744] bg-[#edf2ee] p-2 rounded-lg border border-[#cbe0d0] animate-paper-fade">
+                  {feedbackNotice}
+                </div>
+              )}
             </div>
 
             {/* Original Excerpt Section */}
