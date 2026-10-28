@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --paper: #fbf9f5;
+    --paper-card: #ffffff;
+    --ink: #18181b;
+    --ink-muted: #52525b;
+    --ink-faint: #a1a1aa;
+    --border-subtle: #e4e4e7;
+    --border-accent: #18181b;
+    --crimson: #991b1b;
+    --crimson-soft: #fef2f2;
+    --amber-soft: #fef3c7;
+    --font-serif: 'Newsreader', Georgia, serif;
+    --font-masthead: 'Cinzel', serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--paper);
+    color: var(--ink);
+  }
+
+  h1, h2, h3, .font-serif-editorial {
+    font-family: var(--font-serif);
+  }
+
+  .font-masthead {
+    font-family: var(--font-masthead);
+  }
+
+  .font-mono-meta {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Custom Tactical Newspaper Animations */
+@keyframes paperFade {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawerSlide {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-paper-fade {
+  animation: paperFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-drawer-slide {
+  animation: drawerSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-spin-once {
+  animation: spinSlow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Editorial column rules and borders */
+.border-double-bottom {
+  border-bottom: 3px double #18181b;
+}
+
+.border-double-top {
+  border-top: 3px double #18181b;
+}
+
+/* Custom slim scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
