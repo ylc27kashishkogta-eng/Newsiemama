@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Story, VoicePreset, StoryExplanation } from '../types';
 import { useProfile } from '../context/ProfileContext';
 import { toneEngine } from '../services/toneEngine';
-import { X, ExternalLink, Sparkles, CheckCircle2, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, ExternalLink, Sparkles, CheckCircle2, Bookmark, BookmarkCheck, Check } from 'lucide-react';
 
 interface StoryDrawerProps {
   story: Story | null;
@@ -10,15 +10,29 @@ interface StoryDrawerProps {
 }
 
 export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
-  const { currentProfile, toggleSaveArticle, isArticleSaved } = useProfile();
+  const { currentProfile, toggleSaveArticle, isArticleSaved, setVoicePreset } = useProfile();
   const [activePreset, setActivePreset] = useState<VoicePreset>(currentProfile.voicePreset);
   const [explanation, setExplanation] = useState<StoryExplanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDefaultSavedNotice, setIsDefaultSavedNotice] = useState(false);
 
+  // Sync preset when story or profile changes
   useEffect(() => {
     setActivePreset(currentProfile.voicePreset);
   }, [currentProfile.voicePreset, story]);
 
+  // Handle Escape key to dismiss
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (story) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [story, onClose]);
+
+  // Generate explanation whenever activePreset or story changes
   useEffect(() => {
     if (!story) return;
 
@@ -46,6 +60,12 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
   if (!story) return null;
 
   const isSaved = isArticleSaved(story.id);
+
+  const handleSetAsDefault = () => {
+    setVoicePreset(activePreset);
+    setIsDefaultSavedNotice(true);
+    setTimeout(() => setIsDefaultSavedNotice(false), 2000);
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end">
@@ -75,7 +95,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               <button
                 onClick={onClose}
                 className="p-1.5 text-zinc-400 hover:text-zinc-800 transition-colors rounded-lg cursor-pointer"
-                title="Close drawer"
+                title="Close drawer (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -92,25 +112,50 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </p>
 
             {/* Voice Tone Selector Tabs */}
-            <div className="bg-zinc-100 p-1 rounded-xl flex items-center justify-between mb-6">
-              {(['executive', 'conversational', 'storyteller'] as VoicePreset[]).map((preset) => {
-                const isActive = activePreset === preset;
-                return (
+            <div className="space-y-2 mb-6">
+              <div className="bg-zinc-100 p-1 rounded-xl flex items-center justify-between">
+                {(['executive', 'conversational', 'storyteller'] as VoicePreset[]).map((preset) => {
+                  const isActive = activePreset === preset;
+                  return (
+                    <button
+                      key={preset}
+                      onClick={() => setActivePreset(preset)}
+                      className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-white text-zinc-900 shadow-xs'
+                          : 'text-zinc-500 hover:text-zinc-900'
+                      }`}
+                    >
+                      {preset === 'executive' && 'Executive'}
+                      {preset === 'conversational' && 'Conversational'}
+                      {preset === 'storyteller' && 'Storyteller'}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Set as default voice option */}
+              <div className="flex items-center justify-between px-1 text-xs">
+                {activePreset !== currentProfile.voicePreset ? (
                   <button
-                    key={preset}
-                    onClick={() => setActivePreset(preset)}
-                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-white text-zinc-900 shadow-xs'
-                        : 'text-zinc-500 hover:text-zinc-900'
-                    }`}
+                    onClick={handleSetAsDefault}
+                    className="text-red-800 hover:text-red-950 font-semibold cursor-pointer flex items-center gap-1"
                   >
-                    {preset === 'executive' && 'Executive'}
-                    {preset === 'conversational' && 'Conversational'}
-                    {preset === 'storyteller' && 'Storyteller'}
+                    <span>Set {activePreset} as my default reading voice</span>
                   </button>
-                );
-              })}
+                ) : (
+                  <span className="text-zinc-400 text-[11px] font-mono-meta">
+                    Current default for {currentProfile.name.split(' ')[0]}
+                  </span>
+                )}
+
+                {isDefaultSavedNotice && (
+                  <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1 animate-paper-fade">
+                    <Check className="w-3 h-3" />
+                    <span>Saved as default!</span>
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Explanation Display Box */}
@@ -118,7 +163,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200 text-xs">
                 <span className="flex items-center gap-1.5 font-semibold text-red-800">
                   <Sparkles className="w-4 h-4 text-red-700" />
-                  <span>Aarav’s Explainer ({activePreset} mode)</span>
+                  <span>{currentProfile.name.split(' ')[0]}’s Explainer ({activePreset} mode)</span>
                 </span>
                 {explanation?.isCustomVoiced && (
                   <span className="text-[10px] bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full">

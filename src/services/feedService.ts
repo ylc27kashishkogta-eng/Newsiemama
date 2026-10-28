@@ -40,7 +40,7 @@ const PUBLIC_RSS_FEEDS: { category: TopicCategory; source: string; url: string }
 export const feedService = {
   /**
    * Fetches stories tailored to the reader's active topics.
-   * Resilient execution: Attempts live RSS via CORS proxy, immediately falling back
+   * Resilient execution: Attempts live RSS via CORS proxy on refresh, immediately falling back
    * to verified, pre-cached snapshot stories if offline or if external endpoints fail.
    */
   async getEditionStories(topics: TopicCategory[], forceRefresh: boolean = false): Promise<FeedResponse> {
@@ -54,11 +54,17 @@ export const feedService = {
       try {
         const liveStories = await this.tryFetchLiveRSS(activeTopics);
         if (liveStories.length > 0) {
+          // If live stories are fewer than 5, blend with relevant snapshot stories to maintain broadsheet balance
+          const matchingSnapshots = SAMPLE_STORIES.filter(
+            (s) => activeTopics.includes(s.category) && !liveStories.some((ls) => ls.title === s.title)
+          );
+          const blended = [...liveStories, ...matchingSnapshots].slice(0, 10);
+
           return {
-            stories: liveStories,
+            stories: blended,
             isLive: true,
             refreshedAt: timestamp,
-            sourceNote: 'Live RSS syndication feeds (Economic Times, Indian Express, Mint, BBC)',
+            sourceNote: `Live RSS syndication feeds (${liveStories.length} live items + verified broadsheet archive)`,
           };
         }
       } catch (err) {
@@ -90,7 +96,7 @@ export const feedService = {
     for (const feed of targetFeeds.slice(0, 2)) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const timeoutId = setTimeout(() => controller.abort(), 2200);
 
         // Using standard public CORS proxy
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`;

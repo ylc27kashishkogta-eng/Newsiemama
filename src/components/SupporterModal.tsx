@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface SupporterModalProps {
@@ -8,6 +8,17 @@ interface SupporterModalProps {
 
 export const SupporterModal: React.FC<SupporterModalProps> = ({ isOpen, onClose }) => {
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Handle Escape key to dismiss
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -21,7 +32,7 @@ export const SupporterModal: React.FC<SupporterModalProps> = ({ isOpen, onClose 
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-zinc-200">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-zinc-200 animate-paper-fade">
         <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-4">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 text-sm font-bold">
@@ -32,7 +43,7 @@ export const SupporterModal: React.FC<SupporterModalProps> = ({ isOpen, onClose 
               <p className="text-xs text-zinc-500 font-serif-editorial">Dodo Payments Integration (Target: Oct 31)</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 text-zinc-400 hover:text-zinc-700 cursor-pointer">
+          <button onClick={onClose} className="p-1 text-zinc-400 hover:text-zinc-700 cursor-pointer" title="Close (Esc)">
             <X className="w-5 h-5" />
           </button>
         </div>

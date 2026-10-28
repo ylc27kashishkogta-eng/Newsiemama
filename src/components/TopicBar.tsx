@@ -1,11 +1,13 @@
 import React from 'react';
 import { TopicCategory } from '../types';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface TopicBarProps {
   selectedTopic: TopicCategory | 'all';
   onSelectTopic: (topic: TopicCategory | 'all') => void;
   availableTopics: TopicCategory[];
   totalStoriesCount: number;
+  onOpenCustomizeTopics: () => void;
 }
 
 const TOPIC_LABELS: Record<TopicCategory, { label: string; badge: string }> = {
@@ -21,10 +23,11 @@ export const TopicBar: React.FC<TopicBarProps> = ({
   onSelectTopic,
   availableTopics,
   totalStoriesCount,
+  onOpenCustomizeTopics,
 }) => {
   return (
-    <div className="flex items-center justify-between border-b border-zinc-200 pb-3 mb-8 overflow-x-auto">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-3 mb-8">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={() => onSelectTopic('all')}
           className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
@@ -54,9 +57,19 @@ export const TopicBar: React.FC<TopicBarProps> = ({
             </button>
           );
         })}
+
+        {/* Customize Topics Pill */}
+        <button
+          onClick={onOpenCustomizeTopics}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-dashed border-zinc-300 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 hover:border-zinc-400 hover:text-zinc-900 transition-all cursor-pointer"
+          title="Add or remove topics for your personal edition"
+        >
+          <SlidersHorizontal className="w-3 h-3 text-red-800" />
+          <span>Customize Topics</span>
+        </button>
       </div>
 
-      <div className="hidden md:flex items-center text-xs text-zinc-400 italic font-serif-editorial">
+      <div className="hidden lg:flex items-center text-xs text-zinc-400 italic font-serif-editorial">
         Click any headline to open conversational voice synthesis
       </div>
     </div>

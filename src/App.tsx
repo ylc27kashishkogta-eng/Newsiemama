@@ -9,6 +9,7 @@ import { StoryDrawer } from './components/StoryDrawer';
 import { ProfileModal } from './components/ProfileModal';
 import { VoiceSettingsModal } from './components/VoiceSettingsModal';
 import { SupporterModal } from './components/SupporterModal';
+import { CustomizeTopicsModal } from './components/CustomizeTopicsModal';
 import { Newspaper } from 'lucide-react';
 
 const NewspaperApp: React.FC = () => {
@@ -21,11 +22,17 @@ const NewspaperApp: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isSupporterModalOpen, setIsSupporterModalOpen] = useState(false);
+  const [isCustomizeTopicsOpen, setIsCustomizeTopicsOpen] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState('06:30 AM');
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [sourceNote, setSourceNote] = useState('');
 
-  // Fetch stories on profile change or initial mount
+  // Reset topic filter to 'all' whenever active profile changes
+  useEffect(() => {
+    setSelectedTopic('all');
+  }, [currentProfile.id]);
+
+  // Fetch stories on profile topics change or profile switch
   useEffect(() => {
     let isCurrent = true;
     setIsLoading(true);
@@ -80,12 +87,13 @@ const NewspaperApp: React.FC = () => {
           isLiveFeed={isLiveFeed}
         />
 
-        {/* Topic Filter Ribbon */}
+        {/* Topic Filter Ribbon & Customizer */}
         <TopicBar
           selectedTopic={selectedTopic}
           onSelectTopic={setSelectedTopic}
           availableTopics={currentProfile.topics}
           totalStoriesCount={stories.length}
+          onOpenCustomizeTopics={() => setIsCustomizeTopicsOpen(true)}
         />
 
         {/* Main Broadsheet Front Page */}
@@ -123,6 +131,11 @@ const NewspaperApp: React.FC = () => {
       <VoiceSettingsModal
         isOpen={isVoiceModalOpen}
         onClose={() => setIsVoiceModalOpen(false)}
+      />
+
+      <CustomizeTopicsModal
+        isOpen={isCustomizeTopicsOpen}
+        onClose={() => setIsCustomizeTopicsOpen(false)}
       />
 
       <SupporterModal
