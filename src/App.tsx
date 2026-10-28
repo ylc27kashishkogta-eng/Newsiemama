@@ -10,22 +10,37 @@ import { ProfileModal } from './components/ProfileModal';
 import { VoiceSettingsModal } from './components/VoiceSettingsModal';
 import { SupporterModal } from './components/SupporterModal';
 import { CustomizeTopicsModal } from './components/CustomizeTopicsModal';
+import { WelcomeSetupModal } from './components/WelcomeSetupModal';
 import { Newspaper } from 'lucide-react';
 
 const NewspaperApp: React.FC = () => {
-  const { currentProfile, isArticleSaved, toggleSaveArticle } = useProfile();
+  const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
   const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all'>('all');
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeStory, setActiveStory] = useState<Story | null>(null);
+
+  // Modal visibility states
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
+  const [isWelcomeEditMode, setIsWelcomeEditMode] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isSupporterModalOpen, setIsSupporterModalOpen] = useState(false);
   const [isCustomizeTopicsOpen, setIsCustomizeTopicsOpen] = useState(false);
+
+  // Metadata states
   const [refreshedAt, setRefreshedAt] = useState('06:30 AM');
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [sourceNote, setSourceNote] = useState('');
+
+  // Check if first-time visitor needs welcome onboarding
+  useEffect(() => {
+    if (!hasCompletedOnboarding) {
+      setIsWelcomeModalOpen(true);
+      setIsWelcomeEditMode(false);
+    }
+  }, [hasCompletedOnboarding]);
 
   // Reset topic filter to 'all' whenever active profile changes
   useEffect(() => {
@@ -74,7 +89,7 @@ const NewspaperApp: React.FC = () => {
     : stories.filter((s) => s.category === selectedTopic);
 
   return (
-    <div className="min-h-screen bg-[#fbf9f5] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#faf7f2] text-[#1e1b18] flex flex-col justify-between selection:bg-[#f5e6e1] selection:text-[#963f2e]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-4">
         {/* Newspaper Masthead */}
         <Masthead
@@ -83,6 +98,10 @@ const NewspaperApp: React.FC = () => {
           onOpenProfiles={() => setIsProfileModalOpen(true)}
           onOpenVoiceSettings={() => setIsVoiceModalOpen(true)}
           onOpenSupporter={() => setIsSupporterModalOpen(true)}
+          onEditSetup={() => {
+            setIsWelcomeEditMode(true);
+            setIsWelcomeModalOpen(true);
+          }}
           refreshedAt={refreshedAt}
           isLiveFeed={isLiveFeed}
         />
@@ -99,11 +118,11 @@ const NewspaperApp: React.FC = () => {
         {/* Main Broadsheet Front Page */}
         {isLoading ? (
           <div className="py-24 text-center">
-            <Newspaper className="w-8 h-8 text-red-800 animate-bounce mx-auto mb-3" />
-            <div className="font-serif-editorial text-lg text-zinc-700 font-semibold">
+            <Newspaper className="w-8 h-8 text-[#b9533f] animate-bounce mx-auto mb-3" />
+            <div className="font-serif-editorial text-lg text-[#1e1b18] font-semibold">
               Compiling {currentProfile.name}'s Morning Edition...
             </div>
-            <p className="text-xs text-zinc-500 mt-1">Filtering topics and parsing editorial feeds</p>
+            <p className="text-xs text-[#6e685f] mt-1 font-mono-meta">Filtering topics & synthesizing storytelling narratives</p>
           </div>
         ) : (
           <FrontPage
@@ -118,6 +137,12 @@ const NewspaperApp: React.FC = () => {
       </div>
 
       {/* Global Interactive Modals & Drawers */}
+      <WelcomeSetupModal
+        isOpen={isWelcomeModalOpen}
+        onClose={() => setIsWelcomeModalOpen(false)}
+        isEditMode={isWelcomeEditMode}
+      />
+
       <StoryDrawer
         story={activeStory}
         onClose={() => setActiveStory(null)}
@@ -126,6 +151,10 @@ const NewspaperApp: React.FC = () => {
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
+        onOpenNewProfileSetup={() => {
+          setIsWelcomeEditMode(false);
+          setIsWelcomeModalOpen(true);
+        }}
       />
 
       <VoiceSettingsModal
@@ -144,13 +173,13 @@ const NewspaperApp: React.FC = () => {
       />
 
       {/* Educational & Publisher Attribution Footer */}
-      <footer className="bg-white border-t border-zinc-200 py-8 px-4 text-center text-xs text-zinc-500">
+      <footer className="bg-[#f5ece3] border-t border-[#e2d5c7] py-8 px-4 text-center text-xs text-[#6e685f] mt-12">
         <div className="max-w-4xl mx-auto space-y-2">
-          <p className="font-serif-editorial italic text-zinc-700">
+          <p className="font-serif-editorial italic text-[#3a332a]">
             Curio Dispatch is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, India Today, and BBC News.
           </p>
-          <p className="font-mono-meta text-[11px] text-zinc-400">
-            Built with React, Vite, and Tailwind CSS • Multi-profile LocalStorage isolation • Offline-first resilience
+          <p className="font-mono-meta text-[11px] text-[#8f887d]">
+            Built with React 19, Vite, and Tailwind CSS • On-device LocalStorage profile isolation • WCAG AA contrast compliant
           </p>
         </div>
       </footer>

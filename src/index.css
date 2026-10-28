@@ -2,16 +2,32 @@
 
 @layer base {
   :root {
-    --paper: #fbf9f5;
+    /* Pinterest-inspired editorial palette */
+    --paper-cream: #faf7f2;
     --paper-card: #ffffff;
-    --ink: #18181b;
-    --ink-muted: #52525b;
-    --ink-faint: #a1a1aa;
-    --border-subtle: #e4e4e7;
-    --border-accent: #18181b;
-    --crimson: #991b1b;
-    --crimson-soft: #fef2f2;
-    --amber-soft: #fef3c7;
+    --paper-blush: #f8f1ec;
+    --paper-blush-subtle: #fbf5f1;
+    
+    /* Terracotta & Rose Accents */
+    --terracotta: #b9533f;
+    --terracotta-dark: #963d2b;
+    --terracotta-soft: #f7ebe8;
+    --rose: #d68175;
+    --rose-soft: #faecea;
+
+    /* Sage & Dusty Green */
+    --sage: #4e6c58;
+    --sage-dark: #3b5343;
+    --sage-soft: #e5ede7;
+
+    /* Deep Ink for high-contrast accessibility */
+    --ink: #1e1b18;
+    --ink-muted: #57524b;
+    --ink-faint: #8a837a;
+    --border-subtle: #e9e3da;
+    --border-accent: #1e1b18;
+
+    /* Typography */
     --font-serif: 'Newsreader', Georgia, serif;
     --font-masthead: 'Cinzel', serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -20,7 +36,7 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--paper);
+    background-color: var(--paper-cream);
     color: var(--ink);
   }
 
@@ -37,15 +53,26 @@
   }
 }
 
-/* Custom Tactical Newspaper Animations */
+/* Tactile & Purposeful Animations */
 @keyframes paperFade {
   0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes cardStagger {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -58,34 +85,47 @@
   }
 }
 
-@keyframes spinSlow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes pulseGently {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .animate-paper-fade {
-  animation: paperFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: paperFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-card-stagger {
+  animation: cardStagger 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-drawer-slide {
-  animation: drawerSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: drawerSlide 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-spin-once {
-  animation: spinSlow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Stagger animation timing utilities */
+.stagger-1 { animation-delay: 0.04s; }
+.stagger-2 { animation-delay: 0.08s; }
+.stagger-3 { animation-delay: 0.12s; }
+.stagger-4 { animation-delay: 0.16s; }
+.stagger-5 { animation-delay: 0.20s; }
 
-/* Editorial column rules and borders */
+/* Double rules for broadsheet styling */
 .border-double-bottom {
-  border-bottom: 3px double #18181b;
+  border-bottom: 3px double #282420;
 }
 
 .border-double-top {
-  border-top: 3px double #18181b;
+  border-top: 3px double #282420;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom slim scrollbar */
@@ -94,12 +134,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f4f4f5;
+  background: #f4eee7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: #d6cdc4;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: #b5aaa0;
 }

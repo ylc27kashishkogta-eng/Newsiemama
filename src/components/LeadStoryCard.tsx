@@ -18,30 +18,30 @@ export const LeadStoryCard: React.FC<LeadStoryCardProps> = ({
   activePreset,
 }) => {
   return (
-    <article className="bg-white rounded-2xl border border-zinc-200/90 p-6 sm:p-8 shadow-xs hover:shadow-md transition-shadow relative mb-8">
+    <article className="bg-[#ffffff] rounded-2xl border border-[#e4dcd3] p-6 sm:p-8 shadow-xs hover:shadow-md transition-all relative mb-8 animate-card-stagger stagger-1">
       {/* Editorial Category & Meta Row */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 pb-3 mb-4 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f0e9e1] pb-3 mb-4 text-xs">
         <div className="flex items-center gap-2">
-          <span className="font-mono-meta font-bold uppercase tracking-wider text-red-800 bg-red-50 px-2.5 py-0.5 rounded-sm border border-red-200">
+          <span className="font-mono-meta font-bold uppercase tracking-wider text-[#b9533f] bg-[#f5e6e1] px-2.5 py-0.5 rounded-full border border-[#e8cecb]">
             Lead Story • {story.category}
           </span>
-          <span className="text-zinc-500 font-medium">| {story.sourceName}</span>
+          <span className="text-[#6e685f] font-medium">| {story.sourceName}</span>
         </div>
 
-        <div className="flex items-center gap-3 text-zinc-500 font-mono-meta">
+        <div className="flex items-center gap-3 text-[#6e685f] font-mono-meta">
           <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-zinc-400" />
+            <Clock className="w-3.5 h-3.5 text-[#8f887d]" />
             {story.timeAgo}
           </span>
           <span>•</span>
           <span>{story.readingMinutes} min read</span>
           <button
             onClick={() => onToggleSave(story.id)}
-            className="text-zinc-400 hover:text-zinc-800 transition-colors cursor-pointer"
+            className="text-[#8f887d] hover:text-[#1e1b18] transition-colors cursor-pointer"
             title={isSaved ? 'Remove from saved' : 'Save article'}
           >
             {isSaved ? (
-              <BookmarkCheck className="w-4 h-4 text-red-700" />
+              <BookmarkCheck className="w-4 h-4 text-[#b9533f]" />
             ) : (
               <Bookmark className="w-4 h-4" />
             )}
@@ -52,27 +52,27 @@ export const LeadStoryCard: React.FC<LeadStoryCardProps> = ({
       {/* Headline & Deck */}
       <h2
         onClick={() => onOpenExplainer(story)}
-        className="font-serif-editorial text-2xl sm:text-4xl font-extrabold text-zinc-900 leading-tight mb-3 hover:text-red-900 transition-colors cursor-pointer"
+        className="font-serif-editorial text-2xl sm:text-4xl font-extrabold text-[#1e1b18] leading-tight mb-3 hover:text-[#b9533f] transition-colors cursor-pointer"
       >
         {story.title}
       </h2>
 
-      <p className="font-serif-editorial italic text-base sm:text-lg text-zinc-600 border-l-2 border-red-700 pl-4 my-4 leading-snug">
+      <p className="font-serif-editorial italic text-base sm:text-lg text-[#5c5449] border-l-3 border-[#b9533f] pl-4 my-4 leading-snug bg-[#fcf9f5] py-1.5 rounded-r-lg">
         {story.deck}
       </p>
 
       {/* Editorial Body Excerpt */}
-      <div className="text-sm sm:text-base text-zinc-700 leading-relaxed font-serif-editorial my-4">
+      <div className="text-sm sm:text-base text-[#3a332a] leading-relaxed font-serif-editorial my-4">
         {story.content}
       </div>
 
       {/* Bottom Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-100 mt-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[#f0e9e1] mt-6">
         <button
           onClick={() => onOpenExplainer(story)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-red-800 hover:bg-red-900 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-xs transition-transform active:scale-98 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-transform active:scale-98 cursor-pointer"
         >
-          <Sparkles className="w-4 h-4 text-red-200" />
+          <Sparkles className="w-4 h-4 text-[#fcdcd4]" />
           <span>Explain in My Voice ({activePreset})</span>
         </button>
 
@@ -80,10 +80,10 @@ export const LeadStoryCard: React.FC<LeadStoryCardProps> = ({
           href={story.canonicalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#6e685f] hover:text-[#1e1b18] transition-colors"
         >
           <span>Read original on {story.sourceName}</span>
-          <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+          <ExternalLink className="w-3.5 h-3.5 text-[#8f887d]" />
         </a>
       </div>
     </article>

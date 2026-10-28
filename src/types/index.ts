@@ -6,9 +6,17 @@ export type TopicCategory =
   | 'climate';
 
 export type VoicePreset = 
-  | 'executive' 
-  | 'conversational' 
-  | 'storyteller';
+  | 'executive'       // Quick Brief
+  | 'conversational'  // Friendly Explainer
+  | 'storyteller';    // Storyteller
+
+export type AgeRange = 
+  | 'under-13'
+  | '13-17'
+  | '18-24'
+  | '25-34'
+  | '35-plus'
+  | 'prefer-not-to-say';
 
 export interface CustomVoiceProfile {
   brevity: 'concise' | 'balanced' | 'detailed';
@@ -22,12 +30,14 @@ export interface CustomVoiceProfile {
 export interface ReaderProfile {
   id: string;
   name: string;
+  ageRange: AgeRange;
   editionTitle: string;
   topics: TopicCategory[];
   voicePreset: VoicePreset;
   customVoice?: CustomVoiceProfile;
   savedArticleIds: string[];
   createdAt: string;
+  hasCompletedWelcome?: boolean;
 }
 
 export interface Story {
@@ -46,13 +56,31 @@ export interface Story {
   sourceMode: 'rss' | 'snapshot';
 }
 
+export interface VisualExplainerItem {
+  type: 'steps' | 'timeline' | 'comparison';
+  title: string;
+  subtitle?: string;
+  items: {
+    label: string;
+    text: string;
+    subtext?: string;
+    highlight?: boolean;
+  }[];
+}
+
 export interface StoryExplanation {
   headline: string;
   coreSummary: string;
+  whatHappened: string;
   whyItMatters: string[];
+  whatCouldHappenNext: string;
+  everydayAnalogy: string;
+  visualExplainer?: VisualExplainerItem;
+  easyReadingText: string;
   conversationalTakeaway: string;
   activePreset: VoicePreset;
   isCustomVoiced: boolean;
+  ageAdaptedNote?: string;
 }
 
 export interface EditionMetadata {

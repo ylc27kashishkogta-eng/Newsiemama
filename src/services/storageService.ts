@@ -1,17 +1,20 @@
-import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile } from '../types';
+import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange } from '../types';
 
-const PROFILES_STORAGE_KEY = 'curio_newspaper_profiles_v1';
-const ACTIVE_PROFILE_ID_KEY = 'curio_active_profile_id_v1';
+const PROFILES_STORAGE_KEY = 'curio_newspaper_profiles_v2';
+const ACTIVE_PROFILE_ID_KEY = 'curio_active_profile_id_v2';
+const ONBOARDING_COMPLETED_KEY = 'curio_onboarding_completed_v2';
 
 export const DEFAULT_PROFILES: ReaderProfile[] = [
   {
     id: 'profile-aarav',
     name: 'Aarav Sharma',
+    ageRange: '25-34',
     editionTitle: "Aarav's Daily Briefing",
     topics: ['economy', 'tech'],
     voicePreset: 'conversational',
     savedArticleIds: ['story-1', 'story-2'],
     createdAt: '2026-10-28T06:00:00Z',
+    hasCompletedWelcome: true,
     customVoice: {
       brevity: 'concise',
       formality: 'semi-formal',
@@ -24,11 +27,13 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
   {
     id: 'profile-priya',
     name: 'Priya Patel',
+    ageRange: '35-plus',
     editionTitle: "Priya's Daily Dispatch",
     topics: ['policy', 'world', 'climate'],
     voicePreset: 'executive',
     savedArticleIds: ['story-3', 'story-7'],
     createdAt: '2026-10-28T06:00:00Z',
+    hasCompletedWelcome: true,
     customVoice: {
       brevity: 'concise',
       formality: 'formal',
@@ -45,7 +50,6 @@ export const storageService = {
     try {
       const data = localStorage.getItem(PROFILES_STORAGE_KEY);
       if (!data) {
-        this.saveProfiles(DEFAULT_PROFILES);
         return DEFAULT_PROFILES;
       }
       const parsed = JSON.parse(data);
@@ -61,6 +65,14 @@ export const storageService = {
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
     }
+  },
+
+  hasCompletedOnboarding(): boolean {
+    return localStorage.getItem(ONBOARDING_COMPLETED_KEY) === 'true';
+  },
+
+  setCompletedOnboarding(val: boolean): void {
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, val ? 'true' : 'false');
   },
 
   getActiveProfileId(): string {
@@ -80,22 +92,30 @@ export const storageService = {
     }
   },
 
-  createProfile(name: string, topics: TopicCategory[], voicePreset: VoicePreset): ReaderProfile {
+  createProfile(
+    name: string,
+    ageRange: AgeRange,
+    topics: TopicCategory[],
+    voicePreset: VoicePreset
+  ): ReaderProfile {
     const id = `profile-${Date.now().toString(36)}`;
     const editionTitle = `${name}'s Daily Briefing`;
     const newProfile: ReaderProfile = {
       id,
       name,
+      ageRange,
       editionTitle,
       topics,
       voicePreset,
       savedArticleIds: [],
       createdAt: new Date().toISOString(),
+      hasCompletedWelcome: true,
     };
     const profiles = this.getProfiles();
     profiles.push(newProfile);
     this.saveProfiles(profiles);
     this.setActiveProfileId(id);
+    this.setCompletedOnboarding(true);
     return newProfile;
   }
 };

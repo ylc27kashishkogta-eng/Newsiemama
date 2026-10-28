@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { VoicePreset } from '../types';
 import { voiceAnalyzer } from '../services/voiceAnalyzer';
-import { X, Sparkles, Check, KeyRound } from 'lucide-react';
+import { X, Sparkles, Check } from 'lucide-react';
 
 interface VoiceSettingsModalProps {
   isOpen: boolean;
@@ -49,27 +49,27 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-zinc-200 animate-paper-fade">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-[#faf7f2] rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-[#e4dcd3] animate-paper-fade">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#e4dcd3] mb-5">
           <div>
-            <h3 className="font-masthead text-lg font-bold text-zinc-900">Personalize Reading Voice</h3>
-            <p className="text-xs text-zinc-500 font-serif-editorial">
+            <h3 className="font-masthead text-lg font-bold text-[#1e1b18]">Personalize Reading Voice</h3>
+            <p className="text-xs text-[#6e685f] font-serif-editorial">
               Configure how news stories are explained for {currentProfile.name}
             </p>
           </div>
-          <button onClick={onClose} className="p-1 text-zinc-400 hover:text-zinc-700 cursor-pointer" title="Close (Esc)">
+          <button onClick={onClose} className="p-1 text-[#8f887d] hover:text-[#1e1b18] cursor-pointer" title="Close (Esc)">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab switcher */}
-        <div className="bg-zinc-100 p-1 rounded-xl flex items-center gap-1 mb-6 text-xs font-semibold">
+        <div className="bg-[#ede5dc] p-1 rounded-xl flex items-center gap-1 mb-6 text-xs font-semibold">
           <button
             onClick={() => setActiveTab('presets')}
             className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'presets' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              activeTab === 'presets' ? 'bg-[#ffffff] text-[#1e1b18] shadow-xs' : 'text-[#6e685f] hover:text-[#1e1b18]'
             }`}
           >
             Voice Presets
@@ -77,7 +77,7 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
           <button
             onClick={() => setActiveTab('teach')}
             className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'teach' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              activeTab === 'teach' ? 'bg-[#ffffff] text-[#1e1b18] shadow-xs' : 'text-[#6e685f] hover:text-[#1e1b18]'
             }`}
           >
             Teach My Voice (Sample)
@@ -85,7 +85,7 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
           <button
             onClick={() => setActiveTab('byok')}
             className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'byok' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+              activeTab === 'byok' ? 'bg-[#ffffff] text-[#1e1b18] shadow-xs' : 'text-[#6e685f] hover:text-[#1e1b18]'
             }`}
           >
             Optional AI API Key
@@ -98,14 +98,14 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
             {[
               {
                 id: 'executive' as VoicePreset,
-                title: 'Executive Brief',
+                title: 'Quick Brief (Executive)',
                 desc: 'Dense bullet points, bottom-line financial & regulatory impact, zero fluff.',
                 example: '“RBI holds repo rate at 6.5%. Core inflation at 3.8% expands corporate borrowing room.”',
               },
               {
                 id: 'conversational' as VoicePreset,
-                title: 'Conversational Explainer',
-                desc: 'Friendly, jargon-free, uses approachable everyday analogies.',
+                title: 'Friendly Explainer (Conversational)',
+                desc: 'Warm, approachable, uses relatable everyday analogies.',
                 example: '“Think of this like cruise control on a highway — no dramatic lane shifts, just steady cruising ahead.”',
               },
               {
@@ -122,16 +122,16 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
                   onClick={() => setVoicePreset(p.id)}
                   className={`p-4 rounded-xl border transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-red-800 bg-red-50/50 shadow-xs ring-1 ring-red-800'
-                      : 'border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
+                      ? 'border-[#b9533f] bg-[#fbf0ec] shadow-xs ring-1 ring-[#b9533f]'
+                      : 'border-[#e4dcd3] bg-white hover:border-[#cbbfb0] hover:bg-[#f7f2eb]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-zinc-900">{p.title}</span>
-                    {isSelected && <span className="text-xs font-bold text-red-800">Active</span>}
+                    <span className="font-bold text-sm text-[#1e1b18]">{p.title}</span>
+                    {isSelected && <span className="text-xs font-bold text-[#b9533f]">Active</span>}
                   </div>
-                  <p className="text-xs text-zinc-600 mb-2">{p.desc}</p>
-                  <div className="bg-white/80 p-2 rounded-lg border border-zinc-200/60 font-serif-editorial italic text-xs text-zinc-600">
+                  <p className="text-xs text-[#5c5449] mb-2">{p.desc}</p>
+                  <div className="bg-[#faf6f0] p-2 rounded-lg border border-[#e4dcd3] font-serif-editorial italic text-xs text-[#6e685f]">
                     {p.example}
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
         {activeTab === 'teach' && (
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-zinc-600 leading-relaxed mb-3">
+              <p className="text-xs text-[#5c5449] leading-relaxed mb-3">
                 Paste 1–2 paragraphs (~100 words) of an email, memo, or note you wrote. Curio Dispatch will analyze your sentence cadence, brevity, and tone markers to adapt story explanations to your natural communication style.
               </p>
               <textarea
@@ -152,27 +152,27 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
                 value={sampleText}
                 onChange={(e) => setSampleText(e.target.value)}
                 placeholder="Paste a writing sample that sounds like you..."
-                className="w-full p-3 text-xs border border-zinc-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-800 font-sans"
+                className="w-full p-3 text-xs bg-white border border-[#cbbfb0] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#b9533f] font-sans"
               />
             </div>
 
             <button
               onClick={handleAnalyzeAndSave}
               disabled={!sampleText.trim()}
-              className="w-full py-2.5 px-4 bg-red-800 hover:bg-red-900 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+              className="w-full py-2.5 px-4 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] text-xs font-semibold rounded-xl flex items-center justify-center gap-2 shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-red-200" />
+              <Sparkles className="w-4 h-4 text-[#fcdcd4]" />
               <span>Analyze & Save Voice Profile</span>
             </button>
 
             {analyzedMarkers && (
-              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 text-xs space-y-1.5">
-                <div className="font-semibold text-zinc-800">Extracted Style Profile:</div>
-                <div className="grid grid-cols-2 gap-2 text-zinc-600">
-                  <div>Formality: <strong className="capitalize text-zinc-900">{analyzedMarkers.formality}</strong></div>
-                  <div>Pacing: <strong className="capitalize text-zinc-900">{analyzedMarkers.brevity}</strong></div>
-                  <div>Real-world Analogies: <strong className="text-zinc-900">{analyzedMarkers.useAnalogies ? 'Enabled' : 'Off'}</strong></div>
-                  <div>Bulleted Takeaways: <strong className="text-zinc-900">{analyzedMarkers.bulletPreference ? 'Preferred' : 'Prose'}</strong></div>
+              <div className="bg-[#ffffff] border border-[#e4dcd3] rounded-xl p-3.5 text-xs space-y-1.5">
+                <div className="font-semibold text-[#1e1b18]">Extracted Style Profile:</div>
+                <div className="grid grid-cols-2 gap-2 text-[#5c5449]">
+                  <div>Formality: <strong className="capitalize text-[#1e1b18]">{analyzedMarkers.formality}</strong></div>
+                  <div>Pacing: <strong className="capitalize text-[#1e1b18]">{analyzedMarkers.brevity}</strong></div>
+                  <div>Real-world Analogies: <strong className="text-[#1e1b18]">{analyzedMarkers.useAnalogies ? 'Enabled' : 'Off'}</strong></div>
+                  <div>Bulleted Takeaways: <strong className="text-[#1e1b18]">{analyzedMarkers.bulletPreference ? 'Preferred' : 'Prose'}</strong></div>
                 </div>
               </div>
             )}
@@ -181,13 +181,13 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
 
         {/* TAB 3: BYOK */}
         {activeTab === 'byok' && (
-          <div className="space-y-4 text-xs text-zinc-600">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-900 leading-relaxed">
-              <strong>100% Optional:</strong> The MVP runs completely without an API key using our built-in tone engine. If you want to experiment with live streaming LLM calls, you can paste your own Gemini or OpenAI key below. It is stored exclusively in your browser’s LocalStorage.
+          <div className="space-y-4 text-xs text-[#5c5449]">
+            <div className="bg-[#fbf4eb] border border-[#edd8be] rounded-xl p-3 text-[#7a481c] leading-relaxed">
+              <strong>100% Optional:</strong> Curio Dispatch runs completely without an API key using our built-in tone engine. If you want to experiment with live streaming LLM calls, you can paste your own Gemini or OpenAI key below. It is stored exclusively in your browser’s LocalStorage.
             </div>
 
             <div>
-              <label className="block font-semibold text-zinc-700 mb-1">
+              <label className="block font-semibold text-[#1e1b18] mb-1">
                 Gemini or OpenAI API Key
               </label>
               <div className="flex items-center gap-2">
@@ -196,11 +196,11 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="AIzaSy... or sk-proj-..."
-                  className="flex-1 p-2.5 text-xs border border-zinc-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-800"
+                  className="flex-1 p-2.5 text-xs bg-white border border-[#cbbfb0] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#b9533f]"
                 />
                 <button
                   onClick={handleSaveApiKey}
-                  className="px-4 py-2.5 bg-zinc-900 text-white font-semibold rounded-xl hover:bg-black transition-colors cursor-pointer"
+                  className="px-4 py-2.5 bg-[#1e1b18] text-[#faf7f2] font-semibold rounded-xl hover:bg-[#342f2b] transition-colors cursor-pointer"
                 >
                   Save
                 </button>
@@ -210,8 +210,8 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
         )}
 
         {isSavedNotice && (
-          <div className="mt-4 p-2 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 border border-emerald-200 animate-paper-fade">
-            <Check className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="mt-4 p-2 bg-[#edf2ee] text-[#3b5744] text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 border border-[#cbe0d0] animate-paper-fade">
+            <Check className="w-3.5 h-3.5 text-[#4e6c58]" />
             <span>Settings saved successfully!</span>
           </div>
         )}
