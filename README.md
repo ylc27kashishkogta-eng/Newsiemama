@@ -9,7 +9,7 @@
 - **Personalized Editions:** The masthead prominently identifies the edition owner (e.g., *"Aarav Sharma's Newsroom"* or *"Priya Patel's Newsroom"*), with full customization to set your own newspaper title.
 - **Multi-Profile Isolation:** Instant profile switching with 100% isolated topics, reading voices, and reading lists stored locally via `LocalStorage` — zero database or cloud auth prerequisites.
 - **Permitted News Ingestion & Zero-Friction Fallback:** Official public RSS syndication (The Economic Times, The Indian Express, Mint, India Today, BBC News) with automatic, seamless fallback to high-fidelity snapshot content for offline or demo evaluation.
-- **Educational News Quest:** A calm, optional 2-minute edition quiz testing comprehension of stories in your daily paper. Earn Knowledge Points and badges without guilt-based streaks, missed-day penalties, endless play, or cash incentives. Every answer links directly back to its verified source story with grounded explanations.
+- **Educational News Quest:** A calm, optional 2-minute edition quiz testing comprehension of stories in your daily paper. Earn Knowledge Points and badges without guilt-based streaks, missed-day penalties, endless play, or cash incentives. Every answer links directly back to its source story with grounded explanations.
 - **Conversational Voice Engine:** Translates complex news into 3 built-in voices (*Executive Brief*, *Conversational Explainer*, *Storyteller*) plus a **"Teach My Voice"** 100-word sample analyzer.
 - **Clean Extensibility:** Clean adapter interfaces for Apify actors, and modular scaffolding for **Dodo Payments**, **Microsoft Clarity**, and **Google Search Console** (October 31 milestones).
 
@@ -58,7 +58,7 @@ src/
 ├── context/
 │   └── ProfileContext.tsx # Reactive profile & topic state provider
 ├── data/
-│   └── sampleStories.ts # Verified offline snapshot dataset across 5 topics
+│   └── sampleStories.ts # Illustrative offline demonstration dataset across 5 topics
 ├── integrations/        # October 31 service scaffolding
 │   ├── clarity.ts       # Microsoft Clarity telemetry client
 │   └── dodoPayments.ts  # Dodo Payments checkout client

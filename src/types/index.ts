@@ -37,6 +37,7 @@ export interface QuestQuestion {
   correctIndex: number;
   explanation: string;
   conceptTag: string;
+  isDemoQuestion?: boolean;
 }
 
 export interface QuestBadge {
@@ -87,6 +88,9 @@ export interface Story {
   isLeadStory?: boolean;
   sourceMode: 'rss' | 'snapshot';
   curatedReason?: string;
+  isDemoStory?: boolean;
+  editorialNature?: 'illustrative_demo' | 'live_syndication';
+  sourceTypeLabel?: string;
 }
 
 export type VisualExplainerType = 'steps' | 'timeline' | 'comparison' | 'map' | 'chart';

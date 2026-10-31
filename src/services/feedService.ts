@@ -72,11 +72,11 @@ export const feedService = {
             stories: blended,
             isLive: true,
             refreshedAt: timestamp,
-            sourceNote: `Live RSS syndication feeds (${liveStories.length} live items + verified broadsheet archive)`,
+            sourceNote: `Live RSS syndication feeds (${liveStories.length} live articles + illustrative demo broadsheet archive)`,
           };
         }
       } catch (err) {
-        console.warn('Live RSS sync encountered proxy timeout, falling back to verified snapshot:', err);
+        console.warn('Live RSS sync encountered proxy timeout, falling back to demo snapshot:', err);
       }
     }
 
@@ -96,7 +96,7 @@ export const feedService = {
       stories: finalStories,
       isLive: false,
       refreshedAt: timestamp,
-      sourceNote: 'Verified morning broadsheet snapshot (The Economic Times, Indian Express, India Today, BBC)',
+      sourceNote: 'Demonstration morning broadsheet snapshot (Illustrative scenarios inspired by The Economic Times, Indian Express, Mint, India Today, BBC)',
     };
   },
 

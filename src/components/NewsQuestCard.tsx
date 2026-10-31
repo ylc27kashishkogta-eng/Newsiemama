@@ -15,7 +15,9 @@ import {
   EyeOff,
   RotateCcw,
   ShieldCheck,
-  Check
+  Check,
+  FileText,
+  Info
 } from 'lucide-react';
 
 interface NewsQuestCardProps {
@@ -141,7 +143,7 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
         title: currentQuestion.storyTitle,
         deck: currentQuestion.explanation,
         content: currentQuestion.explanation,
-        sourceName: 'Curio Dispatch Verified Feed',
+        sourceName: 'Curio Dispatch Demo Broadsheet',
         canonicalUrl: '#',
         publishedAt: new Date().toISOString(),
         timeAgo: 'Today',
@@ -306,6 +308,14 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
               <span className="capitalize bg-white px-2 py-0.5 rounded-md border border-[#e4dcd3] font-mono-meta text-[11px] text-[#b9533f]">
                 {currentQuestion.category}
               </span>
+              <span>•</span>
+              <span className={`px-2 py-0.5 rounded-md border font-mono-meta text-[10px] font-bold ${
+                currentQuestion.isDemoQuestion !== false
+                  ? 'bg-[#fbf2e3] text-[#7c5e3f] border-[#edd8be]'
+                  : 'bg-[#e8f5e9] text-[#2d6a4f] border-[#c8e6c9]'
+              }`}>
+                {currentQuestion.isDemoQuestion !== false ? 'Demo Scenario' : 'Live RSS'}
+              </span>
               <span className="hidden sm:inline text-[#8f887d]">• {currentQuestion.conceptTag}</span>
             </div>
 
@@ -404,8 +414,8 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
                 <div className="space-y-1.5 flex-1">
                   <div className="text-xs font-bold text-[#1e1b18]">
                     {selectedOption === currentQuestion.correctIndex
-                      ? 'Grounded Story Fact:'
-                      : 'Correct Answer & Explanation:'}
+                      ? (currentQuestion.isDemoQuestion !== false ? 'Grounded Demo Fact:' : 'Live RSS Reported Fact:')
+                      : (currentQuestion.isDemoQuestion !== false ? 'Correct Demo Fact & Context:' : 'Correct Reported Fact & Context:')}
                   </div>
                   <p className="text-xs text-[#5c5449] leading-relaxed">
                     {currentQuestion.explanation}
@@ -413,7 +423,7 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
                 </div>
               </div>
 
-              {/* Verified Source Story Connection Button */}
+              {/* Source Story Connection Button */}
               <div className="pt-2 border-t border-[#f0e6dc] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                 <button
                   type="button"
@@ -428,8 +438,17 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
                 </button>
 
                 <span className="text-[11px] text-[#8f887d] font-mono-meta flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-[#4e6c58]" />
-                  Verified in today's edition
+                  {currentQuestion.isDemoQuestion !== false ? (
+                    <>
+                      <FileText className="w-3 h-3 text-[#b9533f]" />
+                      <span>Illustrative sample inquiry</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3 h-3 text-[#4e6c58]" />
+                      <span>Live RSS reporting</span>
+                    </>
+                  )}
                 </span>
               </div>
             </div>

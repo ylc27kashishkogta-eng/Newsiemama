@@ -484,7 +484,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                       <Sparkles className="w-2.5 h-2.5 text-[#4e6c58]" />
                       <span>Because you follow {primaryTopicInfo.title}</span>
                     </span>
-                    <span className="text-[#8f887d]">Verified Demo Story</span>
+                    <span className="text-[#8f887d]">Sample Demo Story</span>
                   </div>
 
                   <h4 className="font-serif-editorial font-bold text-sm text-[#1e1b18] mb-1">

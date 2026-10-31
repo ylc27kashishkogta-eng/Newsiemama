@@ -80,9 +80,9 @@ export const toneEngine = {
       title: 'How This Unfolds',
       subtitle: `Key operational phases in this ${story.category} development`,
       explanationText: `This progression illustrates how the reported development in ${story.category} moves from initial public announcement through industry adaptation to everyday consumer impact.`,
-      illustrativeNote: `Illustrative process flow based on verified reporting from ${story.sourceName}.`,
+      illustrativeNote: `Illustrative process flow diagram based on coverage from ${story.sourceName}.`,
       items: [
-        { label: 'Phase 1: Announcement', text: 'Verified development published by primary source.', subtext: `Reported by ${story.sourceName}`, highlight: true },
+        { label: 'Phase 1: Announcement', text: 'Reported development published by primary source.', subtext: `Covered by ${story.sourceName}`, highlight: true },
         { label: 'Phase 2: Market Adjustment', text: 'Sector stakeholders align infrastructure, capital, and operations.', subtext: 'Commercial response' },
         { label: 'Phase 3: Public Impact', text: 'Downstream availability and regulatory integration across consumer markets.', subtext: 'Everyday adoption' },
       ],
@@ -96,7 +96,7 @@ export const toneEngine = {
         whyItMatters: [
           `Directly impacts ${story.category} industry fundamentals and forward planning.`,
           `Signals a structural shift for institutional and consumer stakeholders.`,
-          `Published by ${story.sourceName} with verified primary sourcing.`
+          `Published by ${story.sourceName} in official syndication.`
         ],
         whatCouldHappenNext: 'Stakeholders will track quarterly compliance milestones and policy rollouts over the coming months.',
         everydayAnalogy: 'Like a referee blowing a whistle before a restart — everyone pauses to see the new field position before moving forward.',
@@ -595,7 +595,7 @@ const DETAILED_STORY_DATA: Record<string, DetailedStoryMeta> = {
       'under-13': 'Like getting a gold star sticker on your homework that lets you skip the line for recess because you followed the rules.',
       '13-17': 'Like getting a fast-pass wristband at an amusement park because you took the eco-friendly shuttle bus.',
       '18-24': 'Getting a student discount on toll roads because your vehicle is 100% electric.',
-      '25-34': 'A verified carbon passport for goods: if you prove your manufacturing is clean, you bypass the border tariff line.',
+      '25-34': 'A bilateral carbon passport for goods: if you prove your manufacturing is clean, you bypass the border tariff line.',
       '35-plus': 'Bilateral regulatory harmonisation that balances climate imperatives with fair market access for developing nations.',
     },
     presets: {

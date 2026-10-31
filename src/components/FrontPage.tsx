@@ -87,7 +87,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
               <span>Provenance & Attribution</span>
             </h4>
             <p className="leading-relaxed">
-              Every headline, timestamp, and excerpt links directly to official publisher web pages. This edition complies with publisher syndication terms and does not republish paywalled full texts.
+              Every headline and excerpt links to official publisher topic hubs or live syndication feeds. Bundled sample stories are clearly labeled illustrative scenarios crafted for prototype demonstration and do not claim to be breaking live wire dispatches.
             </p>
             <div className="pt-2 text-[11px] text-[#8f887d] font-mono-meta border-t border-[#e2d5c7]">
               Source: {sourceNote}

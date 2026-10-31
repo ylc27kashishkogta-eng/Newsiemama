@@ -360,7 +360,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     <div className="bg-[#fff9f4] border border-[#f0dcce] rounded-lg p-2.5 text-[11px] text-[#8a5d3b] flex items-center gap-2">
                       <Info className="w-3.5 h-3.5 shrink-0 text-[#b9533f]" />
                       <span>
-                        <strong>Exploratory Outlook:</strong> Scenarios reflect current verified facts. Not a guaranteed financial, legal, or policy prediction.
+                        <strong>Exploratory Outlook:</strong> Scenarios reflect currently reported facts and trends. Not a guaranteed financial, legal, or policy prediction.
                       </span>
                     </div>
                   </div>
@@ -454,12 +454,21 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
 
             {/* Accuracy & Grounding Transparency Note */}
-            <div className="bg-[#edf2ee] border border-[#cbe0d0] rounded-xl p-3 text-[11px] text-[#3b5744] flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#4e6c58]" />
-              <p className="leading-relaxed">
-                <strong>Reporting Transparency:</strong> Curio Dispatch guided explanations are synthesized strictly from verified facts reported by <strong>{story.sourceName}</strong> ({story.timeAgo}). No simulated facts or external speculation are added.
-              </p>
-            </div>
+            {story.sourceMode === 'rss' ? (
+              <div className="bg-[#edf2ee] border border-[#cbe0d0] rounded-xl p-3 text-[11px] text-[#3b5744] flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#4e6c58]" />
+                <p className="leading-relaxed">
+                  <strong>Live Syndication Transparency:</strong> Synthesized directly from <strong>{story.sourceName}</strong>’s official public RSS feed ({story.timeAgo}). Excerpts and titles reflect live publisher dispatches without altering reported facts.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-[#fbf4eb] border border-[#ebd8c5] rounded-xl p-3 text-[11px] text-[#6e533c] flex items-start gap-2">
+                <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#b9533f]" />
+                <p className="leading-relaxed">
+                  <strong>Illustrative Demo Story:</strong> This article is an illustrative broadsheet scenario crafted for prototype evaluation, inspired by domain coverage from <strong>{story.sourceName}</strong>. It is bundled demo content rather than a live syndicated wire dispatch.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -475,7 +484,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1e1b18] hover:bg-[#342f2b] text-[#faf7f2] text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
           >
-            <span>Read full story on {story.sourceName}</span>
+            <span>{story.sourceMode === 'rss' ? `Read full article on ${story.sourceName}` : `Visit ${story.sourceName}`}</span>
             <ExternalLink className="w-4 h-4 text-[#cfc8bd]" />
           </a>
         </div>
