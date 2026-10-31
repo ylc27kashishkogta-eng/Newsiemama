@@ -217,21 +217,38 @@ export const questService = {
       if (results.length >= 4) break;
       if (results.some((q) => q.storyId === story.id)) continue;
 
-      // Construct grounded question from story deck & title
+      // Extract authentic grounded excerpt directly from story
+      const rawText = (story.deck && story.deck.trim().length > 20)
+        ? story.deck.trim()
+        : (story.content && story.content.trim().length > 20)
+        ? story.content.trim()
+        : story.title;
+
+      const cleanSummary = rawText.replace(/<[^>]+>/g, '').trim();
+      const firstSentence = cleanSummary.split(/(?<=[.!?])\s+/)[0] || cleanSummary;
+      const verifiedFact = firstSentence.length > 180 ? firstSentence.slice(0, 177) + '...' : firstSentence;
+
+      // Plausible topical distractors
+      const distractors = [
+        'The reported program was formally cancelled following an independent regulatory audit.',
+        'All related operations were indefinitely postponed due to unresolved supply bottlenecks.',
+        'An independent assessment concluded the program yielded no measurable change in metrics.',
+      ];
+
+      // Deterministically vary correct index across 0, 1, 2, 3 so it is not always Option A
+      const targetCorrectIndex = (story.id.length + story.title.length) % 4;
+      const options = [...distractors];
+      options.splice(targetCorrectIndex, 0, verifiedFact);
+
       const question: QuestQuestion = {
         id: `quest-dynamic-${story.id}`,
         storyId: story.id,
         storyTitle: story.title,
         category: story.category,
-        question: `According to reporting in "${story.title}", what key development was highlighted?`,
-        options: [
-          story.deck || 'The reported initiative entered its next phase of development.',
-          'The program was discontinued due to lack of stakeholder participation.',
-          'All operations were indefinitely postponed without target completion dates.',
-          'Independent review concluded the development had no measurable impact.',
-        ],
-        correctIndex: 0,
-        explanation: `As reported by ${story.sourceName}: ${story.deck || story.content.slice(0, 180) + '...'}`,
+        question: `According to reporting by ${story.sourceName} in "${story.title}", what development was confirmed?`,
+        options,
+        correctIndex: targetCorrectIndex,
+        explanation: `As verified in ${story.sourceName}'s reporting: "${verifiedFact}"`,
         conceptTag: `${story.category.toUpperCase()} Reporting`,
       };
 

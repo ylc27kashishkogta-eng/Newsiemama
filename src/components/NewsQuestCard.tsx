@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Story, QuestQuestion } from '../types';
 import { useProfile } from '../context/ProfileContext';
 import { questService, QUEST_BADGES } from '../services/questService';
+import { SAMPLE_STORIES } from '../data/sampleStories';
 import {
   Sparkles,
   Award,
@@ -80,7 +81,9 @@ export const NewsQuestCard: React.FC<NewsQuestCardProps> = ({ stories, onOpenSto
   }
 
   // Find the story referenced by the question to allow opening directly
-  const referencedStory = stories.find((s) => s.id === currentQuestion.storyId);
+  const referencedStory =
+    stories.find((s) => s.id === currentQuestion.storyId) ||
+    SAMPLE_STORIES.find((s) => s.id === currentQuestion.storyId);
 
   // Check if all questions have been completed
   const allAnswered = questions.every((q) => questProgress.answeredQuestions[q.id]);
