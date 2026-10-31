@@ -60,16 +60,46 @@ export interface Story {
   curatedReason?: string;
 }
 
+export type VisualExplainerType = 'steps' | 'timeline' | 'comparison' | 'map' | 'chart';
+
 export interface VisualExplainerItem {
-  type: 'steps' | 'timeline' | 'comparison';
+  type: VisualExplainerType;
   title: string;
   subtitle?: string;
+  explanationText?: string;
+  illustrativeNote?: string;
   items: {
     label: string;
     text: string;
     subtext?: string;
     highlight?: boolean;
+    metric?: string;
+    metricLabel?: string;
   }[];
+  mapData?: {
+    corridorName: string;
+    origin: string;
+    destination: string;
+    statSummary: string;
+    stops: {
+      name: string;
+      role: string;
+      isTerminal?: boolean;
+      highlight?: boolean;
+    }[];
+  };
+  chartData?: {
+    metricLabel: string;
+    unit?: string;
+    bars: {
+      label: string;
+      value: number;
+      displayValue: string;
+      subtext?: string;
+      isTarget?: boolean;
+      color?: 'terracotta' | 'sage' | 'neutral';
+    }[];
+  };
 }
 
 export interface StoryExplanation {

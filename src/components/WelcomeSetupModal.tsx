@@ -9,12 +9,9 @@ import {
   Clock,
   Coffee,
   User,
-  Radio,
-  FileText,
-  TrendingUp,
-  HelpCircle,
   Eye,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Edit3
 } from 'lucide-react';
 
 interface WelcomeSetupModalProps {
@@ -73,6 +70,10 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
 
   const [step, setStep] = useState<number>(1);
   const [name, setName] = useState<string>(effectiveEditing ? currentProfile.name : '');
+  const [editionTitle, setEditionTitle] = useState<string>(
+    effectiveEditing ? currentProfile.editionTitle : ''
+  );
+  const [isCustomTitleEdited, setIsCustomTitleEdited] = useState<boolean>(effectiveEditing);
   const [ageRange, setAgeRange] = useState<AgeRange>(effectiveEditing ? currentProfile.ageRange : '25-34');
   const [selectedTopics, setSelectedTopics] = useState<TopicCategory[]>(
     effectiveEditing ? currentProfile.topics : ['tech', 'economy']
@@ -87,17 +88,35 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
       setStep(1);
       if (effectiveEditing) {
         setName(currentProfile.name);
+        setEditionTitle(currentProfile.editionTitle);
+        setIsCustomTitleEdited(true);
         setAgeRange(currentProfile.ageRange);
         setSelectedTopics(currentProfile.topics);
         setSelectedStyle(currentProfile.voicePreset);
       } else {
         setName('');
+        setEditionTitle('');
+        setIsCustomTitleEdited(false);
         setAgeRange('25-34');
         setSelectedTopics(['tech', 'economy']);
         setSelectedStyle('conversational');
       }
     }
   }, [isOpen, effectiveEditing, currentProfile]);
+
+  // Auto-generate edition title if reader hasn't explicitly customized it
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setName(newName);
+    if (!isCustomTitleEdited) {
+      setEditionTitle(newName.trim() ? `${newName.trim()}'s Newsroom` : '');
+    }
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditionTitle(e.target.value);
+    setIsCustomTitleEdited(true);
+  };
 
   if (!isOpen) return null;
 
@@ -111,14 +130,17 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
     );
   };
 
+  const computedTitle = editionTitle.trim() || (name.trim() ? `${name.trim()}'s Newsroom` : 'Your Newsroom');
+
   const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = name.trim() || 'Reader';
+    const finalTitle = computedTitle;
 
     if (effectiveEditing) {
-      updateProfileDetails(finalName, ageRange, selectedStyle, selectedTopics);
+      updateProfileDetails(finalName, ageRange, selectedStyle, selectedTopics, finalTitle);
     } else {
-      createNewProfile(finalName, ageRange, selectedTopics, selectedStyle);
+      createNewProfile(finalName, ageRange, selectedTopics, selectedStyle, finalTitle);
     }
     completeOnboarding();
     onClose();
@@ -163,7 +185,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
         </div>
 
         <form onSubmit={handleFinish} className="space-y-6">
-          {/* STEP 1: NAME */}
+          {/* STEP 1: NAME & DISTINCTIVE NEWSPAPER TITLE */}
           {step === 1 && (
             <div className="space-y-4 animate-paper-fade">
               <div>
@@ -171,20 +193,43 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                   1. What should we call you?
                 </label>
                 <p className="text-xs text-[#5c5449] mb-3">
-                  This will be printed on your morning broadsheet masthead (e.g. <em>“Aarav’s Daily Briefing”</em>).
+                  This will be used to brand your personal newspaper masthead (e.g. <em>“Aarav Sharma’s Newsroom”</em>).
                 </p>
                 <div className="relative">
                   <User className="w-5 h-5 absolute left-3.5 top-3.5 text-[#8f887d]" />
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={handleNameChange}
                     placeholder="Enter your name or nickname (e.g. Aarav Sharma)"
                     className="w-full pl-11 pr-4 py-3 bg-white border border-[#cbbfb0] rounded-2xl text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-[#b9533f] transition-all"
                     autoFocus
                     required
                   />
                 </div>
+              </div>
+
+              {/* Newspaper Title Customization */}
+              <div className="pt-2 border-t border-[#e8ded5]">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-[#1e1b18] flex items-center gap-1.5">
+                    <Edit3 className="w-3.5 h-3.5 text-[#b9533f]" />
+                    <span>Personalized Newspaper Title</span>
+                  </label>
+                  <span className="text-[10px] text-[#8f887d] font-mono-meta">
+                    Default: [Name]'s Newsroom
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={editionTitle}
+                  onChange={handleTitleChange}
+                  placeholder={name.trim() ? `${name.trim()}'s Newsroom` : "e.g. Aarav Sharma's Newsroom"}
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#cbbfb0] rounded-xl text-xs sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-[#b9533f] transition-all"
+                />
+                <p className="text-[11px] text-[#6e685f] mt-1 font-serif-editorial">
+                  Customize the masthead name now or adjust it anytime in profile settings.
+                </p>
               </div>
 
               <div className="p-3.5 bg-[#fbf5ee] rounded-2xl border border-[#ecdacb] text-xs text-[#5c5449] leading-relaxed">
@@ -387,12 +432,12 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
             </div>
           )}
 
-          {/* STEP 5: LIVE NEWSPAPER PREVIEW (Special First-Visit Preview) */}
+          {/* STEP 5: LIVE NEWSPAPER PREVIEW (Special First-Visit Preview with [Name]'s Newsroom) */}
           {step === 5 && (
             <div className="space-y-5 animate-paper-fade">
               <div>
                 <label className="block text-sm font-semibold text-[#1e1b18] mb-1">
-                  5. Preview Your Personal Newspaper
+                  5. Preview Your Personal Newsroom
                 </label>
                 <p className="text-xs text-[#5c5449]">
                   Here is how your morning edition broadsheet looks before you step inside:
@@ -410,7 +455,7 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
                   </div>
 
                   <h3 className="font-masthead text-xl sm:text-2xl font-bold text-[#1e1b18]">
-                    {name.trim() ? `${name.trim()}'s Daily Briefing` : "Your Daily Briefing"}
+                    {computedTitle}
                   </h3>
                   <p className="font-serif-editorial italic text-xs text-[#5c5449]">
                     Curated for {name.trim() || 'Reader'} • Calibrated for {activeAgeInfo.label} • {activeStyleInfo.title}
@@ -476,17 +521,18 @@ export const WelcomeSetupModal: React.FC<WelcomeSetupModalProps> = ({
               <div className="flex justify-between items-center pt-2">
                 <button
                   type="button"
-                  onClick={() => setStep(4)}
-                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer"
+                  onClick={() => setStep(1)}
+                  className="px-4 py-2 text-xs font-semibold text-[#6e685f] hover:text-[#1e1b18] cursor-pointer flex items-center gap-1"
                 >
-                  Adjust Choices
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>Edit Name & Title</span>
                 </button>
                 <button
                   type="submit"
                   className="px-7 py-3 bg-[#b9533f] hover:bg-[#963f2e] text-[#faf7f2] rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all transform active:scale-98 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-[#fcdcd4]" />
-                  <span>{effectiveEditing ? 'Save My Preferences' : 'Enter My Newspaper 🗞️'}</span>
+                  <span>{effectiveEditing ? 'Save My Preferences' : 'Enter My Newsroom 🗞️'}</span>
                 </button>
               </div>
             </div>

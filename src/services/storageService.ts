@@ -10,7 +10,7 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     id: 'profile-aarav',
     name: 'Aarav Sharma',
     ageRange: '25-34',
-    editionTitle: "Aarav's Daily Briefing",
+    editionTitle: "Aarav Sharma's Newsroom",
     topics: ['economy', 'tech'],
     voicePreset: 'conversational',
     savedArticleIds: ['story-1', 'story-2'],
@@ -32,7 +32,7 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     id: 'profile-priya',
     name: 'Priya Patel',
     ageRange: '35-plus',
-    editionTitle: "Priya's Daily Dispatch",
+    editionTitle: "Priya Patel's Newsroom",
     topics: ['policy', 'world', 'climate'],
     voicePreset: 'executive',
     savedArticleIds: ['story-3', 'story-7'],
@@ -61,14 +61,24 @@ export const storageService = {
       }
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Ensure new array fields are initialized
-        return parsed.map((p) => ({
-          ...p,
-          readStoryIds: p.readStoryIds || [],
-          likedStoryIds: p.likedStoryIds || [],
-          dislikedStoryIds: p.dislikedStoryIds || [],
-          savedArticleIds: p.savedArticleIds || [],
-        }));
+        // Ensure new array fields are initialized and legacy titles migrated to "Newsroom"
+        return parsed.map((p) => {
+          let editionTitle = p.editionTitle || `${p.name}'s Newsroom`;
+          if (editionTitle.includes('Daily Briefing')) {
+            editionTitle = editionTitle.replace('Daily Briefing', 'Newsroom');
+          } else if (editionTitle.includes('Daily Dispatch')) {
+            editionTitle = editionTitle.replace('Daily Dispatch', 'Newsroom');
+          }
+
+          return {
+            ...p,
+            editionTitle,
+            readStoryIds: p.readStoryIds || [],
+            likedStoryIds: p.likedStoryIds || [],
+            dislikedStoryIds: p.dislikedStoryIds || [],
+            savedArticleIds: p.savedArticleIds || [],
+          };
+        });
       }
       return DEFAULT_PROFILES;
     } catch {
@@ -121,10 +131,11 @@ export const storageService = {
     name: string,
     ageRange: AgeRange,
     topics: TopicCategory[],
-    voicePreset: VoicePreset
+    voicePreset: VoicePreset,
+    customTitle?: string
   ): ReaderProfile {
     const id = `profile-${Date.now().toString(36)}`;
-    const editionTitle = `${name}'s Daily Briefing`;
+    const editionTitle = customTitle?.trim() || `${name}'s Newsroom`;
     const newProfile: ReaderProfile = {
       id,
       name,

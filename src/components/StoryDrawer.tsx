@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Story, VoicePreset, StoryExplanation } from '../types';
 import { useProfile } from '../context/ProfileContext';
 import { toneEngine } from '../services/toneEngine';
+import { VisualExplainer } from './VisualExplainer';
 import {
   X,
   ExternalLink,
@@ -375,55 +376,9 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </p>
                   </div>
 
-                  {/* Visual Explainer (Steps, Timeline, Comparison) */}
+                  {/* Visual Explainer (Timeline, Steps, Comparison, Map, or Chart) */}
                   {explanation.visualExplainer && (
-                    <div className="bg-[#faf6f0] border border-[#e2d5c7] rounded-xl p-4 sm:p-5">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Layers className="w-4 h-4 text-[#4e6c58]" />
-                        <h5 className="font-serif-editorial font-bold text-sm sm:text-base text-[#1e1b18]">
-                          {explanation.visualExplainer.title}
-                        </h5>
-                      </div>
-                      {explanation.visualExplainer.subtitle && (
-                        <p className="text-xs text-[#6e685f] mb-4">
-                          {explanation.visualExplainer.subtitle}
-                        </p>
-                      )}
-
-                      {/* Render Visual Items */}
-                      <div className="space-y-2.5">
-                        {explanation.visualExplainer.items.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className={`p-3 rounded-lg border transition-all ${
-                              item.highlight
-                                ? 'bg-[#ffffff] border-[#b9533f]/40 shadow-xs ring-1 ring-[#b9533f]/20'
-                                : 'bg-[#f7f2eb] border-[#e2d7cc]'
-                            }`}
-                          >
-                            <div className="flex items-baseline justify-between mb-1">
-                              <span
-                                className={`text-[11px] font-mono-meta font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm ${
-                                  item.highlight
-                                    ? 'bg-[#f5e6e1] text-[#963f2e]'
-                                    : 'bg-[#ede5dc] text-[#5c5449]'
-                                }`}
-                              >
-                                {item.label}
-                              </span>
-                              {item.subtext && (
-                                <span className="text-[10px] text-[#8f887d] font-mono-meta">
-                                  {item.subtext}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs sm:text-sm text-[#2d2720] font-medium leading-relaxed">
-                              {item.text}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <VisualExplainer explainer={explanation.visualExplainer} />
                   )}
 
                   {/* Bottom Line Takeaway */}

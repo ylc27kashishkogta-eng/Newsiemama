@@ -31,12 +31,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onClose,
   onOpenNewProfileSetup,
 }) => {
-  const { profiles, currentProfile, switchProfile, createNewProfile } = useProfile();
+  const { profiles, currentProfile, switchProfile, createNewProfile, updateEditionTitle } = useProfile();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newEditionTitle, setNewEditionTitle] = useState('');
   const [selectedAge, setSelectedAge] = useState<AgeRange>('25-34');
   const [selectedTopics, setSelectedTopics] = useState<TopicCategory[]>(['tech', 'economy']);
   const [selectedPreset, setSelectedPreset] = useState<VoicePreset>('conversational');
+  const [activeTitleInput, setActiveTitleInput] = useState(
+    currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`
+  );
+  const [titleSavedNotification, setTitleSavedNotification] = useState(false);
+
+  useEffect(() => {
+    setActiveTitleInput(currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`);
+  }, [currentProfile]);
 
   // Handle Escape key to dismiss
   useEffect(() => {
@@ -57,6 +66,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     );
   };
 
+  const handleSaveActiveTitle = () => {
+    const finalTitle = activeTitleInput.trim() || `${currentProfile.name}'s Newsroom`;
+    updateEditionTitle(finalTitle);
+    setTitleSavedNotification(true);
+    setTimeout(() => setTitleSavedNotification(false), 2000);
+  };
+
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
@@ -65,10 +81,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       newName.trim(),
       selectedAge,
       selectedTopics.length > 0 ? selectedTopics : ['economy', 'tech'],
-      selectedPreset
+      selectedPreset,
+      newEditionTitle.trim() || undefined
     );
     setIsCreating(false);
     setNewName('');
+    setNewEditionTitle('');
     onClose();
   };
 
@@ -115,6 +133,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                           </span>
                         )}
                       </div>
+                      <p className="text-xs font-serif-editorial italic text-[#b9533f] font-medium mt-0.5">
+                        {profile.editionTitle || `${profile.name}'s Newsroom`}
+                      </p>
                       <div className="text-xs text-[#6e685f] mt-1 capitalize">
                         Age: <strong>{profile.ageRange || 'Standard'}</strong> • Voice: <strong>{profile.voicePreset}</strong> • {profile.topics.length} topics
                       </div>
@@ -127,6 +148,46 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </div>
                 );
               })}
+            </div>
+
+            {/* Customize Newspaper Title for Active Reader */}
+            <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-xl p-3.5 mb-5 shadow-2xs">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-[#1e1b18]">
+                  Newspaper Title ({currentProfile.name})
+                </label>
+                {titleSavedNotification && (
+                  <span className="text-[11px] font-bold text-[#4e6c58] flex items-center gap-1 animate-paper-fade">
+                    <Check className="w-3 h-3" />
+                    Saved!
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={activeTitleInput}
+                  onChange={(e) => setActiveTitleInput(e.target.value)}
+                  placeholder={`${currentProfile.name}'s Newsroom`}
+                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#cbbfb0] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#b9533f]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveActiveTitle();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveActiveTitle}
+                  className="px-3 py-1.5 bg-[#b9533f] hover:bg-[#963f2e] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  Save Title
+                </button>
+              </div>
+              <p className="text-[11px] text-[#6e685f] mt-1.5">
+                Default: <span className="font-semibold text-[#1e1b18]">{currentProfile.name}'s Newsroom</span>
+              </p>
             </div>
 
             {/* Add New Profile Buttons */}
@@ -167,6 +228,22 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 autoFocus
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#1e1b18] mb-1">
+                Newspaper Title <span className="text-[#8f887d] font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                placeholder={newName.trim() ? `${newName.trim()}'s Newsroom` : "e.g. Maya's Newsroom"}
+                value={newEditionTitle}
+                onChange={(e) => setNewEditionTitle(e.target.value)}
+                className="w-full px-3.5 py-2 text-sm bg-white border border-[#cbbfb0] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#b9533f]"
+              />
+              <p className="text-[11px] text-[#6e685f] mt-1">
+                Leave blank to default to {newName.trim() ? `${newName.trim()}'s Newsroom` : "[Name]'s Newsroom"}
+              </p>
             </div>
 
             <div>

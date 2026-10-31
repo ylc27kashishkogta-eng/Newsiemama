@@ -12,9 +12,22 @@ interface ProfileContextType {
   updateTopics: (topics: TopicCategory[]) => void;
   setVoicePreset: (preset: VoicePreset) => void;
   updateAgeRange: (ageRange: AgeRange) => void;
-  updateProfileDetails: (name: string, ageRange: AgeRange, voicePreset: VoicePreset, topics: TopicCategory[]) => void;
+  updateEditionTitle: (title: string) => void;
+  updateProfileDetails: (
+    name: string,
+    ageRange: AgeRange,
+    voicePreset: VoicePreset,
+    topics: TopicCategory[],
+    editionTitle?: string
+  ) => void;
   saveCustomVoice: (custom: CustomVoiceProfile) => void;
-  createNewProfile: (name: string, ageRange: AgeRange, topics: TopicCategory[], preset: VoicePreset) => ReaderProfile;
+  createNewProfile: (
+    name: string,
+    ageRange: AgeRange,
+    topics: TopicCategory[],
+    preset: VoicePreset,
+    editionTitle?: string
+  ) => ReaderProfile;
   toggleSaveArticle: (articleId: string) => void;
   isArticleSaved: (articleId: string) => boolean;
   markArticleAsRead: (articleId: string) => void;
@@ -80,13 +93,21 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     storageService.updateProfile(updated);
   };
 
+  const updateEditionTitle = (title: string) => {
+    const cleanTitle = title.trim() || `${currentProfile.name}'s Newsroom`;
+    const updated: ReaderProfile = { ...currentProfile, editionTitle: cleanTitle };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
+  };
+
   const updateProfileDetails = (
     name: string,
     ageRange: AgeRange,
     voicePreset: VoicePreset,
-    topics: TopicCategory[]
+    topics: TopicCategory[],
+    customEditionTitle?: string
   ) => {
-    const editionTitle = `${name}'s Daily Briefing`;
+    const editionTitle = customEditionTitle?.trim() || `${name}'s Newsroom`;
     const updated: ReaderProfile = {
       ...currentProfile,
       name,
@@ -109,9 +130,10 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     name: string,
     ageRange: AgeRange,
     topics: TopicCategory[],
-    preset: VoicePreset
+    preset: VoicePreset,
+    customTitle?: string
   ): ReaderProfile => {
-    const newProfile = storageService.createProfile(name, ageRange, topics, preset);
+    const newProfile = storageService.createProfile(name, ageRange, topics, preset, customTitle);
     setProfiles(storageService.getProfiles());
     setActiveId(newProfile.id);
     setHasCompletedOnboarding(true);
@@ -214,6 +236,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateTopics,
         setVoicePreset,
         updateAgeRange,
+        updateEditionTitle,
         updateProfileDetails,
         saveCustomVoice,
         createNewProfile,

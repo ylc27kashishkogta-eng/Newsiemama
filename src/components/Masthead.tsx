@@ -10,7 +10,9 @@ import {
   RotateCcw,
   BookOpen,
   Sparkle,
-  Gauge
+  Gauge,
+  Pencil,
+  X
 } from 'lucide-react';
 
 interface MastheadProps {
@@ -38,8 +40,16 @@ export const Masthead: React.FC<MastheadProps> = ({
   totalStoriesCount,
   readStoriesCount,
 }) => {
-  const { currentProfile, reducedMotion, toggleReducedMotion, resetAllPreferences } = useProfile();
+  const { currentProfile, reducedMotion, toggleReducedMotion, resetAllPreferences, updateEditionTitle } = useProfile();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState(currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`);
+
+  const handleSaveTitle = () => {
+    const finalTitle = tempTitle.trim() || `${currentProfile.name}'s Newsroom`;
+    updateEditionTitle(finalTitle);
+    setIsEditingTitle(false);
+  };
 
   const todayFormatted = new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
@@ -211,9 +221,57 @@ export const Masthead: React.FC<MastheadProps> = ({
             <span>CURATED FOR</span>
             <span className="uppercase tracking-wider font-bold">{currentProfile.name}</span>
           </div>
-          <h1 className="font-masthead text-3xl sm:text-5xl font-bold tracking-tight text-[#1e1b18] leading-none">
-            {currentProfile.editionTitle || `${currentProfile.name}'s Daily Dispatch`}
-          </h1>
+          
+          {isEditingTitle ? (
+            <div className="flex flex-wrap items-center gap-2 mt-1 mb-2">
+              <input
+                type="text"
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                className="font-masthead text-2xl sm:text-4xl font-bold tracking-tight text-[#1e1b18] bg-white border-2 border-[#b9533f] px-3 py-1 rounded-xl shadow-inner focus:outline-hidden max-w-full"
+                placeholder={`${currentProfile.name}'s Newsroom`}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveTitle();
+                  if (e.key === 'Escape') setIsEditingTitle(false);
+                }}
+              />
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={handleSaveTitle}
+                  className="px-3 py-1.5 bg-[#b9533f] text-white text-xs font-bold rounded-lg hover:bg-[#963f2e] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  title="Save title"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Save</span>
+                </button>
+                <button
+                  onClick={() => setIsEditingTitle(false)}
+                  className="px-2.5 py-1.5 bg-[#ede5dc] text-[#5c5449] text-xs font-semibold rounded-lg hover:bg-[#e2d8cd] transition-colors cursor-pointer flex items-center gap-1"
+                  title="Cancel"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="group flex items-center justify-center md:justify-start gap-2.5">
+              <h1 className="font-masthead text-3xl sm:text-5xl font-bold tracking-tight text-[#1e1b18] leading-none">
+                {currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`}
+              </h1>
+              <button
+                onClick={() => {
+                  setTempTitle(currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`);
+                  setIsEditingTitle(true);
+                }}
+                className="opacity-70 group-hover:opacity-100 p-1.5 text-[#8f887d] hover:text-[#b9533f] hover:bg-[#f5e6e1] rounded-lg transition-all cursor-pointer"
+                title="Rename your personalized newspaper"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           <p className="font-serif-editorial italic text-[#5c5449] text-sm sm:text-base mt-2">
             A calm, distraction-free morning broadsheet with personalized conversational synthesis
           </p>
