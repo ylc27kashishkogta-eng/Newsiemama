@@ -99,6 +99,11 @@ export const Masthead: React.FC<MastheadProps> = ({
           <span className="hidden md:inline text-xs text-[#6e685f]">
             Voice: <strong>{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset}</strong>
           </span>
+          <span className="hidden lg:inline text-[#8f887d]">•</span>
+          <span className="hidden lg:inline-flex items-center gap-1 text-xs text-[#b9533f] font-semibold bg-white px-2 py-0.5 rounded-lg border border-[#e4dcd3]" title="Knowledge Points earned in Daily News Quest">
+            <Sparkles className="w-3 h-3 text-[#b9533f]" />
+            <span>{currentProfile.questProgress?.totalPoints || 0} pts</span>
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">

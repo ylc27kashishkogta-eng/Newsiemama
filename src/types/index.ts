@@ -27,6 +27,34 @@ export interface CustomVoiceProfile {
   analyzedAt?: string;
 }
 
+export interface QuestQuestion {
+  id: string;
+  storyId: string;
+  storyTitle: string;
+  category: TopicCategory;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  conceptTag: string;
+}
+
+export interface QuestBadge {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category?: TopicCategory | 'general';
+}
+
+export interface ReaderQuestProgress {
+  totalPoints: number;
+  unlockedBadgeIds: string[];
+  completedEditionDates: string[];
+  answeredQuestions: Record<string, { selectedIndex: number; isCorrect: boolean }>;
+  showNewsQuest: boolean;
+}
+
 export interface ReaderProfile {
   id: string;
   name: string;
@@ -39,6 +67,7 @@ export interface ReaderProfile {
   readStoryIds: string[];
   likedStoryIds: string[];
   dislikedStoryIds: string[];
+  questProgress?: ReaderQuestProgress;
   createdAt: string;
   hasCompletedWelcome?: boolean;
 }

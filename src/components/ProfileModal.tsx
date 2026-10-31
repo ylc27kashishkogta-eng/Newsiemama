@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import { TopicCategory, VoicePreset, AgeRange } from '../types';
-import { X, UserPlus, Check, UserCheck } from 'lucide-react';
+import { X, UserPlus, Check, UserCheck, Sparkles } from 'lucide-react';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onClose,
   onOpenNewProfileSetup,
 }) => {
-  const { profiles, currentProfile, switchProfile, createNewProfile, updateEditionTitle } = useProfile();
+  const { profiles, currentProfile, switchProfile, createNewProfile, updateEditionTitle, toggleShowNewsQuest } = useProfile();
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newEditionTitle, setNewEditionTitle] = useState('');
@@ -188,6 +188,39 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <p className="text-[11px] text-[#6e685f] mt-1.5">
                 Default: <span className="font-semibold text-[#1e1b18]">{currentProfile.name}'s Newsroom</span>
               </p>
+            </div>
+
+            {/* News Quest Preferences for Active Reader */}
+            <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-xl p-3.5 mb-5 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-[#1e1b18] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#b9533f]" />
+                    <span>Educational News Quest</span>
+                  </div>
+                  <p className="text-[11px] text-[#6e685f] mt-0.5">
+                    Calm 2-minute edition quiz with zero streaks, timers, or guilt.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleShowNewsQuest()}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                    currentProfile.questProgress?.showNewsQuest !== false
+                      ? 'bg-[#4e6c58] text-white border-[#4e6c58]'
+                      : 'bg-white text-[#6e685f] border-[#d8ccc0]'
+                  }`}
+                  title="Toggle News Quest on/off for this edition"
+                >
+                  {currentProfile.questProgress?.showNewsQuest !== false ? 'Enabled' : 'Paused'}
+                </button>
+              </div>
+
+              {/* Badges / Points Summary */}
+              <div className="mt-2.5 pt-2 border-t border-[#e8dacd] flex items-center justify-between text-[11px] text-[#5c5449]">
+                <span>Knowledge Points: <strong className="text-[#1e1b18]">{currentProfile.questProgress?.totalPoints || 0} pts</strong></span>
+                <span>Badges: <strong className="text-[#4e6c58]">{(currentProfile.questProgress?.unlockedBadgeIds || []).length} earned</strong></span>
+              </div>
             </div>
 
             {/* Add New Profile Buttons */}

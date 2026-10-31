@@ -3,6 +3,7 @@ import { Story, VoicePreset } from '../types';
 import { LeadStoryCard } from './LeadStoryCard';
 import { StoryCard } from './StoryCard';
 import { QuickTicker } from './QuickTicker';
+import { NewsQuestCard } from './NewsQuestCard';
 import { CheckCircle2, ShieldCheck, Bookmark } from 'lucide-react';
 
 interface FrontPageProps {
@@ -94,6 +95,12 @@ export const FrontPage: React.FC<FrontPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Educational News Quest for Active Edition */}
+      <NewsQuestCard
+        stories={stories}
+        onOpenStory={onOpenExplainer}
+      />
 
       {/* Finite Newspaper Completion Finish Line */}
       <div className="mt-16 pt-8 border-double-top text-center pb-12">

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange } from '../types';
+import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange, ReaderQuestProgress } from '../types';
 import { storageService, DEFAULT_PROFILES } from '../services/storageService';
+import { questService } from '../services/questService';
 
 interface ProfileContextType {
   currentProfile: ReaderProfile;
@@ -34,6 +35,16 @@ interface ProfileContextType {
   isArticleRead: (articleId: string) => boolean;
   toggleStoryFeedback: (articleId: string, feedback: 'more' | 'less') => void;
   getStoryFeedback: (articleId: string) => 'more' | 'less' | null;
+  recordQuestAnswer: (
+    questionId: string,
+    selectedIndex: number,
+    isCorrect: boolean,
+    categoryTested?: TopicCategory,
+    isLastInQuest?: boolean,
+    totalQuestionsInQuest?: number
+  ) => { pointsEarned: number; newBadgeIds: string[] };
+  toggleShowNewsQuest: (show?: boolean) => void;
+  resetQuestProgress: () => void;
   completeOnboarding: () => void;
   resetToWelcome: () => void;
   resetAllPreferences: () => void;
@@ -207,6 +218,113 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return null;
   };
 
+  const recordQuestAnswer = (
+    questionId: string,
+    selectedIndex: number,
+    isCorrect: boolean,
+    categoryTested?: TopicCategory,
+    isLastInQuest?: boolean,
+    totalQuestionsInQuest?: number
+  ) => {
+    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+      totalPoints: 0,
+      unlockedBadgeIds: [],
+      completedEditionDates: [],
+      answeredQuestions: {},
+      showNewsQuest: true,
+    };
+
+    const alreadyAnswered = existingProgress.answeredQuestions[questionId];
+    const pointsAwarded = isCorrect && !alreadyAnswered?.isCorrect ? 25 : 0;
+    const newTotalPoints = existingProgress.totalPoints + pointsAwarded;
+
+    const newAnsweredQuestions = {
+      ...existingProgress.answeredQuestions,
+      [questionId]: { selectedIndex, isCorrect },
+    };
+
+    const totalAttempted = Object.keys(newAnsweredQuestions).length;
+    const correctCount = Object.values(newAnsweredQuestions).filter((a) => a.isCorrect).length;
+
+    const todayDate = new Date().toISOString().split('T')[0];
+    const completedDates = isLastInQuest && !existingProgress.completedEditionDates.includes(todayDate)
+      ? [...existingProgress.completedEditionDates, todayDate]
+      : existingProgress.completedEditionDates;
+
+    const newBadgeIds = questService.evaluateNewBadges(
+      existingProgress.unlockedBadgeIds,
+      newTotalPoints,
+      correctCount,
+      totalQuestionsInQuest || totalAttempted,
+      isCorrect ? categoryTested : undefined
+    );
+
+    const updatedProgress: ReaderQuestProgress = {
+      ...existingProgress,
+      totalPoints: newTotalPoints,
+      unlockedBadgeIds: [...existingProgress.unlockedBadgeIds, ...newBadgeIds],
+      completedEditionDates: completedDates,
+      answeredQuestions: newAnsweredQuestions,
+    };
+
+    const updatedProfile: ReaderProfile = {
+      ...currentProfile,
+      questProgress: updatedProgress,
+    };
+
+    setProfiles((prev) => prev.map((p) => (p.id === updatedProfile.id ? updatedProfile : p)));
+    storageService.updateProfile(updatedProfile);
+
+    return { pointsEarned: pointsAwarded, newBadgeIds };
+  };
+
+  const toggleShowNewsQuest = (show?: boolean) => {
+    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+      totalPoints: 0,
+      unlockedBadgeIds: [],
+      completedEditionDates: [],
+      answeredQuestions: {},
+      showNewsQuest: true,
+    };
+
+    const newShow = show !== undefined ? show : !existingProgress.showNewsQuest;
+    const updatedProgress: ReaderQuestProgress = {
+      ...existingProgress,
+      showNewsQuest: newShow,
+    };
+
+    const updatedProfile: ReaderProfile = {
+      ...currentProfile,
+      questProgress: updatedProgress,
+    };
+
+    setProfiles((prev) => prev.map((p) => (p.id === updatedProfile.id ? updatedProfile : p)));
+    storageService.updateProfile(updatedProfile);
+  };
+
+  const resetQuestProgress = () => {
+    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+      totalPoints: 0,
+      unlockedBadgeIds: [],
+      completedEditionDates: [],
+      answeredQuestions: {},
+      showNewsQuest: true,
+    };
+
+    const updatedProgress: ReaderQuestProgress = {
+      ...existingProgress,
+      answeredQuestions: {},
+    };
+
+    const updatedProfile: ReaderProfile = {
+      ...currentProfile,
+      questProgress: updatedProgress,
+    };
+
+    setProfiles((prev) => prev.map((p) => (p.id === updatedProfile.id ? updatedProfile : p)));
+    storageService.updateProfile(updatedProfile);
+  };
+
   const completeOnboarding = () => {
     storageService.setCompletedOnboarding(true);
     setHasCompletedOnboarding(true);
@@ -246,6 +364,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isArticleRead,
         toggleStoryFeedback,
         getStoryFeedback,
+        recordQuestAnswer,
+        toggleShowNewsQuest,
+        resetQuestProgress,
         completeOnboarding,
         resetToWelcome,
         resetAllPreferences,

@@ -17,6 +17,15 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     readStoryIds: ['story-1'],
     likedStoryIds: ['story-2'],
     dislikedStoryIds: [],
+    questProgress: {
+      totalPoints: 25,
+      unlockedBadgeIds: ['first-quest'],
+      completedEditionDates: ['2026-10-28'],
+      answeredQuestions: {
+        'quest-story-1': { selectedIndex: 1, isCorrect: true }
+      },
+      showNewsQuest: true,
+    },
     createdAt: '2026-10-28T06:00:00Z',
     hasCompletedWelcome: true,
     customVoice: {
@@ -39,6 +48,15 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     readStoryIds: [],
     likedStoryIds: ['story-3'],
     dislikedStoryIds: [],
+    questProgress: {
+      totalPoints: 25,
+      unlockedBadgeIds: ['first-quest'],
+      completedEditionDates: ['2026-10-28'],
+      answeredQuestions: {
+        'quest-story-1': { selectedIndex: 1, isCorrect: true }
+      },
+      showNewsQuest: true,
+    },
     createdAt: '2026-10-28T06:00:00Z',
     hasCompletedWelcome: true,
     customVoice: {
@@ -77,6 +95,13 @@ export const storageService = {
             likedStoryIds: p.likedStoryIds || [],
             dislikedStoryIds: p.dislikedStoryIds || [],
             savedArticleIds: p.savedArticleIds || [],
+            questProgress: p.questProgress || {
+              totalPoints: 0,
+              unlockedBadgeIds: [],
+              completedEditionDates: [],
+              answeredQuestions: {},
+              showNewsQuest: true,
+            },
           };
         });
       }
@@ -147,6 +172,13 @@ export const storageService = {
       readStoryIds: [],
       likedStoryIds: [],
       dislikedStoryIds: [],
+      questProgress: {
+        totalPoints: 0,
+        unlockedBadgeIds: [],
+        completedEditionDates: [],
+        answeredQuestions: {},
+        showNewsQuest: true,
+      },
       createdAt: new Date().toISOString(),
       hasCompletedWelcome: true,
     };
