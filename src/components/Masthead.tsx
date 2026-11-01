@@ -15,6 +15,7 @@ import {
   X,
   Mail,
   Gamepad2,
+  Building2
 } from 'lucide-react';
 
 interface MastheadProps {
@@ -25,6 +26,7 @@ interface MastheadProps {
   onOpenSupporter: () => void;
   onOpenRoadmap?: () => void;
   onOpenNewsQuest?: () => void;
+  onOpenBusinessAgent?: () => void;
   onEditSetup: () => void;
   refreshedAt: string;
   isLiveFeed: boolean;
@@ -40,6 +42,7 @@ export const Masthead: React.FC<MastheadProps> = ({
   onOpenSupporter,
   onOpenRoadmap,
   onOpenNewsQuest,
+  onOpenBusinessAgent,
   onEditSetup,
   refreshedAt,
   isLiveFeed,
@@ -94,7 +97,7 @@ export const Masthead: React.FC<MastheadProps> = ({
 
   return (
     <header className="border-double-bottom pb-6 mb-6 pt-2">
-      {/* Brand Sub-bar with App Identity */}
+      {/* Brand Sub-bar with App Identity & Interactive Agents */}
       <div className="flex items-center justify-between py-1 mb-3 border-b border-[#f0eae1] text-xs">
         <div className="flex items-center gap-2">
           <span className="font-serif-editorial font-bold text-base tracking-tight text-[#181513]">
@@ -106,6 +109,17 @@ export const Masthead: React.FC<MastheadProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onOpenBusinessAgent && (
+            <button
+              onClick={onOpenBusinessAgent}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fbeae5] text-[#e25c50] text-xs font-semibold hover:bg-[#f5dad4] transition-colors shadow-2xs"
+              title="Open Visual AI News & Business Agent"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Business Agent</span>
+            </button>
+          )}
+
           {onOpenNewsQuest && (
             <button
               onClick={onOpenNewsQuest}
@@ -113,7 +127,7 @@ export const Masthead: React.FC<MastheadProps> = ({
               title="Open Daily News Quest Game"
             >
               <Gamepad2 className="w-3.5 h-3.5" />
-              <span>News Quest</span>
+              <span className="hidden sm:inline">News Quest</span>
               <span className="text-[10px] bg-[#ffffff] px-1.5 py-0.2 rounded-full font-bold">
                 {currentProfile.questProgress?.totalPoints || 0}p
               </span>
@@ -212,7 +226,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             Today's Reading Progress:
           </span>
           <span className="text-[#5c5449] font-mono-meta">
-            {readStoriesCount} of {totalStoriesCount} stories explored ({percentage}%)
+            {readStoriesCount} of {totalStoriesCount} articles explored ({percentage}%)
           </span>
         </div>
 
@@ -224,7 +238,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             />
           </div>
 
-          {percentage === 100 && (
+          {percentage === 100 && totalStoriesCount > 0 && (
             <span className="text-[11px] font-bold text-[#3e5f49] bg-[#e3ece5] px-2 py-0.5 rounded-full whitespace-nowrap animate-paper-fade">
               ✨ Caught up!
             </span>
@@ -235,7 +249,7 @@ export const Masthead: React.FC<MastheadProps> = ({
       {/* Top Utility Ribbon */}
       <div className="flex flex-wrap items-center justify-between text-xs text-[#6e685f] border-b border-[#e4dcd3] pb-2 mb-4 font-mono-meta tracking-wider uppercase">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-[#181513]">VOL. II — DAILY MOOD EDITION</span>
+          <span className="font-semibold text-[#181513]">VOL. II — 100% REAL NEWS EDITION</span>
           <span>•</span>
           <span className="text-[#181513] font-semibold">{todayFormatted}</span>
         </div>
@@ -259,7 +273,7 @@ export const Masthead: React.FC<MastheadProps> = ({
 
           <span className="flex items-center gap-1.5 text-[#4e6c58] font-medium">
             <span className="w-2 h-2 rounded-full bg-[#4e6c58] animate-pulse"></span>
-            {isLiveFeed ? 'Live RSS Syndication' : 'Curated Morning Snapshot'}
+            <span>Live RSS Syndications</span>
           </span>
 
           <span>•</span>
@@ -272,7 +286,7 @@ export const Masthead: React.FC<MastheadProps> = ({
         <div className="text-center md:text-left">
           <div className="inline-flex items-center gap-2 bg-[#fbeae5] text-[#9b2c48] text-xs font-semibold px-3 py-1 rounded-full border border-[#f3c8bc] mb-2">
             <Sparkles className="w-3.5 h-3.5 text-[#e25c50]" />
-            <span>PERSONALIZED FOR</span>
+            <span>CURATED FOR</span>
             <span className="uppercase tracking-wider font-bold">{currentProfile.name}</span>
           </div>
           
@@ -282,7 +296,7 @@ export const Masthead: React.FC<MastheadProps> = ({
                 type="text"
                 value={tempTitle}
                 onChange={(e) => setTempTitle(e.target.value)}
-                className="font-serif-editorial text-2xl sm:text-4xl font-bold tracking-tight text-[#181513] bg-[#ffffff] border-2 border-[#e25c50] px-3 py-1 rounded-xl shadow-inner focus:outline-hidden max-w-full"
+                className="font-serif-editorial text-2xl sm:text-4xl font-bold tracking-tight text-[#181513] bg-[#ffffff] border-2 border-[#e25c50] px-3 py-1 rounded-xl shadow-inner focus:outline-none max-w-full"
                 placeholder={`${currentProfile.name}'s Newsroom`}
                 autoFocus
                 onKeyDown={(e) => {
@@ -327,7 +341,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             </div>
           )}
           <p className="font-serif-editorial italic text-[#5c5449] text-sm sm:text-base mt-2">
-            A calm, distraction-free morning broadsheet with personalized storytelling & interactive playcards
+            A calm, distraction-free morning broadsheet built exclusively from verified live dispatches
           </p>
         </div>
 
@@ -341,7 +355,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             title="Fetch latest updates from permitted publisher RSS feeds"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-[#6e685f] ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+            <span>{isRefreshing ? 'Fetching Wires...' : 'Refresh'}</span>
           </button>
 
           {/* Voice Tuning Button */}
@@ -362,15 +376,6 @@ export const Masthead: React.FC<MastheadProps> = ({
           >
             <Users className="w-3.5 h-3.5 text-[#9b2c48]" />
             <span className="font-semibold text-[#9b2c48]">{currentProfile.name.split(' ')[0]}</span>
-          </button>
-
-          {/* Supporter Badge Button */}
-          <button
-            onClick={onOpenSupporter}
-            className="hidden lg:inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-[#9b2c48] bg-[#eee8f8] border border-[#d7cbf0] rounded-xl hover:bg-[#dfd4f5] transition-colors cursor-pointer"
-            title="Dodo Payments supporter tier placeholder"
-          >
-            <span>★ Patron</span>
           </button>
         </div>
       </div>

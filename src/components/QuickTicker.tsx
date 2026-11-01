@@ -33,15 +33,9 @@ export const QuickTicker: React.FC<QuickTickerProps> = ({ stories, onOpenExplain
               <div className="flex items-center justify-between text-[11px] font-mono-meta text-[#8f887d] mb-1">
                 <div className="flex items-center gap-1.5">
                   <span className="font-semibold text-[#5c5449]">{story.sourceName}</span>
-                  {story.sourceMode === 'rss' ? (
-                    <span className="text-[9px] text-[#2d6a4f] bg-[#e8f5e9] px-1.5 py-0.2 rounded-xs border border-[#c8e6c9]">
-                      Live
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-[#7c5e3f] bg-[#fbf2e3] px-1.5 py-0.2 rounded-xs border border-[#edd8be]">
-                      Demo
-                    </span>
-                  )}
+                  <span className="text-[9px] text-[#2d6a4f] bg-[#e8f5e9] px-1.5 py-0.2 rounded-xs border border-[#c8e6c9]">
+                    Live
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1.5">

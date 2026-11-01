@@ -101,17 +101,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
             )}
 
             {/* Source Mode Trust Indicator */}
-            {story.sourceMode === 'rss' ? (
-              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-[#2d6a4f] bg-[#e8f5e9] px-2 py-0.5 rounded-full border border-[#c8e6c9]">
-                <Radio className="w-2 h-2 animate-pulse" />
-                <span>Live</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-[#7c5e3f] bg-[#fbf2e3] px-2 py-0.5 rounded-full border border-[#edd8be]">
-                <FileText className="w-2 h-2" />
-                <span>Demo</span>
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-[#2d6a4f] bg-[#e8f5e9] px-2 py-0.5 rounded-full border border-[#c8e6c9]">
+              <Radio className="w-2 h-2 animate-pulse" />
+              <span>Live</span>
+            </span>
           </div>
 
           <div className="flex items-center gap-2 text-[#8f887d]">

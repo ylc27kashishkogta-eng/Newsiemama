@@ -17,6 +17,7 @@ interface FrontPageProps {
   sourceNote: string;
   viewMode?: 'broadsheet' | 'playcard';
   onOpenNewsQuest: () => void;
+  onRefresh?: () => void;
 }
 
 export const FrontPage: React.FC<FrontPageProps> = ({
@@ -28,6 +29,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
   sourceNote,
   viewMode = 'broadsheet',
   onOpenNewsQuest,
+  onRefresh,
 }) => {
   const { currentProfile } = useProfile();
 
@@ -36,9 +38,17 @@ export const FrontPage: React.FC<FrontPageProps> = ({
       <div className="bg-[#ffffff] rounded-2xl border border-[#e4dcd3] p-12 text-center my-8 animate-paper-fade">
         <Bookmark className="w-8 h-8 text-[#e25c50] mx-auto mb-3 opacity-60" />
         <h3 className="font-serif-editorial text-xl font-bold text-[#181513] mb-2">No Stories in This View</h3>
-        <p className="text-sm text-[#6e685f] max-w-md mx-auto">
-          If you selected Saved Stories, bookmark any article across your edition to read it here. Otherwise, try selecting All Sections above.
+        <p className="text-sm text-[#6e685f] max-w-md mx-auto mb-4">
+          If you selected Saved Stories, bookmark any article across your edition to read it here. If a live category has no articles currently syndicated, Moodpaper never invents fictional filler news.
         </p>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#e25c50] text-[#ffffff] font-medium text-xs rounded-xl shadow-xs hover:bg-[#cf4b3f] transition-colors cursor-pointer"
+          >
+            <span>Retry Live Syndication Feeds</span>
+          </button>
+        )}
       </div>
     );
   }
@@ -163,7 +173,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
               <span>Provenance & Attribution</span>
             </h4>
             <p className="leading-relaxed text-[11px]">
-              Every headline links to official publisher syndications or topic hubs. Bundled stories are clearly labeled illustrative scenarios crafted for prototype demonstration and do not claim to be breaking live wire dispatches.
+              Every story is directly syndicated from official publisher RSS feeds with exact headlines, publication timestamps, and direct canonical links. Moodpaper never fabricates news or generates fictional filler articles.
             </p>
             <div className="pt-2 text-[10px] text-[#8f887d] font-mono-meta border-t border-[#e2d5c7]">
               Status: {sourceNote}

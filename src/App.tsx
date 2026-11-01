@@ -13,6 +13,8 @@ import { CustomizeTopicsModal } from './components/CustomizeTopicsModal';
 import { WelcomeSetupModal } from './components/WelcomeSetupModal';
 import { NewsQuestDrawer } from './components/NewsQuestDrawer';
 import { FutureIntegrationsModal } from './components/FutureIntegrationsModal';
+import { MarketDataTicker } from './components/MarketDataTicker';
+import { VisualBusinessAgent } from './components/VisualBusinessAgent';
 import { APP_NAME } from './config';
 import { Newspaper } from 'lucide-react';
 
@@ -36,6 +38,7 @@ const NewspaperApp: React.FC = () => {
   const [isCustomizeTopicsOpen, setIsCustomizeTopicsOpen] = useState(false);
   const [isNewsQuestDrawerOpen, setIsNewsQuestDrawerOpen] = useState(false);
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
+  const [isBusinessAgentOpen, setIsBusinessAgentOpen] = useState(false);
 
   // Metadata states
   const [refreshedAt, setRefreshedAt] = useState('06:30 AM');
@@ -120,6 +123,7 @@ const NewspaperApp: React.FC = () => {
           onOpenSupporter={() => setIsSupporterModalOpen(true)}
           onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
           onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
+          onOpenBusinessAgent={() => setIsBusinessAgentOpen(true)}
           onEditSetup={() => {
             setIsWelcomeEditMode(true);
             setIsWelcomeModalOpen(true);
@@ -129,6 +133,9 @@ const NewspaperApp: React.FC = () => {
           totalStoriesCount={totalStoriesCount}
           readStoriesCount={readStoriesCount}
         />
+
+        {/* Live Market Data Ticker */}
+        <MarketDataTicker />
 
         {/* Topic Filter Ribbon & Customizer */}
         <TopicBar
@@ -170,6 +177,7 @@ const NewspaperApp: React.FC = () => {
             sourceNote={sourceNote}
             viewMode={viewMode}
             onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
+            onRefresh={handleRefresh}
           />
         )}
       </div>
@@ -215,6 +223,12 @@ const NewspaperApp: React.FC = () => {
         onClose={() => setIsNewsQuestDrawerOpen(false)}
         stories={stories}
         onOpenStory={(s) => setActiveStory(s)}
+      />
+
+      <VisualBusinessAgent
+        isOpen={isBusinessAgentOpen}
+        onClose={() => setIsBusinessAgentOpen(false)}
+        activeStories={filteredStories}
       />
 
       <FutureIntegrationsModal

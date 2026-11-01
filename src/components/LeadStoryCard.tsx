@@ -88,17 +88,10 @@ export const LeadStoryCard: React.FC<LeadStoryCardProps> = ({
           <span className="text-[#6e685f] font-medium font-serif-editorial">| {story.sourceName}</span>
 
           {/* Source Mode Trust Indicator */}
-          {story.sourceMode === 'rss' ? (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2d6a4f] bg-[#e8f5e9] px-2 py-0.5 rounded-full border border-[#c8e6c9]">
-              <Radio className="w-2.5 h-2.5 animate-pulse" />
-              <span>Live RSS</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#7c5e3f] bg-[#fbf2e3] px-2 py-0.5 rounded-full border border-[#edd8be]">
-              <FileText className="w-2.5 h-2.5" />
-              <span>Demo Snapshot</span>
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#2d6a4f] bg-[#e8f5e9] px-2 py-0.5 rounded-full border border-[#c8e6c9]">
+            <Radio className="w-2.5 h-2.5 animate-pulse" />
+            <span>Live RSS</span>
+          </span>
         </div>
 
         <div className="flex items-center gap-3 text-[#6e685f] font-mono-meta">

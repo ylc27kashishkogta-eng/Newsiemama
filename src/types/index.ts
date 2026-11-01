@@ -66,6 +66,7 @@ export interface QuestQuestion {
   correctIndex: number;
   explanation: string;
   conceptTag: string;
+  sourceUrl?: string;
   isDemoQuestion?: boolean;
 }
 
@@ -194,6 +195,24 @@ export interface StoryExplanation {
   predictionDisclaimer?: string;
   slangTakeaway?: string;
   isAnalysisForecast?: boolean;
+  isAiConnected?: boolean;
+  aiNotice?: string;
+}
+
+export interface AgentCitedSource {
+  title: string;
+  publisher: string;
+  publishedAt: string;
+  url: string;
+}
+
+export interface AgentResponse {
+  directAnswer: string;
+  businessAnalysis?: string;
+  sourcesCited: AgentCitedSource[];
+  unknownNotice?: string;
+  connected: boolean;
+  asOf: string;
 }
 
 export interface EditionMetadata {

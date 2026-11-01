@@ -202,15 +202,19 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               </span>
 
               {/* Source Mode Trust Indicator */}
-              {story.sourceMode === 'rss' ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2d6a4f] bg-[#e8f5e9] px-2.5 py-0.5 rounded-full border border-[#c8e6c9]">
-                  <Radio className="w-3 h-3 text-[#2d6a4f] animate-pulse" />
-                  <span>Live RSS Feed</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2d6a4f] bg-[#e8f5e9] px-2.5 py-0.5 rounded-full border border-[#c8e6c9]">
+                <Radio className="w-3 h-3 text-[#2d6a4f] animate-pulse" />
+                <span>Live Publisher Feed</span>
+              </span>
+
+              {explanation?.isAiConnected ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#7c66dc] bg-[#eee8f8] px-2.5 py-0.5 rounded-full border border-[#d8cff5]">
+                  <Sparkles className="w-3 h-3 text-[#7c66dc]" />
+                  <span>Gemini AI Synthesized</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#7c5e3f] bg-[#fbf2e3] px-2.5 py-0.5 rounded-full border border-[#edd8be]">
-                  <FileText className="w-3 h-3 text-[#7c5e3f]" />
-                  <span>Illustrative Demo Story</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6e685f] bg-[#f0eae1] px-2.5 py-0.5 rounded-full border border-[#e4dcd3]">
+                  <span>Factual Direct Extraction</span>
                 </span>
               )}
             </div>
@@ -527,21 +531,19 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
 
             {/* Accuracy & Grounding Transparency Note */}
-            {story.sourceMode === 'rss' ? (
-              <div className="bg-[#e3ece5] border border-[#c1d6c7] rounded-xl p-3 text-[11px] text-[#3e5f49] flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#4e6c58]" />
+            <div className="bg-[#e3ece5] border border-[#c1d6c7] rounded-xl p-3 text-[11px] text-[#3e5f49] flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#4e6c58]" />
+              <div className="space-y-1">
                 <p className="leading-relaxed">
-                  <strong>Live Syndication Transparency:</strong> Synthesized directly from <strong>{story.sourceName}</strong>’s official public RSS feed ({story.timeAgo}). Excerpts and titles reflect live publisher dispatches without altering reported facts.
+                  <strong>Live Syndication Transparency:</strong> Synthesized directly from <strong>{story.sourceName}</strong>’s official public feed ({story.timeAgo}). Excerpts and titles reflect live publisher dispatches without altering reported facts.
                 </p>
+                {explanation?.aiNotice && (
+                  <p className="text-[10px] text-[#426b4e] border-t border-[#c1d6c7] pt-1.5 font-mono-meta">
+                    ℹ️ {explanation.aiNotice}
+                  </p>
+                )}
               </div>
-            ) : (
-              <div className="bg-[#faf7f2] border border-[#e4dcd3] rounded-xl p-3 text-[11px] text-[#6e533c] flex items-start gap-2">
-                <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#e25c50]" />
-                <p className="leading-relaxed">
-                  <strong>Illustrative Demo Story:</strong> This article is an illustrative scenario crafted for prototype evaluation, inspired by coverage from <strong>{story.sourceName}</strong>. It is bundled demo content rather than a live syndicated wire dispatch.
-                </p>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
