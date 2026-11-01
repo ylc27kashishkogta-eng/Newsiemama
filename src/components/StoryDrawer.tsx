@@ -29,6 +29,7 @@ import {
   Volume2
 } from 'lucide-react';
 import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
+import { StoryIllustration } from './StoryIllustration';
 
 interface StoryDrawerProps {
   story: Story | null;
@@ -248,6 +249,9 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                   {story.deck}
                 </p>
               )}
+
+              {/* On-Demand AI Editorial Illustration */}
+              <StoryIllustration story={story} layout="drawer" />
             </div>
 
             {/* Voice Tuning & Reading Mode Controls */}

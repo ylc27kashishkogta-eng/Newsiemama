@@ -17,6 +17,7 @@ import {
   HelpCircle,
   Lightbulb
 } from 'lucide-react';
+import { StoryIllustration } from './StoryIllustration';
 
 interface PlaycardDeckProps {
   stories: Story[];
@@ -279,6 +280,9 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
               </p>
             </div>
           </div>
+
+          {/* On-Demand AI Editorial Illustration inside Playcard */}
+          <StoryIllustration story={activeStory} layout="card" />
 
           {/* Actions & Deep Dive Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#f4eee5]">

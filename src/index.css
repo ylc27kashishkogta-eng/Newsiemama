@@ -132,6 +132,17 @@
   }
 }
 
+@keyframes imageReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.985) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .animate-paper-fade {
   animation: paperFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -142,6 +153,10 @@
 
 .animate-drawer-slide {
   animation: drawerSlide 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-image-reveal {
+  animation: imageReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-companion-bob {

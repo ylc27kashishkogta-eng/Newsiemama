@@ -15,6 +15,7 @@ import {
   FileText
 } from 'lucide-react';
 import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
+import { StoryIllustration } from './StoryIllustration';
 
 interface LeadStoryCardProps {
   story: Story;
@@ -151,6 +152,9 @@ export const LeadStoryCard: React.FC<LeadStoryCardProps> = ({
       <div className="text-sm sm:text-base text-[#3a332a] leading-relaxed font-serif-editorial my-4">
         {story.content}
       </div>
+
+      {/* On-Demand AI Editorial Illustration */}
+      <StoryIllustration story={story} layout="lead" />
 
       {/* Key Takeaways Preview Bullets */}
       {story.keyBullets && story.keyBullets.length > 0 && (
