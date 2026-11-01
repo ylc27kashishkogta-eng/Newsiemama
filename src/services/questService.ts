@@ -57,14 +57,28 @@ export const QUEST_BADGES: QuestBadge[] = [
     icon: '🌐',
     category: 'world',
   },
+  {
+    id: 'science-scholar',
+    title: 'Cosmic Investigator',
+    description: 'Mastered a Science & Space exploration inquiry',
+    icon: '🔭',
+    category: 'science',
+  },
+  {
+    id: 'culture-patron',
+    title: 'Culture & Arts Critic',
+    description: 'Mastered a Sports & Contemporary Arts inquiry',
+    icon: '🎨',
+    category: 'sports_culture',
+  },
 ];
 
 export const SAMPLE_QUESTIONS: QuestQuestion[] = [
   {
-    id: 'quest-story-1',
-    storyId: 'story-1',
+    id: 'quest-story-fin-1',
+    storyId: 'story-fin-1',
     storyTitle: 'RBI Signals Measured Liquidity Path as Core Inflation Moderates to 3.8%',
-    category: 'economy',
+    category: 'finance',
     question: 'In this illustrative economy scenario, to what level did core industrial and consumer price inflation cool?',
     options: [
       'Accelerated to 7.4% due to seasonal harvest shortages',
@@ -78,8 +92,8 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-2',
-    storyId: 'story-2',
+    id: 'quest-story-tech-1',
+    storyId: 'story-tech-1',
     storyTitle: 'Open-Weight AI Models Challenge Commercial Cloud Dominance Across Indian Enterprises',
     category: 'tech',
     question: 'In this illustrative enterprise AI scenario, what performance and economic benefits were highlighted?',
@@ -95,8 +109,8 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-3',
-    storyId: 'story-3',
+    id: 'quest-story-pol-1',
+    storyId: 'story-pol-1',
     storyTitle: 'Dedicated Freight Corridors Cut Western Transit Time Between Delhi and Mumbai by 38 Hours',
     category: 'policy',
     question: 'In this Western DFC logistics scenario, what operational speed and transit time gains were modeled?',
@@ -112,10 +126,10 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-4',
-    storyId: 'story-4',
+    id: 'quest-story-sci-1',
+    storyId: 'story-sci-1',
     storyTitle: 'ISRO Completes Critical Autonomous Docking Test for Next-Generation Orbital Station',
-    category: 'tech',
+    category: 'science',
     question: 'What milestone did ISRO’s SpaDeX robotic demonstration achieve in low Earth orbit?',
     options: [
       'Sub-millimeter latching alignment and autonomous propellant transfer using laser rangefinders',
@@ -129,25 +143,8 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-5',
-    storyId: 'story-5',
-    storyTitle: 'Semiconductor Cluster in Sanand Breaks Ground on Commercial 3D Packaging Cleanroom',
-    category: 'economy',
-    question: 'In this semiconductor cluster scenario, what supply chain capability is being established at Sanand?',
-    options: [
-      'Tool-in for advanced 2.5D and 3D heterogeneous packaging with test wafers in early Q2 2027',
-      'Mass assembly of complete consumer desktop monitors',
-      'Decommissioning legacy 8-inch silicon fabrication equipment',
-      'Exclusive export of raw silica sand for foreign foundries',
-    ],
-    correctIndex: 0,
-    explanation: 'In this illustrative manufacturing scenario based on Gujarat’s semiconductor cluster, cleanroom tool-in focuses on high-density 2.5D and 3D packaging under the India Semiconductor Mission, targeting test output for Q2 2027.',
-    conceptTag: 'Demo Scenario: Semiconductor Packaging',
-    isDemoQuestion: true,
-  },
-  {
-    id: 'quest-story-6',
-    storyId: 'story-6',
+    id: 'quest-story-cli-1',
+    storyId: 'story-cli-1',
     storyTitle: 'Global Renewable Energy Additions Surge 32% as Grid-Scale Battery Storage Prices Plummet',
     category: 'climate',
     question: 'In this global clean energy scenario, what economic threshold made solar-plus-storage cheaper than peaker gas?',
@@ -163,8 +160,8 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-7',
-    storyId: 'story-7',
+    id: 'quest-story-wor-1',
+    storyId: 'story-wor-1',
     storyTitle: 'India-EU Comprehensive Trade Dialogue Enters Decisive Phase on Carbon Border Mechanism',
     category: 'world',
     question: 'Under the modeled compromise on the EU Carbon Border Adjustment Mechanism (CBAM), what incentive was proposed for Indian manufacturers?',
@@ -180,20 +177,20 @@ export const SAMPLE_QUESTIONS: QuestQuestion[] = [
     isDemoQuestion: true,
   },
   {
-    id: 'quest-story-8',
-    storyId: 'story-8',
-    storyTitle: 'National Digital Agriculture Mission Connects 40 Million Farmers to Real-Time Soil Sensor Grids',
-    category: 'policy',
-    question: 'In this agritech advisory scenario, how does the soil sensor network assist participating farmers?',
+    id: 'quest-story-spo-1',
+    storyId: 'story-spo-1',
+    storyTitle: 'Women’s Premier League Expansion Adds Two Franchises as Viewership Sets Global Mark',
+    category: 'sports_culture',
+    question: 'In the WPL league expansion scenario, what milestones were recorded?',
     options: [
-      'Replaces all manual crop tending with robotic harvesters',
-      'Delivers vernacular microclimate telemetry via SMS/WhatsApp, reducing pesticide use by 22% and improving yields by 14%',
-      'Requires farmers to purchase chemical fertilizers exclusively through foreign portals',
-      'Restricts crop sales exclusively to centralized international exchanges',
+      'The league was downsized to three teams',
+      'Two new franchises added in Ahmedabad and Lucknow after digital viewership crossed 185 million',
+      'All commercial sponsorships were postponed indefinitely',
+      'The league transitioned permanently to closed private streaming',
     ],
     correctIndex: 1,
-    explanation: 'In this illustrative digital agrarian scenario reflecting AgriStack initiatives, real-time soil telemetry sent via vernacular messaging optimizes irrigation schedules, modeling a 22% drop in pesticide use and a 14% yield boost.',
-    conceptTag: 'Demo Scenario: Agritech Telemetry',
+    explanation: 'Following digital viewership of 185 million viewers, the board sanctioned expansion from 5 to 7 franchises with new teams in Ahmedabad and Lucknow.',
+    conceptTag: 'Sports Expansion: WPL Growth',
     isDemoQuestion: true,
   },
 ];
@@ -256,9 +253,9 @@ export const questService = {
         question: `According to reporting by ${story.sourceName} in "${story.title}", what development was confirmed?`,
         options,
         correctIndex: targetCorrectIndex,
-        explanation: `As reported in ${story.sourceName}'s live dispatch: "${verifiedFact}"`,
-        conceptTag: `Live RSS: ${story.category.toUpperCase()}`,
-        isDemoQuestion: false,
+        explanation: `As reported in ${story.sourceName}'s dispatch: "${verifiedFact}"`,
+        conceptTag: `${story.sourceMode === 'rss' ? 'Live RSS' : 'Curated'}: ${story.category.toUpperCase()}`,
+        isDemoQuestion: story.sourceMode !== 'rss',
       };
 
       results.push(question);
@@ -304,12 +301,15 @@ export const questService = {
 
     // Category specific badges
     if (testedCategory) {
-      const categoryBadgeMap: Record<TopicCategory, string> = {
+      const categoryBadgeMap: Partial<Record<TopicCategory, string>> = {
+        finance: 'economy-analyst',
         economy: 'economy-analyst',
         tech: 'tech-explorer',
         policy: 'logistics-scholar',
         climate: 'climate-guardian',
         world: 'world-observer',
+        science: 'science-scholar',
+        sports_culture: 'culture-patron',
       };
 
       const targetBadge = categoryBadgeMap[testedCategory];

@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange, ReaderQuestProgress } from '../types';
+import {
+  ReaderProfile,
+  TopicCategory,
+  VoicePreset,
+  CustomVoiceProfile,
+  AgeRange,
+  ReaderQuestProgress,
+  SlangLevel,
+  StoryLength
+} from '../types';
 import { storageService, DEFAULT_PROFILES } from '../services/storageService';
 import { questService } from '../services/questService';
 
@@ -12,6 +21,9 @@ interface ProfileContextType {
   switchProfile: (id: string) => void;
   updateTopics: (topics: TopicCategory[]) => void;
   setVoicePreset: (preset: VoicePreset) => void;
+  setSlangLevel: (level: SlangLevel) => void;
+  setStoryLength: (length: StoryLength) => void;
+  setCompanionEnabled: (enabled: boolean) => void;
   updateAgeRange: (ageRange: AgeRange) => void;
   updateEditionTitle: (title: string) => void;
   updateProfileDetails: (
@@ -19,7 +31,9 @@ interface ProfileContextType {
     ageRange: AgeRange,
     voicePreset: VoicePreset,
     topics: TopicCategory[],
-    editionTitle?: string
+    editionTitle?: string,
+    slangLevel?: SlangLevel,
+    storyLength?: StoryLength
   ) => void;
   saveCustomVoice: (custom: CustomVoiceProfile) => void;
   createNewProfile: (
@@ -27,7 +41,9 @@ interface ProfileContextType {
     ageRange: AgeRange,
     topics: TopicCategory[],
     preset: VoicePreset,
-    editionTitle?: string
+    editionTitle?: string,
+    slangLevel?: SlangLevel,
+    storyLength?: StoryLength
   ) => ReaderProfile;
   toggleSaveArticle: (articleId: string) => void;
   isArticleSaved: (articleId: string) => boolean;
@@ -98,6 +114,24 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     storageService.updateProfile(updated);
   };
 
+  const setSlangLevel = (slangLevel: SlangLevel) => {
+    const updated: ReaderProfile = { ...currentProfile, slangLevel };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
+  };
+
+  const setStoryLength = (storyLength: StoryLength) => {
+    const updated: ReaderProfile = { ...currentProfile, storyLength };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
+  };
+
+  const setCompanionEnabled = (companionEnabled: boolean) => {
+    const updated: ReaderProfile = { ...currentProfile, companionEnabled };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
+  };
+
   const updateAgeRange = (ageRange: AgeRange) => {
     const updated: ReaderProfile = { ...currentProfile, ageRange };
     setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -116,7 +150,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     ageRange: AgeRange,
     voicePreset: VoicePreset,
     topics: TopicCategory[],
-    customEditionTitle?: string
+    customEditionTitle?: string,
+    slangLevel?: SlangLevel,
+    storyLength?: StoryLength
   ) => {
     const editionTitle = customEditionTitle?.trim() || `${name}'s Newsroom`;
     const updated: ReaderProfile = {
@@ -126,6 +162,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       voicePreset,
       topics,
       editionTitle,
+      slangLevel: slangLevel || currentProfile.slangLevel || 'subtle',
+      storyLength: storyLength || currentProfile.storyLength || 'balanced',
     };
     setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
     storageService.updateProfile(updated);
@@ -142,9 +180,11 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     ageRange: AgeRange,
     topics: TopicCategory[],
     preset: VoicePreset,
-    customTitle?: string
+    customTitle?: string,
+    slangLevel: SlangLevel = 'subtle',
+    storyLength: StoryLength = 'balanced'
   ): ReaderProfile => {
-    const newProfile = storageService.createProfile(name, ageRange, topics, preset, customTitle);
+    const newProfile = storageService.createProfile(name, ageRange, topics, preset, customTitle, slangLevel, storyLength);
     setProfiles(storageService.getProfiles());
     setActiveId(newProfile.id);
     setHasCompletedOnboarding(true);
@@ -162,51 +202,46 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     storageService.updateProfile(updated);
   };
 
-  const isArticleSaved = (articleId: string) => {
+  const isArticleSaved = (articleId: string): boolean => {
     return (currentProfile.savedArticleIds || []).includes(articleId);
   };
 
   const markArticleAsRead = (articleId: string) => {
-    const currentRead = currentProfile.readStoryIds || [];
-    if (!currentRead.includes(articleId)) {
-      const readStoryIds = [...currentRead, articleId];
-      const updated: ReaderProfile = { ...currentProfile, readStoryIds };
-      setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-      storageService.updateProfile(updated);
-    }
+    if ((currentProfile.readStoryIds || []).includes(articleId)) return;
+    const readStoryIds = [...(currentProfile.readStoryIds || []), articleId];
+    const updated: ReaderProfile = { ...currentProfile, readStoryIds };
+    setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    storageService.updateProfile(updated);
   };
 
-  const isArticleRead = (articleId: string) => {
+  const isArticleRead = (articleId: string): boolean => {
     return (currentProfile.readStoryIds || []).includes(articleId);
   };
 
   const toggleStoryFeedback = (articleId: string, feedback: 'more' | 'less') => {
-    const currentLiked = currentProfile.likedStoryIds || [];
-    const currentDisliked = currentProfile.dislikedStoryIds || [];
-
-    let newLiked = [...currentLiked];
-    let newDisliked = [...currentDisliked];
+    let liked = [...(currentProfile.likedStoryIds || [])];
+    let disliked = [...(currentProfile.dislikedStoryIds || [])];
 
     if (feedback === 'more') {
-      if (newLiked.includes(articleId)) {
-        newLiked = newLiked.filter((id) => id !== articleId);
+      if (liked.includes(articleId)) {
+        liked = liked.filter((id) => id !== articleId);
       } else {
-        newLiked.push(articleId);
-        newDisliked = newDisliked.filter((id) => id !== articleId);
+        liked.push(articleId);
+        disliked = disliked.filter((id) => id !== articleId);
       }
     } else {
-      if (newDisliked.includes(articleId)) {
-        newDisliked = newDisliked.filter((id) => id !== articleId);
+      if (disliked.includes(articleId)) {
+        disliked = disliked.filter((id) => id !== articleId);
       } else {
-        newDisliked.push(articleId);
-        newLiked = newLiked.filter((id) => id !== articleId);
+        disliked.push(articleId);
+        liked = liked.filter((id) => id !== articleId);
       }
     }
 
     const updated: ReaderProfile = {
       ...currentProfile,
-      likedStoryIds: newLiked,
-      dislikedStoryIds: newDisliked,
+      likedStoryIds: liked,
+      dislikedStoryIds: disliked,
     };
     setProfiles((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
     storageService.updateProfile(updated);
@@ -224,9 +259,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     isCorrect: boolean,
     categoryTested?: TopicCategory,
     isLastInQuest?: boolean,
-    totalQuestionsInQuest?: number
-  ) => {
-    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+    totalQuestionsInQuest: number = 3
+  ): { pointsEarned: number; newBadgeIds: string[] } => {
+    const currentProgress: ReaderQuestProgress = currentProfile.questProgress || {
       totalPoints: 0,
       unlockedBadgeIds: [],
       completedEditionDates: [],
@@ -234,37 +269,55 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       showNewsQuest: true,
     };
 
-    const alreadyAnswered = existingProgress.answeredQuestions[questionId];
-    const pointsAwarded = isCorrect && !alreadyAnswered?.isCorrect ? 25 : 0;
-    const newTotalPoints = existingProgress.totalPoints + pointsAwarded;
+    const alreadyAnswered = Boolean(currentProgress.answeredQuestions[questionId]);
+    const todayDate = new Date().toISOString().split('T')[0];
+    let pointsToAdd = 0;
+    const newBadgeIds: string[] = [];
 
-    const newAnsweredQuestions = {
-      ...existingProgress.answeredQuestions,
+    // Award points only for first-time correct answers
+    if (!alreadyAnswered && isCorrect) {
+      pointsToAdd = 25;
+    }
+
+    const updatedAnsweredQuestions = {
+      ...currentProgress.answeredQuestions,
       [questionId]: { selectedIndex, isCorrect },
     };
 
-    const totalAttempted = Object.keys(newAnsweredQuestions).length;
-    const correctCount = Object.values(newAnsweredQuestions).filter((a) => a.isCorrect).length;
+    const newTotalPoints = currentProgress.totalPoints + pointsToAdd;
+    const existingBadges = new Set(currentProgress.unlockedBadgeIds);
 
-    const todayDate = new Date().toISOString().split('T')[0];
-    const completedDates = isLastInQuest && !existingProgress.completedEditionDates.includes(todayDate)
-      ? [...existingProgress.completedEditionDates, todayDate]
-      : existingProgress.completedEditionDates;
+    // Badge Evaluation Rules
+    if (!existingBadges.has('first-quest') && Object.keys(updatedAnsweredQuestions).length >= 1) {
+      existingBadges.add('first-quest');
+      newBadgeIds.push('first-quest');
+    }
 
-    const newBadgeIds = questService.evaluateNewBadges(
-      existingProgress.unlockedBadgeIds,
-      newTotalPoints,
-      correctCount,
-      totalQuestionsInQuest || totalAttempted,
-      isCorrect ? categoryTested : undefined
-    );
+    if (categoryTested && !existingBadges.has(`curator-${categoryTested}`) && isCorrect) {
+      const answersInCategory = Object.keys(updatedAnsweredQuestions).filter((qId) =>
+        qId.includes(categoryTested)
+      );
+      if (answersInCategory.length >= 1) {
+        existingBadges.add(`curator-${categoryTested}`);
+        newBadgeIds.push(`curator-${categoryTested}`);
+      }
+    }
+
+    let updatedDates = [...currentProgress.completedEditionDates];
+    if (isLastInQuest && !updatedDates.includes(todayDate)) {
+      updatedDates.push(todayDate);
+      if (!existingBadges.has('edition-master')) {
+        existingBadges.add('edition-master');
+        newBadgeIds.push('edition-master');
+      }
+    }
 
     const updatedProgress: ReaderQuestProgress = {
-      ...existingProgress,
+      ...currentProgress,
       totalPoints: newTotalPoints,
-      unlockedBadgeIds: [...existingProgress.unlockedBadgeIds, ...newBadgeIds],
-      completedEditionDates: completedDates,
-      answeredQuestions: newAnsweredQuestions,
+      unlockedBadgeIds: Array.from(existingBadges),
+      completedEditionDates: updatedDates,
+      answeredQuestions: updatedAnsweredQuestions,
     };
 
     const updatedProfile: ReaderProfile = {
@@ -275,11 +328,11 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProfiles((prev) => prev.map((p) => (p.id === updatedProfile.id ? updatedProfile : p)));
     storageService.updateProfile(updatedProfile);
 
-    return { pointsEarned: pointsAwarded, newBadgeIds };
+    return { pointsEarned: pointsToAdd, newBadgeIds };
   };
 
   const toggleShowNewsQuest = (show?: boolean) => {
-    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+    const currentProgress = currentProfile.questProgress || {
       totalPoints: 0,
       unlockedBadgeIds: [],
       completedEditionDates: [],
@@ -287,9 +340,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       showNewsQuest: true,
     };
 
-    const newShow = show !== undefined ? show : !existingProgress.showNewsQuest;
+    const newShow = show !== undefined ? show : !currentProgress.showNewsQuest;
     const updatedProgress: ReaderQuestProgress = {
-      ...existingProgress,
+      ...currentProgress,
       showNewsQuest: newShow,
     };
 
@@ -303,17 +356,12 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const resetQuestProgress = () => {
-    const existingProgress: ReaderQuestProgress = currentProfile.questProgress || {
+    const updatedProgress: ReaderQuestProgress = {
       totalPoints: 0,
       unlockedBadgeIds: [],
       completedEditionDates: [],
       answeredQuestions: {},
       showNewsQuest: true,
-    };
-
-    const updatedProgress: ReaderQuestProgress = {
-      ...existingProgress,
-      answeredQuestions: {},
     };
 
     const updatedProfile: ReaderProfile = {
@@ -326,13 +374,13 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const completeOnboarding = () => {
-    storageService.setCompletedOnboarding(true);
     setHasCompletedOnboarding(true);
+    storageService.setCompletedOnboarding(true);
   };
 
   const resetToWelcome = () => {
-    storageService.setCompletedOnboarding(false);
     setHasCompletedOnboarding(false);
+    storageService.setCompletedOnboarding(false);
   };
 
   const resetAllPreferences = () => {
@@ -353,6 +401,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         switchProfile,
         updateTopics,
         setVoicePreset,
+        setSlangLevel,
+        setStoryLength,
+        setCompanionEnabled,
         updateAgeRange,
         updateEditionTitle,
         updateProfileDetails,

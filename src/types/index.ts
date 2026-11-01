@@ -1,14 +1,43 @@
 export type TopicCategory = 
-  | 'economy' 
+  | 'finance'
+  | 'economy' // legacy alias for finance
   | 'tech' 
   | 'policy' 
   | 'world' 
-  | 'climate';
+  | 'climate'
+  | 'science'
+  | 'sports_culture';
+
+export type FinanceSubcategory =
+  | 'all'
+  | 'stocks'
+  | 'startups'
+  | 'personal_finance'
+  | 'business'
+  | 'economy'
+  | 'tech';
 
 export type VoicePreset = 
   | 'executive'       // Quick Brief
   | 'conversational'  // Friendly Explainer
   | 'storyteller';    // Storyteller
+
+export type SlangLevel =
+  | 'off'     // Straightforward, modern editorial
+  | 'subtle'  // Natural, breezy conversational
+  | 'vibe';   // Playful Gen Z editorial tone (tl;dr, lowkey, major moves, no cap on facts)
+
+export type StoryLength =
+  | 'quick'     // Skimmable bullets & 1-minute read
+  | 'balanced'  // Standard 2-3 minute narrative
+  | 'deep';     // In-depth context, timelines & background
+
+export type CompanionMood =
+  | 'curious'
+  | 'hyped'
+  | 'thoughtful'
+  | 'chill'
+  | 'skeptical';
 
 export type AgeRange = 
   | 'under-13'
@@ -63,6 +92,9 @@ export interface ReaderProfile {
   editionTitle: string;
   topics: TopicCategory[];
   voicePreset: VoicePreset;
+  slangLevel?: SlangLevel;
+  storyLength?: StoryLength;
+  companionEnabled?: boolean;
   customVoice?: CustomVoiceProfile;
   savedArticleIds: string[];
   readStoryIds: string[];
@@ -71,6 +103,13 @@ export interface ReaderProfile {
   questProgress?: ReaderQuestProgress;
   createdAt: string;
   hasCompletedWelcome?: boolean;
+}
+
+export interface PlaycardSlide {
+  label: string;
+  title: string;
+  body: string;
+  type?: 'what' | 'why' | 'next' | 'takeaway';
 }
 
 export interface Story {
@@ -83,6 +122,7 @@ export interface Story {
   publishedAt: string;
   timeAgo: string;
   category: TopicCategory;
+  financeSubcategory?: FinanceSubcategory;
   readingMinutes: number;
   imageUrl?: string;
   isLeadStory?: boolean;
@@ -91,6 +131,9 @@ export interface Story {
   isDemoStory?: boolean;
   editorialNature?: 'illustrative_demo' | 'live_syndication';
   sourceTypeLabel?: string;
+  keyBullets?: string[];
+  vibeSummary?: string;
+  playcards?: PlaycardSlide[];
 }
 
 export type VisualExplainerType = 'steps' | 'timeline' | 'comparison' | 'map' | 'chart';
@@ -149,6 +192,8 @@ export interface StoryExplanation {
   isCustomVoiced: boolean;
   ageAdaptedNote?: string;
   predictionDisclaimer?: string;
+  slangTakeaway?: string;
+  isAnalysisForecast?: boolean;
 }
 
 export interface EditionMetadata {
@@ -158,4 +203,6 @@ export interface EditionMetadata {
   generatedTimestamp: string;
   totalStories: number;
   isLiveFeed: boolean;
+  liveCount?: number;
+  demoCount?: number;
 }

@@ -2,30 +2,39 @@
 
 @layer base {
   :root {
-    /* Pinterest-inspired editorial palette */
+    /* Expressive Pinterest-meets-Gen Z Editorial Palette */
     --paper-cream: #faf7f2;
     --paper-card: #ffffff;
-    --paper-blush: #f8f1ec;
-    --paper-blush-subtle: #fbf5f1;
+    --paper-blush: #fbeae5;
+    --paper-blush-subtle: #fdf5f2;
     
-    /* Terracotta & Rose Accents */
-    --terracotta: #b9533f;
-    --terracotta-dark: #963d2b;
-    --terracotta-soft: #f7ebe8;
-    --rose: #d68175;
-    --rose-soft: #faecea;
+    /* Lavender & Lilac Accents */
+    --paper-lavender: #eee8f8;
+    --paper-lavender-subtle: #f7f4fc;
+    --lavender-accent: #7b5ea7;
+    --lavender-border: #ded4f0;
 
-    /* Sage & Dusty Green */
-    --sage: #4e6c58;
-    --sage-dark: #3b5343;
-    --sage-soft: #e5ede7;
+    /* Sage & Soft Green */
+    --paper-sage: #e3ece5;
+    --sage-dark: #3b5744;
+    --sage-soft: #edf4ee;
+    --sage-border: #cbe0d0;
 
-    /* Deep Ink for high-contrast accessibility */
-    --ink: #1e1b18;
-    --ink-muted: #57524b;
-    --ink-faint: #8a837a;
-    --border-subtle: #e9e3da;
-    --border-accent: #1e1b18;
+    /* Bold Coral & Berry Accents */
+    --coral: #e25c50;
+    --coral-dark: #c54338;
+    --coral-soft: #fdeee9;
+    --berry: #9b2c48;
+    --berry-dark: #781c34;
+    --berry-soft: #faebef;
+    --berry-border: #eec5cf;
+
+    /* Deep Ink for high contrast accessibility */
+    --ink: #181513;
+    --ink-muted: #544e47;
+    --ink-faint: #8a8278;
+    --border-subtle: #e8ded4;
+    --border-accent: #181513;
 
     /* Typography */
     --font-serif: 'Newsreader', Georgia, serif;
@@ -38,6 +47,11 @@
     font-family: var(--font-sans);
     background-color: var(--paper-cream);
     color: var(--ink);
+    background-image: 
+      radial-gradient(#e8dfd5 0.75px, transparent 0.75px),
+      radial-gradient(#f2e8de 0.75px, #faf7f2 0.75px);
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 16px;
   }
 
   h1, h2, h3, .font-serif-editorial {
@@ -85,9 +99,24 @@
   }
 }
 
-@keyframes pulseGently {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes companionBob {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(1deg);
+  }
+}
+
+@keyframes playcardFlip {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .animate-paper-fade {
@@ -102,6 +131,14 @@
   animation: drawerSlide 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.animate-companion-bob {
+  animation: companionBob 3s ease-in-out infinite;
+}
+
+.animate-playcard {
+  animation: playcardFlip 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Stagger animation timing utilities */
 .stagger-1 { animation-delay: 0.04s; }
 .stagger-2 { animation-delay: 0.08s; }
@@ -111,11 +148,11 @@
 
 /* Double rules for broadsheet styling */
 .border-double-bottom {
-  border-bottom: 3px double #282420;
+  border-bottom: 3px double #24201c;
 }
 
 .border-double-top {
-  border-top: 3px double #282420;
+  border-top: 3px double #24201c;
 }
 
 /* Accessibility: Respect Reduced Motion Preferences */
@@ -126,6 +163,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.reduce-motion *, .reduce-motion ::before, .reduce-motion ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* Custom slim scrollbar */

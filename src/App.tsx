@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
-import { Story, TopicCategory } from './types';
+import { Story, TopicCategory, FinanceSubcategory } from './types';
 import { feedService, FeedResponse } from './services/feedService';
 import { Masthead } from './components/Masthead';
 import { TopicBar } from './components/TopicBar';
@@ -11,23 +11,31 @@ import { VoiceSettingsModal } from './components/VoiceSettingsModal';
 import { SupporterModal } from './components/SupporterModal';
 import { CustomizeTopicsModal } from './components/CustomizeTopicsModal';
 import { WelcomeSetupModal } from './components/WelcomeSetupModal';
+import { NewsQuestDrawer } from './components/NewsQuestDrawer';
+import { FutureIntegrationsModal } from './components/FutureIntegrationsModal';
+import { APP_NAME } from './config';
 import { Newspaper } from 'lucide-react';
 
 const NewspaperApp: React.FC = () => {
   const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
   const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all' | 'saved'>('all');
+  const [selectedFinanceSubcategory, setSelectedFinanceSubcategory] = useState<FinanceSubcategory>('all');
+  const [viewMode, setViewMode] = useState<'broadsheet' | 'playcard'>('broadsheet');
+
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeStory, setActiveStory] = useState<Story | null>(null);
 
-  // Modal visibility states
+  // Modal & Drawer visibility states
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [isWelcomeEditMode, setIsWelcomeEditMode] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isSupporterModalOpen, setIsSupporterModalOpen] = useState(false);
   const [isCustomizeTopicsOpen, setIsCustomizeTopicsOpen] = useState(false);
+  const [isNewsQuestDrawerOpen, setIsNewsQuestDrawerOpen] = useState(false);
+  const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
 
   // Metadata states
   const [refreshedAt, setRefreshedAt] = useState('06:30 AM');
@@ -45,6 +53,7 @@ const NewspaperApp: React.FC = () => {
   // Reset topic filter to 'all' whenever active profile changes
   useEffect(() => {
     setSelectedTopic('all');
+    setSelectedFinanceSubcategory('all');
   }, [currentProfile.id]);
 
   // Fetch stories on profile topics change or profile switch
@@ -52,7 +61,7 @@ const NewspaperApp: React.FC = () => {
     let isCurrent = true;
     setIsLoading(true);
 
-    feedService.getEditionStories(currentProfile.topics, false).then((res: FeedResponse) => {
+    feedService.getEditionStories(currentProfile.topics, false, selectedFinanceSubcategory).then((res: FeedResponse) => {
       if (isCurrent) {
         setStories(res.stories);
         setRefreshedAt(res.refreshedAt);
@@ -65,13 +74,13 @@ const NewspaperApp: React.FC = () => {
     return () => {
       isCurrent = false;
     };
-  }, [currentProfile.topics, currentProfile.id]);
+  }, [currentProfile.topics, currentProfile.id, selectedFinanceSubcategory]);
 
   // Handle on-demand edition refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      const res = await feedService.getEditionStories(currentProfile.topics, true);
+      const res = await feedService.getEditionStories(currentProfile.topics, true, selectedFinanceSubcategory);
       setStories(res.stories);
       setRefreshedAt(res.refreshedAt);
       setIsLiveFeed(res.isLive);
@@ -88,14 +97,19 @@ const NewspaperApp: React.FC = () => {
     ? stories
     : selectedTopic === 'saved'
     ? stories.filter((s) => (currentProfile.savedArticleIds || []).includes(s.id))
-    : stories.filter((s) => s.category === selectedTopic);
+    : stories.filter((s) => {
+        if (selectedTopic === 'finance') {
+          return s.category === 'finance' || s.category === 'economy';
+        }
+        return s.category === selectedTopic;
+      });
 
   const totalStoriesCount = stories.length;
   const readStoriesCount = stories.filter((s) => (currentProfile.readStoryIds || []).includes(s.id)).length;
   const savedStoriesCount = (currentProfile.savedArticleIds || []).length;
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] text-[#1e1b18] flex flex-col justify-between selection:bg-[#f5e6e1] selection:text-[#963f2e]">
+    <div className="min-h-screen bg-[#faf7f2] text-[#181513] flex flex-col justify-between selection:bg-[#fbeae5] selection:text-[#9b2c48]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-4">
         {/* Newspaper Masthead */}
         <Masthead
@@ -104,6 +118,8 @@ const NewspaperApp: React.FC = () => {
           onOpenProfiles={() => setIsProfileModalOpen(true)}
           onOpenVoiceSettings={() => setIsVoiceModalOpen(true)}
           onOpenSupporter={() => setIsSupporterModalOpen(true)}
+          onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
+          onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
           onEditSetup={() => {
             setIsWelcomeEditMode(true);
             setIsWelcomeModalOpen(true);
@@ -117,21 +133,32 @@ const NewspaperApp: React.FC = () => {
         {/* Topic Filter Ribbon & Customizer */}
         <TopicBar
           selectedTopic={selectedTopic}
-          onSelectTopic={setSelectedTopic}
+          onSelectTopic={(t) => {
+            setSelectedTopic(t);
+            if (t !== 'all' && t !== 'finance' && t !== 'economy') {
+              setSelectedFinanceSubcategory('all');
+            }
+          }}
           availableTopics={currentProfile.topics}
           totalStoriesCount={totalStoriesCount}
           savedStoriesCount={savedStoriesCount}
           onOpenCustomizeTopics={() => setIsCustomizeTopicsOpen(true)}
+          selectedFinanceSubcategory={selectedFinanceSubcategory}
+          onSelectFinanceSubcategory={(sub) => setSelectedFinanceSubcategory(sub)}
+          viewMode={viewMode}
+          onToggleViewMode={(mode) => setViewMode(mode)}
         />
 
-        {/* Main Broadsheet Front Page */}
+        {/* Main Broadsheet Front Page or Playcard Deck */}
         {isLoading ? (
           <div className="py-24 text-center">
-            <Newspaper className="w-8 h-8 text-[#b9533f] animate-bounce mx-auto mb-3" />
-            <div className="font-serif-editorial text-lg text-[#1e1b18] font-semibold">
-              Compiling {currentProfile.name}'s Morning Edition...
+            <Newspaper className="w-8 h-8 text-[#e25c50] animate-bounce mx-auto mb-3" />
+            <div className="font-serif-editorial text-lg text-[#181513] font-semibold">
+              Compiling {currentProfile.name}'s Edition...
             </div>
-            <p className="text-xs text-[#6e685f] mt-1 font-mono-meta">Filtering topics & synthesizing storytelling narratives</p>
+            <p className="text-xs text-[#6e685f] mt-1 font-mono-meta">
+              Curating sections & personalizing narrative explainers
+            </p>
           </div>
         ) : (
           <FrontPage
@@ -141,6 +168,8 @@ const NewspaperApp: React.FC = () => {
             onToggleSave={toggleSaveArticle}
             activePreset={currentProfile.voicePreset}
             sourceNote={sourceNote}
+            viewMode={viewMode}
+            onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
           />
         )}
       </div>
@@ -181,11 +210,23 @@ const NewspaperApp: React.FC = () => {
         onClose={() => setIsSupporterModalOpen(false)}
       />
 
+      <NewsQuestDrawer
+        isOpen={isNewsQuestDrawerOpen}
+        onClose={() => setIsNewsQuestDrawerOpen(false)}
+        stories={stories}
+        onOpenStory={(s) => setActiveStory(s)}
+      />
+
+      <FutureIntegrationsModal
+        isOpen={isRoadmapModalOpen}
+        onClose={() => setIsRoadmapModalOpen(false)}
+      />
+
       {/* Educational & Publisher Attribution Footer */}
-      <footer className="bg-[#f5ece3] border-t border-[#e2d5c7] py-8 px-4 text-center text-xs text-[#6e685f] mt-12">
+      <footer className="bg-[#ffffff] border-t border-[#e4dcd3] py-8 px-4 text-center text-xs text-[#6e685f] mt-12 shadow-inner">
         <div className="max-w-4xl mx-auto space-y-2">
           <p className="font-serif-editorial italic text-[#3a332a]">
-            Curio Dispatch is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, India Today, and BBC News.
+            {APP_NAME} is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, Mint, India Today, and BBC News.
           </p>
           <p className="font-mono-meta text-[11px] text-[#8f887d]">
             Built with React 19, Vite, and Tailwind CSS • On-device LocalStorage profile isolation • WCAG AA contrast compliant

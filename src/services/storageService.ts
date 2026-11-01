@@ -1,4 +1,4 @@
-import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange } from '../types';
+import { ReaderProfile, TopicCategory, VoicePreset, CustomVoiceProfile, AgeRange, SlangLevel, StoryLength } from '../types';
 
 const PROFILES_STORAGE_KEY = 'curio_newspaper_profiles_v3';
 const ACTIVE_PROFILE_ID_KEY = 'curio_active_profile_id_v3';
@@ -11,16 +11,19 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     name: 'Aarav Sharma',
     ageRange: '25-34',
     editionTitle: "Aarav Sharma's Newsroom",
-    topics: ['economy', 'tech'],
+    topics: ['finance', 'tech'],
     voicePreset: 'conversational',
-    savedArticleIds: ['story-1', 'story-2'],
-    readStoryIds: ['story-1'],
-    likedStoryIds: ['story-2'],
+    slangLevel: 'subtle',
+    storyLength: 'balanced',
+    companionEnabled: true,
+    savedArticleIds: ['story-fin-1', 'story-tech-1'],
+    readStoryIds: ['story-fin-1'],
+    likedStoryIds: ['story-tech-1'],
     dislikedStoryIds: [],
     questProgress: {
       totalPoints: 25,
       unlockedBadgeIds: ['first-quest'],
-      completedEditionDates: ['2026-10-28'],
+      completedEditionDates: ['2026-11-01'],
       answeredQuestions: {
         'quest-story-1': { selectedIndex: 1, isCorrect: true }
       },
@@ -44,14 +47,17 @@ export const DEFAULT_PROFILES: ReaderProfile[] = [
     editionTitle: "Priya Patel's Newsroom",
     topics: ['policy', 'world', 'climate'],
     voicePreset: 'executive',
-    savedArticleIds: ['story-3', 'story-7'],
+    slangLevel: 'off',
+    storyLength: 'deep',
+    companionEnabled: true,
+    savedArticleIds: ['story-pol-1', 'story-wor-1'],
     readStoryIds: [],
-    likedStoryIds: ['story-3'],
+    likedStoryIds: ['story-pol-1'],
     dislikedStoryIds: [],
     questProgress: {
       totalPoints: 25,
       unlockedBadgeIds: ['first-quest'],
-      completedEditionDates: ['2026-10-28'],
+      completedEditionDates: ['2026-11-01'],
       answeredQuestions: {
         'quest-story-1': { selectedIndex: 1, isCorrect: true }
       },
@@ -88,9 +94,16 @@ export const storageService = {
             editionTitle = editionTitle.replace('Daily Dispatch', 'Newsroom');
           }
 
+          // Migrate legacy topic 'economy' to 'finance'
+          const topics = (p.topics || ['finance', 'tech']).map((t: string) => (t === 'economy' ? 'finance' : t));
+
           return {
             ...p,
             editionTitle,
+            topics,
+            slangLevel: p.slangLevel || 'subtle',
+            storyLength: p.storyLength || 'balanced',
+            companionEnabled: p.companionEnabled ?? true,
             readStoryIds: p.readStoryIds || [],
             likedStoryIds: p.likedStoryIds || [],
             dislikedStoryIds: p.dislikedStoryIds || [],
@@ -157,7 +170,10 @@ export const storageService = {
     ageRange: AgeRange,
     topics: TopicCategory[],
     voicePreset: VoicePreset,
-    customTitle?: string
+    customTitle?: string,
+    slangLevel: SlangLevel = 'subtle',
+    storyLength: StoryLength = 'balanced',
+    companionEnabled: boolean = true
   ): ReaderProfile {
     const id = `profile-${Date.now().toString(36)}`;
     const editionTitle = customTitle?.trim() || `${name}'s Newsroom`;
@@ -168,6 +184,9 @@ export const storageService = {
       editionTitle,
       topics,
       voicePreset,
+      slangLevel,
+      storyLength,
+      companionEnabled,
       savedArticleIds: [],
       readStoryIds: [],
       likedStoryIds: [],

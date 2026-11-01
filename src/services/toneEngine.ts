@@ -697,3 +697,14 @@ const DETAILED_STORY_DATA: Record<string, DetailedStoryMeta> = {
     },
   },
 };
+
+// Map new category IDs to rich hand-crafted explainers
+DETAILED_STORY_DATA['story-fin-1'] = DETAILED_STORY_DATA['story-1'];
+DETAILED_STORY_DATA['story-tech-1'] = DETAILED_STORY_DATA['story-2'];
+DETAILED_STORY_DATA['story-pol-1'] = DETAILED_STORY_DATA['story-3'];
+DETAILED_STORY_DATA['story-sci-1'] = DETAILED_STORY_DATA['story-4'];
+DETAILED_STORY_DATA['story-tech-2'] = DETAILED_STORY_DATA['story-5'];
+DETAILED_STORY_DATA['story-cli-1'] = DETAILED_STORY_DATA['story-6'];
+DETAILED_STORY_DATA['story-wor-1'] = DETAILED_STORY_DATA['story-7'];
+DETAILED_STORY_DATA['story-pol-2'] = DETAILED_STORY_DATA['story-8'];
+

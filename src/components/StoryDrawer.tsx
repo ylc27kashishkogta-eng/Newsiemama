@@ -3,6 +3,8 @@ import { Story, VoicePreset, StoryExplanation } from '../types';
 import { useProfile } from '../context/ProfileContext';
 import { toneEngine } from '../services/toneEngine';
 import { VisualExplainer } from './VisualExplainer';
+import { ReadAloudPlayer } from './ReadAloudPlayer';
+import { EditorialCompanion } from './EditorialCompanion';
 import {
   X,
   ExternalLink,
@@ -23,8 +25,10 @@ import {
   ThumbsDown,
   Info,
   Radio,
-  FileText
+  FileText,
+  Volume2
 } from 'lucide-react';
+import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
 
 interface StoryDrawerProps {
   story: Story | null;
@@ -47,6 +51,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDefaultSavedNotice, setIsDefaultSavedNotice] = useState(false);
   const [isEasyReadingMode, setIsEasyReadingMode] = useState(false);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
   // Mark article as read whenever opened
@@ -101,6 +106,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
   const isSaved = isArticleSaved(story.id);
   const feedback = getStoryFeedback(story.id);
+  const isVibe = currentProfile.slangLevel === 'vibe';
 
   const handleSetAsDefault = () => {
     setVoicePreset(activePreset);
@@ -117,8 +123,15 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
     setTimeout(() => setFeedbackNotice(null), 3000);
   };
 
+  // Compile narrative text for read aloud
+  const textForReadAloud = isEasyReadingMode && explanation?.easyReadingText
+    ? `${story.title}. In plain words: ${explanation.easyReadingText}`
+    : explanation
+    ? `${story.title}. What happened: ${explanation.whatHappened}. Why it matters: ${explanation.whyItMatters.join(' ')}. What could happen next: ${explanation.whatCouldHappenNext}. Everyday analogy: ${explanation.everydayAnalogy}.`
+    : `${story.title}. ${story.deck}. ${story.content}`;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-stone-900/40 backdrop-blur-xs flex justify-end">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-[#181513]/40 backdrop-blur-xs flex justify-end">
       {/* Backdrop click to close */}
       <div className="flex-1" onClick={onClose} aria-label="Close backdrop"></div>
 
@@ -128,24 +141,42 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
           {/* Drawer Top Navigation Bar */}
           <div className="sticky top-0 bg-[#faf7f2]/95 backdrop-blur-md z-10 border-b border-[#e4dcd3] px-6 py-4 flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono-meta text-xs font-bold uppercase tracking-wider text-[#b9533f] bg-[#f5e6e1] px-2.5 py-0.5 rounded-full border border-[#e8cecb]">
-                {story.category}
+              <span className="font-mono-meta text-xs font-bold uppercase tracking-wider text-[#e25c50] bg-[#fbeae5] px-2.5 py-0.5 rounded-full border border-[#f3c8bc]">
+                {story.category === 'sports_culture' ? 'Culture' : story.category}
               </span>
+              {story.financeSubcategory && (
+                <span className="text-[10px] font-mono-meta text-[#8f887d] bg-[#ffffff] px-2 py-0.5 rounded-full border border-[#e4dcd3]">
+                  {FINANCE_SUBCATEGORY_LABELS[story.financeSubcategory] || story.financeSubcategory}
+                </span>
+              )}
               <span className="text-xs text-[#6e685f] font-medium">| {story.sourceName}</span>
               <span className="text-xs text-[#8f887d]">• {story.timeAgo}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <button
+                onClick={() => setShowAudioPlayer(!showAudioPlayer)}
+                className={`p-2 rounded-xl transition-colors ${
+                  showAudioPlayer
+                    ? 'bg-[#e25c50] text-[#ffffff]'
+                    : 'text-[#6e685f] hover:text-[#181513] hover:bg-[#ede5dc]'
+                }`}
+                title="Toggle Read Aloud Audio Player"
+              >
+                <Volume2 className="w-5 h-5" />
+              </button>
+
+              <button
                 onClick={() => toggleSaveArticle(story.id)}
-                className="p-2 text-[#6e685f] hover:text-[#1e1b18] hover:bg-[#ede5dc] transition-colors rounded-lg cursor-pointer"
+                className="p-2 text-[#6e685f] hover:text-[#181513] hover:bg-[#ede5dc] transition-colors rounded-xl cursor-pointer"
                 title={isSaved ? 'Saved to reading list' : 'Save article for later'}
               >
-                {isSaved ? <BookmarkCheck className="w-5 h-5 text-[#b9533f]" /> : <Bookmark className="w-5 h-5" />}
+                {isSaved ? <BookmarkCheck className="w-5 h-5 text-[#e25c50]" /> : <Bookmark className="w-5 h-5" />}
               </button>
+
               <button
                 onClick={onClose}
-                className="p-2 text-[#6e685f] hover:text-[#1e1b18] hover:bg-[#ede5dc] transition-colors rounded-lg cursor-pointer"
+                className="p-2 text-[#6e685f] hover:text-[#181513] hover:bg-[#ede5dc] transition-colors rounded-xl cursor-pointer"
                 title="Close drawer (Esc)"
               >
                 <X className="w-5 h-5" />
@@ -153,11 +184,20 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8">
+          <div className="p-6 sm:p-8 space-y-6">
+            {/* Embedded Read Aloud Audio Player (when opened) */}
+            {showAudioPlayer && (
+              <ReadAloudPlayer
+                title={story.title}
+                textToRead={textForReadAloud}
+                onClose={() => setShowAudioPlayer(false)}
+              />
+            )}
+
             {/* Why This Story is in Your Edition (Personalization Transparency) */}
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#edf2ee] text-[#3b5744] border border-[#cbe0d0]">
-                <Sparkles className="w-3.5 h-3.5 text-[#4e6c58]" />
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e3ece5] text-[#3e5f49] border border-[#c1d6c7]">
+                <Sparkles className="w-3.5 h-3.5 text-[#3e5f49]" />
                 <span>{story.curatedReason || `Because you follow ${story.category}`}</span>
               </span>
 
@@ -170,32 +210,55 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#7c5e3f] bg-[#fbf2e3] px-2.5 py-0.5 rounded-full border border-[#edd8be]">
                   <FileText className="w-3 h-3 text-[#7c5e3f]" />
-                  <span>Bundled Demo Story</span>
+                  <span>Illustrative Demo Story</span>
                 </span>
               )}
             </div>
 
-            {/* Story Title & Deck */}
-            <h2 className="font-serif-editorial text-2xl sm:text-3xl font-extrabold text-[#1e1b18] leading-snug mb-3">
-              {story.title}
-            </h2>
-            <p className="font-serif-editorial italic text-base text-[#5c5449] border-l-3 border-[#b9533f] pl-3.5 mb-6 bg-[#fbf5ee] py-1 rounded-r-lg">
-              {story.deck}
-            </p>
+            {/* Editorial Companion ("Pip") Commentary */}
+            {currentProfile.companionEnabled !== false && (
+              <EditorialCompanion
+                mood="thoughtful"
+                category={story.category}
+                slangLevel={currentProfile.slangLevel}
+              />
+            )}
 
-            {/* Reading Mode Selector & Tone Switcher */}
-            <div className="bg-[#f0e8df] p-3 rounded-2xl mb-6 border border-[#e2d7cc] space-y-3">
+            {/* Story Title & Deck */}
+            <div>
+              <h2 className="font-serif-editorial text-2xl sm:text-3xl font-extrabold text-[#181513] leading-snug mb-3">
+                {story.title}
+              </h2>
+
+              {isVibe && story.vibeSummary ? (
+                <div className="bg-[#fbeae5]/70 border-l-4 border-[#e25c50] pl-4 py-2.5 my-3 rounded-r-xl">
+                  <span className="text-[11px] font-mono-meta font-bold uppercase tracking-wider text-[#9b2c48] block mb-1">
+                    ⚡ The Vibe Check
+                  </span>
+                  <p className="text-sm font-sans text-[#181513] font-medium">
+                    {story.vibeSummary}
+                  </p>
+                </div>
+              ) : (
+                <p className="font-serif-editorial italic text-base text-[#5c5449] border-l-3 border-[#e25c50] pl-3.5 mb-4 bg-[#faf7f2] py-1.5 rounded-r-lg">
+                  {story.deck}
+                </p>
+              )}
+            </div>
+
+            {/* Voice Tuning & Reading Mode Controls */}
+            <div className="bg-[#ffffff] p-4 rounded-2xl border border-[#e4dcd3] space-y-3 shadow-2xs">
               <div>
-                <div className="flex items-center justify-between mb-1.5 px-1">
+                <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-mono-meta uppercase tracking-wider text-[#6e685f] font-bold">
-                    Explanation Voice
+                    Explanation Style
                   </span>
                   {activePreset !== currentProfile.voicePreset ? (
                     <button
                       onClick={handleSetAsDefault}
-                      className="text-xs font-semibold text-[#b9533f] hover:text-[#963f2e] cursor-pointer flex items-center gap-1"
+                      className="text-xs font-semibold text-[#e25c50] hover:text-[#cf4b3f] cursor-pointer flex items-center gap-1"
                     >
-                      <span>Set as default</span>
+                      <span>Set as my default</span>
                     </button>
                   ) : (
                     <span className="text-[11px] text-[#8f887d] font-mono-meta">
@@ -204,7 +267,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5 bg-[#e5dbd0] p-1 rounded-xl">
+                <div className="grid grid-cols-3 gap-1.5 bg-[#faf7f2] p-1 rounded-xl border border-[#e4dcd3]">
                   {(['executive', 'conversational', 'storyteller'] as VoicePreset[]).map((preset) => {
                     const isActive = activePreset === preset;
                     return (
@@ -213,12 +276,12 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                         onClick={() => setActivePreset(preset)}
                         className={`py-1.5 text-xs font-semibold rounded-lg capitalize transition-all cursor-pointer ${
                           isActive
-                            ? 'bg-[#faf7f2] text-[#1e1b18] shadow-xs font-bold'
-                            : 'text-[#6e685f] hover:text-[#1e1b18]'
+                            ? 'bg-[#ffffff] text-[#181513] shadow-xs font-bold border border-[#d8ccc0]'
+                            : 'text-[#6e685f] hover:text-[#181513]'
                         }`}
                       >
                         {preset === 'executive' && 'Quick Brief'}
-                        {preset === 'conversational' && 'Friendly Explainer'}
+                        {preset === 'conversational' && 'Friendly'}
                         {preset === 'storyteller' && 'Storyteller'}
                       </button>
                     );
@@ -227,10 +290,10 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               </div>
 
               {/* Mode Toggle: Standard vs Easy-Reading */}
-              <div className="pt-2 border-t border-[#dfd3c5] flex items-center justify-between">
+              <div className="pt-2 border-t border-[#f0eae1] flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <BookOpen className="w-4 h-4 text-[#4e6c58]" />
-                  <span className="text-xs font-medium text-[#1e1b18]">
+                  <span className="text-xs font-medium text-[#181513]">
                     Easy-Reading Mode
                   </span>
                 </div>
@@ -254,7 +317,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
               {isDefaultSavedNotice && (
                 <div className="text-center py-1">
-                  <span className="text-[#3b5744] font-semibold text-xs inline-flex items-center gap-1 animate-paper-fade bg-[#edf2ee] px-2.5 py-0.5 rounded-full border border-[#cbe0d0]">
+                  <span className="text-[#3e5f49] font-semibold text-xs inline-flex items-center gap-1 animate-paper-fade bg-[#e3ece5] px-2.5 py-0.5 rounded-full border border-[#c1d6c7]">
                     <Check className="w-3.5 h-3.5" />
                     <span>Saved {activePreset} as default voice for {currentProfile.name.split(' ')[0]}</span>
                   </span>
@@ -263,15 +326,15 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
 
             {/* Main Guided Narrative Container */}
-            <div className="bg-[#ffffff] border border-[#e4dcd3] rounded-2xl p-6 sm:p-7 shadow-xs mb-6 transition-all">
+            <div className="bg-[#ffffff] border border-[#e4dcd3] rounded-3xl p-6 sm:p-7 shadow-xs transition-all space-y-6">
               {/* Header Badge & Age Range Note */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-5 border-b border-[#ece4dc] gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#f0eae1] gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-7 h-7 rounded-full bg-[#fbf0ec] text-[#b9533f] flex items-center justify-center font-bold text-xs">
+                  <span className="w-7 h-7 rounded-full bg-[#fbeae5] text-[#e25c50] flex items-center justify-center font-bold text-xs">
                     <Sparkles className="w-4 h-4" />
                   </span>
                   <div>
-                    <h3 className="font-serif-editorial font-bold text-sm text-[#1e1b18]">
+                    <h3 className="font-serif-editorial font-bold text-sm text-[#181513]">
                       {currentProfile.name.split(' ')[0]}’s Storytelling Narrative
                     </h3>
                     <p className="text-[11px] text-[#8f887d]">
@@ -281,7 +344,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                 </div>
 
                 {explanation?.ageAdaptedNote && (
-                  <span className="text-[11px] bg-[#edf2ee] text-[#3b5744] font-medium px-2.5 py-1 rounded-full border border-[#cbe0d0] self-start sm:self-auto">
+                  <span className="text-[11px] bg-[#e3ece5] text-[#3e5f49] font-medium px-2.5 py-1 rounded-full border border-[#c1d6c7] self-start sm:self-auto">
                     {explanation.ageAdaptedNote}
                   </span>
                 )}
@@ -289,14 +352,14 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
               {isLoading ? (
                 <div className="py-12 text-center text-sm text-[#6e685f]">
-                  <div className="w-7 h-7 border-2 border-[#b9533f] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                  <div className="w-7 h-7 border-2 border-[#e25c50] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
                   <span className="font-serif-editorial italic">Synthesizing narrative for {currentProfile.name.split(' ')[0]}...</span>
                 </div>
               ) : explanation ? (
                 <div className="space-y-6">
                   {/* Headline & Core Summary */}
                   <div>
-                    <h4 className="font-serif-editorial text-lg sm:text-xl font-bold text-[#1e1b18] mb-2 leading-snug">
+                    <h4 className="font-serif-editorial text-lg sm:text-xl font-bold text-[#181513] mb-2 leading-snug">
                       {explanation.headline}
                     </h4>
                     <p className="text-sm sm:text-base text-[#4a4237] leading-relaxed font-serif-editorial">
@@ -306,8 +369,8 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
                   {/* Easy-Reading Mode Callout (when active) */}
                   {isEasyReadingMode && (
-                    <div className="bg-[#fcf8f3] border-l-4 border-[#4e6c58] p-4 rounded-r-xl">
-                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#3b5744] mb-1 font-mono-meta">
+                    <div className="bg-[#faf7f2] border-l-4 border-[#4e6c58] p-4 rounded-r-xl">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#3e5f49] mb-1 font-mono-meta">
                         <BookOpen className="w-4 h-4" />
                         <span>In Plain, Everyday Words</span>
                       </div>
@@ -317,11 +380,16 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </div>
                   )}
 
-                  {/* 1. What Happened? */}
-                  <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b9533f] mb-1.5 font-mono-meta">
-                      <HelpCircle className="w-4 h-4" />
-                      <span>1. What happened?</span>
+                  {/* 1. What Happened? (Explicitly Marked as Reporting) */}
+                  <div className="bg-[#faf7f2] p-4.5 rounded-2xl border border-[#ede5dc] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#e25c50] font-mono-meta">
+                        <HelpCircle className="w-4 h-4" />
+                        <span>1. What happened?</span>
+                      </div>
+                      <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#e3ece5] text-[#3e5f49] font-bold">
+                        Reported Facts
+                      </span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
                       {explanation.whatHappened}
@@ -330,8 +398,8 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
                   {/* 2. Why It Matters To You */}
                   {explanation.whyItMatters && explanation.whyItMatters.length > 0 && (
-                    <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
-                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#4e6c58] mb-2 font-mono-meta">
+                    <div className="bg-[#faf7f2] p-4.5 rounded-2xl border border-[#ede5dc] space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#4e6c58] font-mono-meta">
                         <TrendingUp className="w-4 h-4" />
                         <span>2. Why it matters to you</span>
                       </div>
@@ -346,29 +414,34 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     </div>
                   )}
 
-                  {/* 3. What Might Happen Next? */}
-                  <div className="bg-[#faf7f2] p-4.5 rounded-xl border border-[#ede5dc]">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#7c5e3f] mb-1.5 font-mono-meta">
-                      <ArrowRight className="w-4 h-4" />
-                      <span>3. What might happen next?</span>
+                  {/* 3. What Might Happen Next? (Explicitly Marked as Analysis) */}
+                  <div className="bg-[#faf7f2] p-4.5 rounded-2xl border border-[#ede5dc] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#7c5e3f] font-mono-meta">
+                        <ArrowRight className="w-4 h-4" />
+                        <span>3. What might happen next?</span>
+                      </div>
+                      <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#fbeae5] text-[#9b2c48] font-bold">
+                        Forward Analysis
+                      </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial mb-3">
+                    <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
                       {explanation.whatCouldHappenNext}
                     </p>
 
                     {/* Trust and Prediction Guard Disclaimer */}
-                    <div className="bg-[#fff9f4] border border-[#f0dcce] rounded-lg p-2.5 text-[11px] text-[#8a5d3b] flex items-center gap-2">
-                      <Info className="w-3.5 h-3.5 shrink-0 text-[#b9533f]" />
+                    <div className="bg-[#ffffff] border border-[#e4dcd3] rounded-xl p-2.5 text-[11px] text-[#5c5449] flex items-center gap-2 mt-2">
+                      <Info className="w-3.5 h-3.5 shrink-0 text-[#e25c50]" />
                       <span>
-                        <strong>Exploratory Outlook:</strong> Scenarios reflect currently reported facts and trends. Not a guaranteed financial, legal, or policy prediction.
+                        <strong>Analysis Notice:</strong> Scenarios are analytical forward outlooks based on current reporting. They are not guaranteed outcomes or financial advice.
                       </span>
                     </div>
                   </div>
 
                   {/* 4. Simple Everyday Example or Analogy */}
-                  <div className="bg-[#fffdfa] p-4.5 rounded-xl border-2 border-dashed border-[#e4d5c5]">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#b9533f] mb-1.5 font-mono-meta">
-                      <Lightbulb className="w-4 h-4 text-[#c76550]" />
+                  <div className="bg-[#ffffff] p-4.5 rounded-2xl border-2 border-dashed border-[#e4dcd3]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#e25c50] mb-1.5 font-mono-meta">
+                      <Lightbulb className="w-4 h-4" />
                       <span>Everyday Analogy</span>
                     </div>
                     <p className="text-xs sm:text-sm text-[#2d2720] leading-relaxed italic font-serif-editorial">
@@ -383,9 +456,9 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
                   {/* Bottom Line Takeaway */}
                   {explanation.conversationalTakeaway && (
-                    <div className="bg-[#fbf4eb] rounded-xl p-4 border border-[#e8dacb] text-xs sm:text-sm text-[#2d2720] leading-relaxed">
-                      <strong className="text-[#963f2e] font-bold block mb-1 uppercase tracking-wider text-[11px] font-mono-meta">
-                        Bottom Line:
+                    <div className="bg-[#fbeae5]/50 rounded-2xl p-4 border border-[#f3c8bc] text-xs sm:text-sm text-[#2d2720] leading-relaxed">
+                      <strong className="text-[#9b2c48] font-bold block mb-1 uppercase tracking-wider text-[11px] font-mono-meta">
+                        Takeaway:
                       </strong>
                       {explanation.conversationalTakeaway}
                     </div>
@@ -395,14 +468,14 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
 
             {/* Shape the Edition: More like this / Less like this */}
-            <div className="bg-[#f7efe9] border border-[#e8dacd] rounded-2xl p-4 mb-6">
+            <div className="bg-[#ffffff] border border-[#e4dcd3] rounded-2xl p-4 shadow-2xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-xs font-bold text-[#1e1b18] block">
+                  <span className="text-xs font-bold text-[#181513] block">
                     Shape your future editions:
                   </span>
                   <span className="text-[11px] text-[#6e685f]">
-                    Help Curio Dispatch understand which topics matter most to you.
+                    Help Moodpaper understand which topics matter most to you.
                   </span>
                 </div>
 
@@ -411,8 +484,8 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     onClick={() => handleFeedback('more')}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                       feedback === 'more'
-                        ? 'bg-[#4e6c58] text-white border-[#4e6c58]'
-                        : 'bg-white text-[#4e6c58] border-[#cbe0d0] hover:bg-[#edf2ee]'
+                        ? 'bg-[#4e6c58] text-[#ffffff] border-[#4e6c58]'
+                        : 'bg-[#ffffff] text-[#4e6c58] border-[#c1d6c7] hover:bg-[#e3ece5]'
                     }`}
                   >
                     <ThumbsUp className="w-3.5 h-3.5" />
@@ -423,8 +496,8 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     onClick={() => handleFeedback('less')}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                       feedback === 'less'
-                        ? 'bg-[#b9533f] text-white border-[#b9533f]'
-                        : 'bg-white text-[#b9533f] border-[#f0d4ce] hover:bg-[#fbf0ec]'
+                        ? 'bg-[#e25c50] text-[#ffffff] border-[#e25c50]'
+                        : 'bg-[#ffffff] text-[#e25c50] border-[#f3c8bc] hover:bg-[#fbeae5]'
                     }`}
                   >
                     <ThumbsDown className="w-3.5 h-3.5" />
@@ -434,14 +507,14 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
               </div>
 
               {feedbackNotice && (
-                <div className="mt-2 text-center text-xs font-medium text-[#3b5744] bg-[#edf2ee] p-2 rounded-lg border border-[#cbe0d0] animate-paper-fade">
+                <div className="mt-2 text-center text-xs font-medium text-[#3e5f49] bg-[#e3ece5] p-2 rounded-lg border border-[#c1d6c7] animate-paper-fade">
                   {feedbackNotice}
                 </div>
               )}
             </div>
 
             {/* Original Excerpt Section */}
-            <div className="border-t border-[#e4dcd3] pt-5 mb-4">
+            <div className="border-t border-[#e4dcd3] pt-5">
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-3.5 h-3.5 text-[#8f887d]" />
                 <h4 className="font-mono-meta text-xs uppercase font-bold text-[#6e685f]">
@@ -455,17 +528,17 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
 
             {/* Accuracy & Grounding Transparency Note */}
             {story.sourceMode === 'rss' ? (
-              <div className="bg-[#edf2ee] border border-[#cbe0d0] rounded-xl p-3 text-[11px] text-[#3b5744] flex items-start gap-2">
+              <div className="bg-[#e3ece5] border border-[#c1d6c7] rounded-xl p-3 text-[11px] text-[#3e5f49] flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-[#4e6c58]" />
                 <p className="leading-relaxed">
                   <strong>Live Syndication Transparency:</strong> Synthesized directly from <strong>{story.sourceName}</strong>’s official public RSS feed ({story.timeAgo}). Excerpts and titles reflect live publisher dispatches without altering reported facts.
                 </p>
               </div>
             ) : (
-              <div className="bg-[#fbf4eb] border border-[#ebd8c5] rounded-xl p-3 text-[11px] text-[#6e533c] flex items-start gap-2">
-                <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#b9533f]" />
+              <div className="bg-[#faf7f2] border border-[#e4dcd3] rounded-xl p-3 text-[11px] text-[#6e533c] flex items-start gap-2">
+                <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#e25c50]" />
                 <p className="leading-relaxed">
-                  <strong>Illustrative Demo Story:</strong> This article is an illustrative broadsheet scenario crafted for prototype evaluation, inspired by domain coverage from <strong>{story.sourceName}</strong>. It is bundled demo content rather than a live syndicated wire dispatch.
+                  <strong>Illustrative Demo Story:</strong> This article is an illustrative scenario crafted for prototype evaluation, inspired by coverage from <strong>{story.sourceName}</strong>. It is bundled demo content rather than a live syndicated wire dispatch.
                 </p>
               </div>
             )}
@@ -475,14 +548,14 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
         {/* Drawer Sticky Footer with External Link */}
         <div className="sticky bottom-0 bg-[#faf7f2] border-t border-[#e4dcd3] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-[#6e685f] text-center sm:text-left">
-            Source: <strong className="text-[#1e1b18]">{story.sourceName}</strong> • {story.readingMinutes} min read
+            Source: <strong className="text-[#181513]">{story.sourceName}</strong> • {story.readingMinutes} min read
           </div>
 
           <a
             href={story.canonicalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1e1b18] hover:bg-[#342f2b] text-[#faf7f2] text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#181513] hover:bg-[#342f2b] text-[#ffffff] text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <span>{story.sourceMode === 'rss' ? `Read full article on ${story.sourceName}` : `Visit ${story.sourceName}`}</span>
             <ExternalLink className="w-4 h-4 text-[#cfc8bd]" />

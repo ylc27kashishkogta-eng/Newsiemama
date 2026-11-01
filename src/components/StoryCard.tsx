@@ -12,8 +12,10 @@ import {
   ThumbsDown,
   RotateCcw,
   Radio,
-  FileText
+  FileText,
+  Volume2
 } from 'lucide-react';
+import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
 
 interface StoryCardProps {
   story: Story;
@@ -25,11 +27,14 @@ interface StoryCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  economy: 'text-[#963f2e] bg-[#f5e6e1] border-[#e8cecb]',
-  tech: 'text-[#2c3e50] bg-[#eef2f5] border-[#d5dee6]',
-  policy: 'text-[#8a5d2b] bg-[#fbf2e3] border-[#edd8be]',
-  world: 'text-[#8b4352] bg-[#f8ebed] border-[#ebd0d6]',
-  climate: 'text-[#3b5744] bg-[#edf2ee] border-[#cbe0d0]',
+  finance: 'text-[#e25c50] bg-[#fbeae5] border-[#f3c8bc]',
+  economy: 'text-[#e25c50] bg-[#fbeae5] border-[#f3c8bc]',
+  tech: 'text-[#7c66dc] bg-[#eee8f8] border-[#d7cbf0]',
+  policy: 'text-[#b35a20] bg-[#fdf2e9] border-[#f5d9c2]',
+  world: 'text-[#9b2c48] bg-[#f6eef2] border-[#e8cbd5]',
+  climate: 'text-[#3e5f49] bg-[#e3ece5] border-[#c1d6c7]',
+  science: 'text-[#2458b8] bg-[#e8f0fe] border-[#c2d7fc]',
+  sports_culture: 'text-[#bc4b25] bg-[#fbf0ea] border-[#f6d2c4]',
 };
 
 export const StoryCard: React.FC<StoryCardProps> = ({
@@ -40,13 +45,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   activePreset,
   index = 0,
 }) => {
-  const { isArticleRead, toggleStoryFeedback, getStoryFeedback } = useProfile();
+  const { currentProfile, isArticleRead, toggleStoryFeedback, getStoryFeedback } = useProfile();
   const isRead = isArticleRead(story.id);
   const feedback = getStoryFeedback(story.id);
   const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
   const categoryBadge = CATEGORY_COLORS[story.category] || 'text-[#5c5449] bg-[#f0e8df] border-[#ded4c7]';
   const staggerClass = `stagger-${Math.min((index % 4) + 1, 5)}`;
+  const isVibe = currentProfile.slangLevel === 'vibe';
 
   const handleFeedback = (type: 'more' | 'less', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,14 +71,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({
       <div>
         {/* Downranked Notification Banner with Undo */}
         {feedback === 'less' && (
-          <div className="bg-[#fbf0ec] border border-[#f0d4ce] rounded-xl p-2 mb-3 text-xs text-[#b9533f] flex items-center justify-between animate-paper-fade">
+          <div className="bg-[#fbf0ec] border border-[#f0d4ce] rounded-xl p-2 mb-3 text-xs text-[#e25c50] flex items-center justify-between animate-paper-fade">
             <div className="flex items-center gap-1.5 text-[11px]">
-              <ThumbsDown className="w-3 h-3 text-[#b9533f]" />
+              <ThumbsDown className="w-3 h-3 text-[#e25c50]" />
               <span>Downranked</span>
             </div>
             <button
               onClick={(e) => handleFeedback('less', e)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 bg-white text-[#b9533f] font-semibold rounded-md border border-[#f0d4ce] hover:bg-[#faf7f2] cursor-pointer text-[10px]"
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#ffffff] text-[#e25c50] font-semibold rounded-md border border-[#f0d4ce] hover:bg-[#faf7f2] cursor-pointer text-[10px]"
             >
               <RotateCcw className="w-2.5 h-2.5" />
               <span>Undo</span>
@@ -84,8 +90,15 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-1 text-xs mb-2.5 font-mono-meta">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className={`px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px] ${categoryBadge}`}>
-              {story.category}
+              {story.category === 'sports_culture' ? 'Culture' : story.category}
             </span>
+
+            {/* Subcategory if available */}
+            {story.financeSubcategory && story.financeSubcategory !== 'all' && (
+              <span className="text-[10px] font-mono-meta text-[#8f887d] bg-[#faf7f2] px-2 py-0.5 rounded-full border border-[#e4dcd3]">
+                {FINANCE_SUBCATEGORY_LABELS[story.financeSubcategory] || story.financeSubcategory}
+              </span>
+            )}
 
             {/* Source Mode Trust Indicator */}
             {story.sourceMode === 'rss' ? (
@@ -116,11 +129,11 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
             <button
               onClick={() => onToggleSave(story.id)}
-              className="text-[#8f887d] hover:text-[#1e1b18] transition-colors cursor-pointer p-0.5"
+              className="text-[#8f887d] hover:text-[#181513] transition-colors cursor-pointer p-0.5"
               title={isSaved ? 'Saved for later' : 'Save article'}
             >
               {isSaved ? (
-                <BookmarkCheck className="w-3.5 h-3.5 text-[#b9533f]" />
+                <BookmarkCheck className="w-3.5 h-3.5 text-[#e25c50]" />
               ) : (
                 <Bookmark className="w-3.5 h-3.5" />
               )}
@@ -142,18 +155,25 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         {/* Title */}
         <h3
           onClick={() => onOpenExplainer(story)}
-          className="font-serif-editorial text-lg sm:text-xl font-bold text-[#1e1b18] leading-snug mb-2 hover:text-[#b9533f] transition-colors cursor-pointer"
+          className="font-serif-editorial text-lg sm:text-xl font-bold text-[#181513] leading-snug mb-2 hover:text-[#e25c50] transition-colors cursor-pointer"
         >
           {story.title}
         </h3>
 
-        {/* Deck */}
-        <p className="font-serif-editorial text-xs sm:text-sm text-[#5c5449] line-clamp-3 leading-relaxed mb-4">
-          {story.deck}
-        </p>
+        {/* Vibe / Deck content */}
+        {isVibe && story.vibeSummary ? (
+          <div className="bg-[#fbeae5]/40 border-l-2 border-[#e25c50] pl-3 py-1.5 my-2 text-xs font-sans text-[#3a332a] leading-relaxed">
+            <span className="text-[#e25c50] font-mono-meta font-bold uppercase text-[10px] block mb-0.5">TL;DR Vibe</span>
+            {story.vibeSummary}
+          </div>
+        ) : (
+          <p className="font-serif-editorial text-xs sm:text-sm text-[#5c5449] line-clamp-3 leading-relaxed mb-4">
+            {story.deck}
+          </p>
+        )}
 
         {feedbackNotice && (
-          <div className="mb-2 p-1.5 text-[11px] font-medium text-center text-[#3b5744] bg-[#edf2ee] rounded-lg border border-[#cbe0d0]">
+          <div className="mb-2 p-1.5 text-[11px] font-medium text-center text-[#3e5f49] bg-[#e3ece5] rounded-lg border border-[#c1d6c7]">
             {feedbackNotice}
           </div>
         )}
@@ -164,10 +184,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onOpenExplainer(story)}
-            className="inline-flex items-center gap-1.5 text-[#b9533f] font-semibold hover:text-[#963f2e] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-[#e25c50] font-semibold hover:text-[#cf4b3f] transition-colors cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#b9533f]" />
-            <span>Explain ({activePreset})</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Explain</span>
           </button>
 
           {/* Quick thumbs */}
@@ -176,8 +196,8 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               onClick={(e) => handleFeedback('more', e)}
               className={`p-1 rounded-md transition-colors cursor-pointer ${
                 feedback === 'more'
-                  ? 'text-[#3b5744] bg-[#edf2ee]'
-                  : 'text-[#8f887d] hover:text-[#1e1b18]'
+                  ? 'text-[#3e5f49] bg-[#e3ece5]'
+                  : 'text-[#8f887d] hover:text-[#181513]'
               }`}
               title="More like this"
             >
@@ -187,8 +207,8 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               onClick={(e) => handleFeedback('less', e)}
               className={`p-1 rounded-md transition-colors cursor-pointer ${
                 feedback === 'less'
-                  ? 'text-[#b9533f] bg-[#fbf0ec]'
-                  : 'text-[#8f887d] hover:text-[#1e1b18]'
+                  ? 'text-[#e25c50] bg-[#fbf0ec]'
+                  : 'text-[#8f887d] hover:text-[#181513]'
               }`}
               title="Less like this"
             >
@@ -201,7 +221,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           href={story.canonicalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[#8f887d] hover:text-[#1e1b18] transition-colors"
+          className="inline-flex items-center gap-1 text-[#8f887d] hover:text-[#181513] transition-colors"
           title="Open original article on publisher site"
         >
           <span>Source</span>
