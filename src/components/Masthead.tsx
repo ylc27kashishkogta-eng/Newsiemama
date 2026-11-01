@@ -15,7 +15,9 @@ import {
   X,
   Mail,
   Gamepad2,
-  Building2
+  Building2,
+  Layers,
+  LayoutGrid
 } from 'lucide-react';
 
 interface MastheadProps {
@@ -32,6 +34,8 @@ interface MastheadProps {
   isLiveFeed: boolean;
   totalStoriesCount: number;
   readStoriesCount: number;
+  viewMode?: 'broadsheet' | 'playcard';
+  onToggleViewMode?: (mode: 'broadsheet' | 'playcard') => void;
 }
 
 export const Masthead: React.FC<MastheadProps> = ({
@@ -48,6 +52,8 @@ export const Masthead: React.FC<MastheadProps> = ({
   isLiveFeed,
   totalStoriesCount,
   readStoriesCount,
+  viewMode = 'broadsheet',
+  onToggleViewMode,
 }) => {
   const { currentProfile, reducedMotion, toggleReducedMotion, resetAllPreferences, updateEditionTitle } = useProfile();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -109,13 +115,29 @@ export const Masthead: React.FC<MastheadProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Quick Playcards / Broadsheet Switcher in Masthead Header */}
+          {onToggleViewMode && (
+            <button
+              onClick={() => onToggleViewMode(viewMode === 'broadsheet' ? 'playcard' : 'broadsheet')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-2xs cursor-pointer ${
+                viewMode === 'playcard'
+                  ? 'bg-[#0f766e] text-[#ffffff] ring-2 ring-[#99f6e4]'
+                  : 'bg-[#fde8df] text-[#82351f] border border-[#f5cbbe] hover:bg-[#fadcd0]'
+              }`}
+              title="Switch between Broadsheet and Playcards reading mode"
+            >
+              <Layers className="w-3.5 h-3.5 text-[#0f766e]" />
+              <span>{viewMode === 'playcard' ? '📰 Broadsheet' : '✨ Playcards Mode'}</span>
+            </button>
+          )}
+
           {onOpenBusinessAgent && (
             <button
               onClick={onOpenBusinessAgent}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fbeae5] text-[#e25c50] text-xs font-semibold hover:bg-[#f5dad4] transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fde8df] text-[#82351f] border border-[#f5cbbe] text-xs font-semibold hover:bg-[#fae1d6] transition-colors shadow-2xs cursor-pointer"
               title="Open Visual AI News & Business Agent"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-[#0f766e]" />
               <span>AI Business Agent</span>
             </button>
           )}
@@ -123,7 +145,7 @@ export const Masthead: React.FC<MastheadProps> = ({
           {onOpenNewsQuest && (
             <button
               onClick={onOpenNewsQuest}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#eee8f8] text-[#7c66dc] text-xs font-medium hover:bg-[#dfd4f5] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] text-xs font-medium hover:bg-[#bae6fd] transition-colors cursor-pointer"
               title="Open Daily News Quest Game"
             >
               <Gamepad2 className="w-3.5 h-3.5" />
@@ -137,52 +159,52 @@ export const Masthead: React.FC<MastheadProps> = ({
           {onOpenRoadmap && (
             <button
               onClick={onOpenRoadmap}
-              className="inline-flex items-center gap-1 text-xs text-[#5c5449] hover:text-[#181513] px-2 py-1 rounded-lg hover:bg-[#faf7f2] transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-[#5c554e] hover:text-[#191715] px-2 py-1 rounded-lg hover:bg-[#f9f5ef] transition-colors cursor-pointer"
               title="9:00 AM Email Digest & AI Roadmap"
             >
-              <Mail className="w-3.5 h-3.5 text-[#e25c50]" />
-              <span className="hidden md:inline">9 AM Email & AI</span>
+              <Mail className="w-3.5 h-3.5 text-[#0f766e]" />
+              <span className="hidden md:inline">9 AM Digest</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Returning Reader Welcome & Continuity Ribbon */}
-      <div className="bg-[#fbeae5]/60 border border-[#f3c8bc] rounded-2xl px-4 py-2.5 mb-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-2xs">
-        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#3a332a]">
-          <span className="w-5 h-5 rounded-full bg-[#4e6c58] text-[#ffffff] flex items-center justify-center font-bold text-[10px]">
+      <div className="bg-[#fde8df]/70 border border-[#f5cbbe] rounded-2xl px-4 py-2.5 mb-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-2xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#2a241f]">
+          <span className="w-5 h-5 rounded-full bg-[#0f766e] text-[#ffffff] flex items-center justify-center font-bold text-[10px]">
             <Check className="w-3 h-3" />
           </span>
           <span>
-            Reading as <strong className="text-[#181513] font-bold">{currentProfile.name}</strong>
+            Reading as <strong className="text-[#191715] font-bold">{currentProfile.name}</strong>
           </span>
-          <span className="hidden md:inline text-[#8f887d]">•</span>
-          <span className="hidden md:inline text-xs text-[#6e685f]">
+          <span className="hidden md:inline text-[#8c8278]">•</span>
+          <span className="hidden md:inline text-xs text-[#5c554e]">
             Age: <strong>{ageLabels[currentProfile.ageRange] || 'Standard'}</strong>
           </span>
-          <span className="hidden md:inline text-[#8f887d]">•</span>
-          <span className="hidden md:inline text-xs text-[#6e685f]">
+          <span className="hidden md:inline text-[#8c8278]">•</span>
+          <span className="hidden md:inline text-xs text-[#5c554e]">
             Tone: <strong>{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset}</strong>
           </span>
-          <span className="hidden md:inline text-[#8f887d]">•</span>
-          <span className="hidden md:inline text-xs text-[#6e685f]">
-            Flavor: <strong className="text-[#e25c50]">{slangLabels[currentProfile.slangLevel || 'subtle']}</strong>
+          <span className="hidden md:inline text-[#8c8278]">•</span>
+          <span className="hidden md:inline text-xs text-[#5c554e]">
+            Flavor: <strong className="text-[#0f766e]">{slangLabels[currentProfile.slangLevel || 'subtle']}</strong>
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <button
             onClick={onEditSetup}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ffffff] hover:bg-[#faf7f2] text-[#181513] font-semibold rounded-xl border border-[#d8ccc0] shadow-2xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ffffff] hover:bg-[#faf6f0] text-[#191715] font-semibold rounded-xl border border-[#e7ded3] shadow-2xs transition-colors cursor-pointer"
             title="Edit your name, age range, topics, and voice choices"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#e25c50]" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[#0f766e]" />
             <span>Edit Setup</span>
           </button>
 
           <button
             onClick={onOpenProfiles}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#eee8f8] hover:bg-[#dfd4f5] text-[#7c66dc] font-semibold rounded-xl transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#e0f2fe] hover:bg-[#bae6fd] text-[#0369a1] font-semibold rounded-xl border border-[#bae6fd] transition-colors cursor-pointer"
             title="Switch reader profile"
           >
             <Users className="w-3.5 h-3.5" />
@@ -282,12 +304,12 @@ export const Masthead: React.FC<MastheadProps> = ({
       </div>
 
       {/* Main Newspaper Masthead Title */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-2">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-3">
         <div className="text-center md:text-left">
-          <div className="inline-flex items-center gap-2 bg-[#fbeae5] text-[#9b2c48] text-xs font-semibold px-3 py-1 rounded-full border border-[#f3c8bc] mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#e25c50]" />
+          <div className="inline-flex items-center gap-2 bg-[#fde8df] text-[#82351f] text-xs font-semibold px-3.5 py-1 rounded-full border border-[#f5cbbe] mb-2.5 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#0f766e]"></span>
             <span>CURATED FOR</span>
-            <span className="uppercase tracking-wider font-bold">{currentProfile.name}</span>
+            <span className="uppercase tracking-wider font-bold text-[#191715]">{currentProfile.name}</span>
           </div>
           
           {isEditingTitle ? (
@@ -296,7 +318,7 @@ export const Masthead: React.FC<MastheadProps> = ({
                 type="text"
                 value={tempTitle}
                 onChange={(e) => setTempTitle(e.target.value)}
-                className="font-serif-editorial text-2xl sm:text-4xl font-bold tracking-tight text-[#181513] bg-[#ffffff] border-2 border-[#e25c50] px-3 py-1 rounded-xl shadow-inner focus:outline-none max-w-full"
+                className="font-serif-editorial text-2xl sm:text-4xl font-extrabold tracking-tight text-[#191715] bg-[#ffffff] border-2 border-[#0f766e] px-3 py-1 rounded-xl shadow-inner focus:outline-none max-w-full"
                 placeholder={`${currentProfile.name}'s Newsroom`}
                 autoFocus
                 onKeyDown={(e) => {
@@ -307,7 +329,7 @@ export const Masthead: React.FC<MastheadProps> = ({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={handleSaveTitle}
-                  className="px-3 py-1.5 bg-[#e25c50] text-[#ffffff] text-xs font-bold rounded-lg hover:bg-[#cf4b3f] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  className="px-3 py-1.5 bg-[#0f766e] text-[#ffffff] text-xs font-bold rounded-lg hover:bg-[#115e59] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
                   title="Save title"
                 >
                   <Check className="w-3.5 h-3.5" />
@@ -315,7 +337,7 @@ export const Masthead: React.FC<MastheadProps> = ({
                 </button>
                 <button
                   onClick={() => setIsEditingTitle(false)}
-                  className="px-2.5 py-1.5 bg-[#ede5dc] text-[#5c5449] text-xs font-semibold rounded-lg hover:bg-[#e2d8cd] transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1.5 bg-[#f4eee5] text-[#5c554e] text-xs font-semibold rounded-lg hover:bg-[#e7ded3] transition-colors cursor-pointer flex items-center gap-1"
                   title="Cancel"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -325,7 +347,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             </div>
           ) : (
             <div className="group flex items-center justify-center md:justify-start gap-2.5">
-              <h1 className="font-serif-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#181513] leading-none">
+              <h1 className="font-serif-editorial text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#191715] leading-none">
                 {currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`}
               </h1>
               <button
@@ -333,14 +355,14 @@ export const Masthead: React.FC<MastheadProps> = ({
                   setTempTitle(currentProfile.editionTitle || `${currentProfile.name}'s Newsroom`);
                   setIsEditingTitle(true);
                 }}
-                className="opacity-70 group-hover:opacity-100 p-1.5 text-[#8f887d] hover:text-[#e25c50] hover:bg-[#fbeae5] rounded-lg transition-all cursor-pointer"
+                className="opacity-70 group-hover:opacity-100 p-1.5 text-[#8c8278] hover:text-[#0f766e] hover:bg-[#fde8df] rounded-lg transition-all cursor-pointer"
                 title="Rename your personalized newspaper"
               >
                 <Pencil className="w-4 h-4" />
               </button>
             </div>
           )}
-          <p className="font-serif-editorial italic text-[#5c5449] text-sm sm:text-base mt-2">
+          <p className="font-serif-editorial italic text-[#5c554e] text-sm sm:text-base mt-2">
             A calm, distraction-free morning broadsheet built exclusively from verified live dispatches
           </p>
         </div>
@@ -351,31 +373,31 @@ export const Masthead: React.FC<MastheadProps> = ({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#3a332a] bg-[#ffffff] border border-[#d8ccc0] rounded-xl shadow-2xs hover:bg-[#faf7f2] hover:text-[#181513] transition-colors disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#2a241f] bg-[#ffffff] border border-[#e7ded3] rounded-xl shadow-2xs hover:bg-[#faf6f0] hover:text-[#191715] transition-colors disabled:opacity-50 cursor-pointer"
             title="Fetch latest updates from permitted publisher RSS feeds"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-[#6e685f] ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[#0f766e] ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Fetching Wires...' : 'Refresh'}</span>
           </button>
 
           {/* Voice Tuning Button */}
           <button
             onClick={onOpenVoiceSettings}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#3a332a] bg-[#ffffff] border border-[#d8ccc0] rounded-xl shadow-2xs hover:bg-[#faf7f2] hover:text-[#181513] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#2a241f] bg-[#ffffff] border border-[#e7ded3] rounded-xl shadow-2xs hover:bg-[#faf6f0] hover:text-[#191715] transition-colors cursor-pointer"
             title="Personalize explanation voice & analyze your writing style"
           >
-            <Mic className="w-3.5 h-3.5 text-[#e25c50]" />
-            <span>Voice: <strong className="capitalize text-[#181513]">{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset}</strong></span>
+            <Mic className="w-3.5 h-3.5 text-[#0f766e]" />
+            <span>Voice: <strong className="capitalize text-[#191715]">{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset}</strong></span>
           </button>
 
           {/* Profile Switcher Button */}
           <button
             onClick={onOpenProfiles}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#181513] bg-[#fbeae5] border border-[#f3c8bc] rounded-xl shadow-2xs hover:bg-[#f5dad4] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-[#191715] bg-[#fde8df] border border-[#f5cbbe] rounded-xl shadow-2xs hover:bg-[#fae1d6] transition-colors cursor-pointer"
             title="Switch reader profile"
           >
-            <Users className="w-3.5 h-3.5 text-[#9b2c48]" />
-            <span className="font-semibold text-[#9b2c48]">{currentProfile.name.split(' ')[0]}</span>
+            <Users className="w-3.5 h-3.5 text-[#82351f]" />
+            <span className="font-bold text-[#82351f]">{currentProfile.name.split(' ')[0]}</span>
           </button>
         </div>
       </div>

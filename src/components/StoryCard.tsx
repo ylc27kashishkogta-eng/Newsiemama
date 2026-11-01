@@ -11,9 +11,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   RotateCcw,
-  Radio,
-  FileText,
-  Volume2
+  Radio
 } from 'lucide-react';
 import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
 
@@ -27,14 +25,14 @@ interface StoryCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  finance: 'text-[#e25c50] bg-[#fbeae5] border-[#f3c8bc]',
-  economy: 'text-[#e25c50] bg-[#fbeae5] border-[#f3c8bc]',
-  tech: 'text-[#7c66dc] bg-[#eee8f8] border-[#d7cbf0]',
-  policy: 'text-[#b35a20] bg-[#fdf2e9] border-[#f5d9c2]',
-  world: 'text-[#9b2c48] bg-[#f6eef2] border-[#e8cbd5]',
-  climate: 'text-[#3e5f49] bg-[#e3ece5] border-[#c1d6c7]',
-  science: 'text-[#2458b8] bg-[#e8f0fe] border-[#c2d7fc]',
-  sports_culture: 'text-[#bc4b25] bg-[#fbf0ea] border-[#f6d2c4]',
+  finance: 'text-[#0f766e] bg-[#f0fdfa] border-[#99f6e4]',
+  economy: 'text-[#0f766e] bg-[#f0fdfa] border-[#99f6e4]',
+  tech: 'text-[#0284c7] bg-[#e0f2fe] border-[#bae6fd]',
+  policy: 'text-[#82351f] bg-[#fde8df] border-[#f5cbbe]',
+  world: 'text-[#191715] bg-[#f4eee5] border-[#e7ded3]',
+  climate: 'text-[#047857] bg-[#ecfdf5] border-[#a7f3d0]',
+  science: 'text-[#0369a1] bg-[#e0f2fe] border-[#bae6fd]',
+  sports_culture: 'text-[#9e4429] bg-[#fde8df] border-[#f5cbbe]',
 };
 
 export const StoryCard: React.FC<StoryCardProps> = ({
@@ -42,7 +40,6 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   onOpenExplainer,
   isSaved,
   onToggleSave,
-  activePreset,
   index = 0,
 }) => {
   const { currentProfile, isArticleRead, toggleStoryFeedback, getStoryFeedback } = useProfile();
@@ -50,7 +47,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   const feedback = getStoryFeedback(story.id);
   const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
 
-  const categoryBadge = CATEGORY_COLORS[story.category] || 'text-[#5c5449] bg-[#f0e8df] border-[#ded4c7]';
+  const categoryBadge = CATEGORY_COLORS[story.category] || 'text-[#5c554e] bg-[#f4eee5] border-[#e7ded3]';
   const staggerClass = `stagger-${Math.min((index % 4) + 1, 5)}`;
   const isVibe = currentProfile.slangLevel === 'vibe';
 
@@ -65,20 +62,20 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   };
 
   return (
-    <article className={`bg-[#ffffff] rounded-2xl border border-[#e4dcd3] p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between animate-card-stagger ${staggerClass} ${
+    <article className={`bg-[#ffffff] rounded-2xl border-2 border-[#e7ded3] p-5 sm:p-6 shadow-xs hover:border-[#0f766e] hover:shadow-md transition-all flex flex-col justify-between animate-card-stagger ${staggerClass} ${
       feedback === 'less' ? 'opacity-70 bg-[#faf6f0]' : ''
     }`}>
       <div>
         {/* Downranked Notification Banner with Undo */}
         {feedback === 'less' && (
-          <div className="bg-[#fbf0ec] border border-[#f0d4ce] rounded-xl p-2 mb-3 text-xs text-[#e25c50] flex items-center justify-between animate-paper-fade">
+          <div className="bg-[#fde8df] border border-[#f5cbbe] rounded-xl p-2 mb-3 text-xs text-[#82351f] flex items-center justify-between animate-paper-fade">
             <div className="flex items-center gap-1.5 text-[11px]">
-              <ThumbsDown className="w-3 h-3 text-[#e25c50]" />
+              <ThumbsDown className="w-3 h-3 text-[#9e4429]" />
               <span>Downranked</span>
             </div>
             <button
               onClick={(e) => handleFeedback('less', e)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#ffffff] text-[#e25c50] font-semibold rounded-md border border-[#f0d4ce] hover:bg-[#faf7f2] cursor-pointer text-[10px]"
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#ffffff] text-[#9e4429] font-semibold rounded-md border border-[#f5cbbe] hover:bg-[#faf6f0] cursor-pointer text-[10px]"
             >
               <RotateCcw className="w-2.5 h-2.5" />
               <span>Undo</span>
@@ -95,38 +92,38 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
             {/* Subcategory if available */}
             {story.financeSubcategory && story.financeSubcategory !== 'all' && (
-              <span className="text-[10px] font-mono-meta text-[#8f887d] bg-[#faf7f2] px-2 py-0.5 rounded-full border border-[#e4dcd3]">
+              <span className="text-[10px] font-mono-meta text-[#5c554e] bg-[#f9f5ef] px-2 py-0.5 rounded-full border border-[#e7ded3]">
                 {FINANCE_SUBCATEGORY_LABELS[story.financeSubcategory] || story.financeSubcategory}
               </span>
             )}
 
             {/* Source Mode Trust Indicator */}
-            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-[#2d6a4f] bg-[#e8f5e9] px-2 py-0.5 rounded-full border border-[#c8e6c9]">
+            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-[#0f766e] bg-[#f0fdfa] px-2 py-0.5 rounded-full border border-[#99f6e4]">
               <Radio className="w-2 h-2 animate-pulse" />
               <span>Live</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-[#8f887d]">
+          <div className="flex items-center gap-2 text-[#8c8278]">
             {isRead && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#4e6c58] bg-[#edf2ee] px-1.5 py-0.5 rounded-md">
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#0f766e] bg-[#f0fdfa] px-1.5 py-0.5 rounded-md">
                 <Check className="w-2.5 h-2.5" />
                 <span>Read</span>
               </span>
             )}
 
-            <span className="flex items-center gap-1 text-[#6e685f]">
-              <Clock className="w-3 h-3 text-[#8f887d]" />
+            <span className="flex items-center gap-1 text-[#5c554e]">
+              <Clock className="w-3 h-3 text-[#8c8278]" />
               {story.timeAgo}
             </span>
 
             <button
               onClick={() => onToggleSave(story.id)}
-              className="text-[#8f887d] hover:text-[#181513] transition-colors cursor-pointer p-0.5"
+              className="text-[#8c8278] hover:text-[#191715] transition-colors cursor-pointer p-0.5"
               title={isSaved ? 'Saved for later' : 'Save article'}
             >
               {isSaved ? (
-                <BookmarkCheck className="w-3.5 h-3.5 text-[#e25c50]" />
+                <BookmarkCheck className="w-3.5 h-3.5 text-[#0f766e]" />
               ) : (
                 <Bookmark className="w-3.5 h-3.5" />
               )}
@@ -135,64 +132,64 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         </div>
 
         {/* Personalized "Why this story" banner */}
-        <div className="mb-2 text-[11px] font-medium text-[#4e6c58] flex items-center gap-1 font-serif-editorial">
-          <Sparkles className="w-3 h-3 text-[#4e6c58] shrink-0" />
+        <div className="mb-2 text-[11px] font-medium text-[#0369a1] flex items-center gap-1 font-serif-editorial">
+          <Sparkles className="w-3 h-3 text-[#0369a1] shrink-0" />
           <span>{story.curatedReason || `Because you follow ${story.category}`}</span>
         </div>
 
         {/* Source Attributed */}
-        <div className="text-[11px] font-semibold text-[#8f887d] mb-1">
+        <div className="text-[11px] font-semibold text-[#8c8278] mb-1">
           {story.sourceName}
         </div>
 
         {/* Title */}
         <h3
           onClick={() => onOpenExplainer(story)}
-          className="font-serif-editorial text-lg sm:text-xl font-bold text-[#181513] leading-snug mb-2 hover:text-[#e25c50] transition-colors cursor-pointer"
+          className="font-serif-editorial text-lg sm:text-xl font-bold text-[#191715] leading-snug mb-2 hover:text-[#0f766e] transition-colors cursor-pointer"
         >
           {story.title}
         </h3>
 
         {/* Vibe / Deck content */}
         {isVibe && story.vibeSummary ? (
-          <div className="bg-[#fbeae5]/40 border-l-2 border-[#e25c50] pl-3 py-1.5 my-2 text-xs font-sans text-[#3a332a] leading-relaxed">
-            <span className="text-[#e25c50] font-mono-meta font-bold uppercase text-[10px] block mb-0.5">TL;DR Vibe</span>
+          <div className="bg-[#fde8df]/70 border-l-2 border-[#0f766e] pl-3 py-1.5 my-2 text-xs font-sans text-[#2a241f] leading-relaxed rounded-r-md">
+            <span className="text-[#0f766e] font-mono-meta font-bold uppercase text-[10px] block mb-0.5">TL;DR Vibe</span>
             {story.vibeSummary}
           </div>
         ) : (
-          <p className="font-serif-editorial text-xs sm:text-sm text-[#5c5449] line-clamp-3 leading-relaxed mb-4">
+          <p className="font-serif-editorial text-xs sm:text-sm text-[#5c554e] line-clamp-3 leading-relaxed mb-4">
             {story.deck}
           </p>
         )}
 
         {feedbackNotice && (
-          <div className="mb-2 p-1.5 text-[11px] font-medium text-center text-[#3e5f49] bg-[#e3ece5] rounded-lg border border-[#c1d6c7]">
+          <div className="mb-2 p-1.5 text-[11px] font-medium text-center text-[#0f766e] bg-[#f0fdfa] rounded-lg border border-[#99f6e4]">
             {feedbackNotice}
           </div>
         )}
       </div>
 
       {/* Card Action Row & Shape Controls */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#f0e9e1] text-xs">
+      <div className="flex items-center justify-between pt-3 border-t border-[#f4eee5] text-xs">
         <div className="flex items-center gap-2">
           <button
             onClick={() => onOpenExplainer(story)}
-            className="inline-flex items-center gap-1.5 text-[#e25c50] font-semibold hover:text-[#cf4b3f] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-[#0f766e] font-bold hover:text-[#115e59] transition-colors cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Explain</span>
           </button>
 
           {/* Quick thumbs */}
-          <div className="flex items-center gap-1 border-l border-[#e4dcd3] pl-2">
+          <div className="flex items-center gap-1 border-l border-[#e7ded3] pl-2">
             <button
               onClick={(e) => handleFeedback('more', e)}
               className={`p-1 rounded-md transition-colors cursor-pointer ${
                 feedback === 'more'
-                  ? 'text-[#3e5f49] bg-[#e3ece5]'
-                  : 'text-[#8f887d] hover:text-[#181513]'
+                  ? 'text-[#0f766e] bg-[#f0fdfa]'
+                  : 'text-[#8c8278] hover:text-[#191715]'
               }`}
-              title="More like this"
+              title="More stories like this"
             >
               <ThumbsUp className="w-3 h-3" />
             </button>
@@ -200,10 +197,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({
               onClick={(e) => handleFeedback('less', e)}
               className={`p-1 rounded-md transition-colors cursor-pointer ${
                 feedback === 'less'
-                  ? 'text-[#e25c50] bg-[#fbf0ec]'
-                  : 'text-[#8f887d] hover:text-[#181513]'
+                  ? 'text-[#9e4429] bg-[#fde8df]'
+                  : 'text-[#8c8278] hover:text-[#191715]'
               }`}
-              title="Less like this"
+              title="Less stories like this"
             >
               <ThumbsDown className="w-3 h-3" />
             </button>
@@ -214,11 +211,11 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           href={story.canonicalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[#8f887d] hover:text-[#181513] transition-colors"
+          className="inline-flex items-center gap-1 text-[#8c8278] hover:text-[#0f766e] transition-colors"
           title="Open original article on publisher site"
         >
           <span>Source</span>
-          <ExternalLink className="w-3 h-3 text-[#8f887d]" />
+          <ExternalLink className="w-3 h-3 text-[#8c8278]" />
         </a>
       </div>
     </article>

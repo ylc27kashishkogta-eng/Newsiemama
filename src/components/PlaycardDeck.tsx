@@ -1,6 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Story, VoicePreset } from '../types';
-import { Bookmark, ChevronLeft, ChevronRight, BookOpen, Sparkles, Layers, Share2, Check } from 'lucide-react';
+import {
+  Bookmark,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Sparkles,
+  Layers,
+  Share2,
+  Check,
+  ExternalLink,
+  Radio,
+  Clock,
+  ArrowRight,
+  TrendingUp,
+  HelpCircle,
+  Lightbulb
+} from 'lucide-react';
 
 interface PlaycardDeckProps {
   stories: Story[];
@@ -20,6 +36,23 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Keyboard navigation support (Arrow keys)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is inside an input or textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+
+      if (e.key === 'ArrowRight') {
+        handleNextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrevSlide();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  });
+
   if (!stories || stories.length === 0) {
     return null;
   }
@@ -28,9 +61,24 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
   const slides = activeStory.playcards && activeStory.playcards.length > 0
     ? activeStory.playcards
     : [
-        { label: 'The Pulse', title: 'What Happened?', body: activeStory.deck || activeStory.content.slice(0, 160) + '...', type: 'what' as const },
-        { label: 'Impact', title: 'Why It Matters', body: (activeStory.keyBullets && activeStory.keyBullets[0]) || `Major development impacting ${activeStory.category}.`, type: 'why' as const },
-        { label: 'Forward Look', title: 'What Could Happen Next (Analysis)', body: 'Industry analysts and public officials are monitoring upcoming quarter benchmarks.', type: 'next' as const }
+        {
+          label: 'The Fact',
+          title: 'What Happened?',
+          body: activeStory.deck || activeStory.content.slice(0, 200) + '...',
+          type: 'what' as const
+        },
+        {
+          label: 'Impact',
+          title: 'Why It Matters',
+          body: (activeStory.keyBullets && activeStory.keyBullets[0]) || `A significant verified development impacting the ${activeStory.category} sector.`,
+          type: 'why' as const
+        },
+        {
+          label: 'Outlook',
+          title: 'What Could Happen Next (Analysis)',
+          body: 'Market analysts, regulators, and industry leaders will evaluate subsequent quarterly milestones.',
+          type: 'next' as const
+        }
       ];
 
   const currentSlide = slides[currentSlideIndex] || slides[0];
@@ -52,8 +100,7 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
   const handleNextSlide = () => {
     if (currentSlideIndex < slides.length - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
-    } else {
-      // Loop or go to next story
+    } else if (currentStoryIndex < stories.length - 1) {
       handleNextStory();
     }
   };
@@ -61,152 +108,251 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
   const handlePrevSlide = () => {
     if (currentSlideIndex > 0) {
       setCurrentSlideIndex(currentSlideIndex - 1);
+    } else if (currentStoryIndex > 0) {
+      setCurrentStoryIndex(currentStoryIndex - 1);
+      setCurrentSlideIndex(slides.length - 1);
     }
   };
 
-  const handleShare = () => {
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard?.writeText(activeStory.canonicalUrl || window.location.href);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const progressPercent = Math.round(((currentStoryIndex + 1) / stories.length) * 100);
+
   return (
-    <div className="max-w-2xl mx-auto my-6 px-4 animate-paper-fade">
-      {/* Top Deck Controls */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-[#eee8f8] text-[#7c66dc]">
-            <Layers className="w-4 h-4" />
+    <div className="max-w-3xl mx-auto my-6 px-3 sm:px-6 animate-paper-fade">
+      {/* Top Deck Bar & Global Progress */}
+      <div className="bg-[#ffffff] border border-[#e7ded3] rounded-2xl p-4 sm:p-5 mb-5 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#f0fdfa] border border-[#99f6e4] text-[#0f766e] flex items-center justify-center font-bold shadow-2xs">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-serif-editorial text-base sm:text-lg font-bold text-[#191715]">
+                  Playcard Reading Deck
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-meta font-bold uppercase tracking-wider bg-[#fde8df] text-[#9e4429] border border-[#f5cbbe]">
+                  Gen Z Mode
+                </span>
+              </div>
+              <p className="text-xs text-[#5c554e] font-mono-meta">
+                Interactive bite-sized narrative cards for modern readers
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-serif-editorial text-sm font-bold text-[#181513]">
-              Playcard Deck
-            </h4>
-            <p className="text-[11px] font-mono-meta text-[#6e685f]">
-              Story {currentStoryIndex + 1} of {stories.length} • Tap card or arrows to advance
-            </p>
+
+          <div className="flex items-center gap-3 self-end sm:self-auto">
+            <div className="text-right">
+              <span className="text-xs font-mono-meta font-bold text-[#0f766e] block">
+                Story {currentStoryIndex + 1} of {stories.length}
+              </span>
+              <span className="text-[11px] text-[#8c8278] font-mono-meta">
+                {progressPercent}% of edition
+              </span>
+            </div>
+            <div className="w-20 sm:w-28 h-2 bg-[#f4eee5] rounded-full overflow-hidden border border-[#e7ded3]">
+              <div
+                className="h-full bg-[#0f766e] transition-all duration-300 rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Full-Card Container */}
+      <div className="relative bg-[#ffffff] rounded-3xl border-2 border-[#e7ded3] shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+        {/* Editorial Top Accent Strip: Peach to Icy-Blue gradient */}
+        <div className="h-2 w-full bg-gradient-to-r from-[#fde8df] via-[#bae6fd] to-[#99f6e4]" />
+
+        {/* Card Content Interior */}
+        <div className="p-6 sm:p-9 space-y-6">
+          {/* Metadata Row: Category, Source, Live Badge, Save & Share */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f4eee5] pb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]">
+                {activeStory.category === 'sports_culture' ? 'Culture' : activeStory.category}
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#f0fdfa] text-[#0f766e] border border-[#99f6e4]">
+                <Radio className="w-3 h-3 text-[#0f766e] animate-pulse" />
+                <span>Live Feed</span>
+              </span>
+
+              <span className="text-xs text-[#5c554e] font-medium font-serif-editorial">
+                | {activeStory.sourceName}
+              </span>
+
+              <span className="inline-flex items-center gap-1 text-xs text-[#8c8278] font-mono-meta">
+                <Clock className="w-3 h-3" />
+                {activeStory.timeAgo}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => onToggleSave(activeStory.id)}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  isSaved(activeStory.id)
+                    ? 'text-[#0f766e] bg-[#f0fdfa] border border-[#99f6e4]'
+                    : 'text-[#8c8278] hover:text-[#191715] hover:bg-[#f9f5ef] border border-transparent'
+                }`}
+                title={isSaved(activeStory.id) ? 'Saved' : 'Save for later'}
+              >
+                <Bookmark className={`w-4 h-4 ${isSaved(activeStory.id) ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-xl text-[#8c8278] hover:text-[#191715] hover:bg-[#f9f5ef] transition-colors cursor-pointer border border-transparent"
+                title="Copy canonical article URL"
+              >
+                {copiedLink ? <Check className="w-4 h-4 text-[#0f766e]" /> : <Share2 className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Expressive Headline */}
+          <h2 className="font-serif-editorial text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#191715] leading-snug sm:leading-tight tracking-tight">
+            {activeStory.title}
+          </h2>
+
+          {/* 3-Beat Segmented Progress Selector */}
+          <div className="grid grid-cols-3 gap-2 pt-2">
+            {slides.map((s, idx) => {
+              const isSlideActive = currentSlideIndex === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentSlideIndex(idx)}
+                  className={`p-2.5 sm:p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                    isSlideActive
+                      ? 'bg-[#fde8df] border-[#f5cbbe] text-[#82351f] shadow-xs ring-1 ring-[#f5cbbe]'
+                      : 'bg-[#faf6f0] border-[#e7ded3] text-[#5c554e] hover:bg-[#f4eee5]'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-mono-meta uppercase tracking-wider font-bold mb-1">
+                    {idx === 0 && <HelpCircle className="w-3.5 h-3.5 text-[#0f766e]" />}
+                    {idx === 1 && <TrendingUp className="w-3.5 h-3.5 text-[#0284c7]" />}
+                    {idx === 2 && <Lightbulb className="w-3.5 h-3.5 text-[#9e4429]" />}
+                    <span className="truncate">{s.title.split('?')[0]}</span>
+                  </div>
+                  <div className="text-[11px] font-sans font-medium hidden sm:block truncate opacity-80">
+                    {s.label}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Beat Content Box with Smooth Playcard Transition */}
+          <div
+            key={`${activeStory.id}-${currentSlideIndex}`}
+            onClick={handleNextSlide}
+            className="group cursor-pointer select-none bg-[#faf6f0] border-2 border-[#e7ded3] hover:border-[#0f766e] rounded-3xl p-6 sm:p-7 transition-all duration-300 relative overflow-hidden animate-playcard"
+            title="Click or tap anywhere inside to advance to next beat"
+          >
+            {/* Background watermark icon */}
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 text-[#e7ded3]/60 pointer-events-none -z-0">
+              <Sparkles className="w-full h-full" />
+            </div>
+
+            <div className="relative z-10 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-xs font-mono-meta uppercase tracking-wider font-bold text-[#0f766e] bg-[#f0fdfa] px-3 py-1 rounded-full border border-[#99f6e4]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Beat {currentSlideIndex + 1} of {slides.length}: {currentSlide.title}</span>
+                </span>
+                <span className="text-[11px] font-mono-meta text-[#8c8278] group-hover:text-[#0f766e] transition-colors">
+                  Tap to advance →
+                </span>
+              </div>
+
+              <p className="text-base sm:text-lg text-[#2a241f] leading-relaxed font-sans font-normal pt-1">
+                {currentSlide.body}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions & Deep Dive Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#f4eee5]">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Primary Action: Open Full Narrative Drawer */}
+              <button
+                onClick={() => onOpenExplainer(activeStory)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#0f766e] hover:bg-[#115e59] text-[#ffffff] text-sm font-semibold shadow-sm transition-all cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Read Full Article & Narratives</span>
+              </button>
+
+              {/* Direct Canonical Link */}
+              <a
+                href={activeStory.canonicalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl border border-[#e7ded3] hover:border-[#191715] text-[#5c554e] hover:text-[#191715] bg-[#ffffff] transition-colors cursor-pointer"
+                title={`Visit original article on ${activeStory.sourceName}`}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+
+            {/* Slide Navigation Micro-Controls */}
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <button
+                onClick={handlePrevSlide}
+                disabled={currentSlideIndex === 0 && currentStoryIndex === 0}
+                className="px-3 py-1.5 text-xs font-medium text-[#5c554e] bg-[#faf6f0] hover:bg-[#f4eee5] border border-[#e7ded3] rounded-xl disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                ← Prev Beat
+              </button>
+              <button
+                onClick={handleNextSlide}
+                className="px-3 py-1.5 text-xs font-bold text-[#0f766e] bg-[#f0fdfa] hover:bg-[#ccfbf1] border border-[#99f6e4] rounded-xl transition-colors cursor-pointer"
+              >
+                Next Beat →
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Story Index Navigator */}
-        <div className="flex items-center gap-1.5">
+        {/* Bottom Story-Switching Control Bar */}
+        <div className="bg-[#faf6f0] border-t-2 border-[#e7ded3] p-4 sm:p-5 flex items-center justify-between gap-3">
           <button
             onClick={handlePrevStory}
             disabled={currentStoryIndex === 0}
-            className="p-1.5 rounded-full border border-[#e4dcd3] bg-[#ffffff] text-[#181513] hover:bg-[#faf7f2] disabled:opacity-30 disabled:pointer-events-none transition-colors"
-            title="Previous story"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#e7ded3] bg-[#ffffff] text-[#191715] font-semibold text-xs sm:text-sm hover:bg-[#f4eee5] disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer shadow-2xs"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 text-[#0f766e]" />
+            <span>Previous Story</span>
           </button>
-          <button
-            onClick={handleNextStory}
-            disabled={currentStoryIndex === stories.length - 1}
-            className="p-1.5 rounded-full border border-[#e4dcd3] bg-[#ffffff] text-[#181513] hover:bg-[#faf7f2] disabled:opacity-30 disabled:pointer-events-none transition-colors"
-            title="Next story"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
 
-      {/* Main Interactive Playcard */}
-      <div
-        onClick={handleNextSlide}
-        className="cursor-pointer select-none relative bg-[#ffffff] rounded-3xl border border-[#e4dcd3] p-6 sm:p-8 shadow-md hover:shadow-lg transition-all duration-300 min-h-[380px] flex flex-col justify-between overflow-hidden"
-      >
-        {/* Soft Decorative Ambient Gradient in corner */}
-        <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-br from-[#fbeae5] via-[#eee8f8]/40 to-transparent rounded-bl-full pointer-events-none -z-0 opacity-70" />
-
-        <div className="relative z-10 space-y-4">
-          {/* Top Metadata Strip */}
-          <div className="flex items-center justify-between gap-2 border-b border-[#f0eae1] pb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono-meta uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#faf7f2] text-[#9b2c48] border border-[#e4dcd3]">
-                {activeStory.category}
-              </span>
-              <span className="text-[11px] font-mono-meta text-[#8f887d]">
-                {activeStory.sourceName} • {activeStory.timeAgo}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={() => onToggleSave(activeStory.id)}
-                className={`p-1.5 rounded-full transition-colors ${
-                  isSaved(activeStory.id)
-                    ? 'text-[#e25c50] bg-[#fbeae5]'
-                    : 'text-[#8f887d] hover:text-[#181513] hover:bg-[#faf7f2]'
-                }`}
-                title="Save story"
-              >
-                <Bookmark className="w-4 h-4 fill-current" />
-              </button>
-              <button
-                onClick={handleShare}
-                className="p-1.5 rounded-full text-[#8f887d] hover:text-[#181513] hover:bg-[#faf7f2] transition-colors"
-                title="Copy story link"
-              >
-                {copiedLink ? <Check className="w-4 h-4 text-[#4e6c58]" /> : <Share2 className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Story Title */}
-          <h3 className="font-serif-editorial text-xl sm:text-2xl font-bold text-[#181513] leading-snug">
-            {activeStory.title}
-          </h3>
-
-          {/* Active Slide Content */}
-          <div className="bg-[#faf7f2] border border-[#e4dcd3] rounded-2xl p-4 sm:p-5 space-y-2 mt-2">
-            <div className="flex items-center gap-1.5 text-[#e25c50] font-mono-meta text-xs uppercase tracking-wider font-bold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{currentSlide.label} • {currentSlide.title}</span>
-            </div>
-            <p className="text-sm sm:text-base text-[#3a332a] leading-relaxed font-sans">
-              {currentSlide.body}
-            </p>
-          </div>
-        </div>
-
-        {/* Card Footer: Slide Step Indicator & Action Buttons */}
-        <div
-          className="relative z-10 pt-4 border-t border-[#f0eae1] flex items-center justify-between gap-3 mt-4"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Slide Progress Dots */}
-          <div className="flex items-center gap-1.5">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlideIndex(idx)}
-                className={`h-2 rounded-full transition-all ${
-                  currentSlideIndex === idx
-                    ? 'w-6 bg-[#e25c50]'
-                    : 'w-2 bg-[#d4c8bd] hover:bg-[#8f887d]'
-                }`}
-                title={`Go to slide ${idx + 1}`}
-              />
-            ))}
-            <span className="text-[10px] font-mono-meta text-[#8f887d] ml-1">
-              {currentSlideIndex + 1}/{slides.length}
+          <div className="text-center">
+            <span className="text-xs font-mono-meta font-bold text-[#191715] block">
+              Story {currentStoryIndex + 1} of {stories.length}
+            </span>
+            <span className="text-[10px] font-mono-meta text-[#8c8278] hidden sm:block">
+              Use ← and → arrow keys to flip
             </span>
           </div>
 
-          {/* Action to open full story narrative drawer */}
           <button
-            onClick={() => onOpenExplainer(activeStory)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#181513] text-[#ffffff] text-xs font-medium hover:bg-[#3a332a] transition-colors shadow-xs"
+            onClick={handleNextStory}
+            disabled={currentStoryIndex === stories.length - 1}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#e7ded3] bg-[#ffffff] text-[#191715] font-semibold text-xs sm:text-sm hover:bg-[#f4eee5] disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer shadow-2xs"
           >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Open Full Story</span>
+            <span>Next Story</span>
+            <ChevronRight className="w-4 h-4 text-[#0f766e]" />
           </button>
         </div>
       </div>
-
-      {/* Helpful Hint */}
-      <p className="text-center text-[11px] text-[#8f887d] font-mono-meta mt-2.5">
-        Click or tap inside the card to step through key points • Swipe or use arrows for next story
-      </p>
     </div>
   );
 };

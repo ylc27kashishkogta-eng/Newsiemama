@@ -112,7 +112,7 @@ const NewspaperApp: React.FC = () => {
   const savedStoriesCount = (currentProfile.savedArticleIds || []).length;
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] text-[#181513] flex flex-col justify-between selection:bg-[#fbeae5] selection:text-[#9b2c48]">
+    <div className="min-h-screen bg-[#faf6f0] text-[#191715] flex flex-col justify-between selection:bg-[#ffedd5] selection:text-[#0f766e]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-4">
         {/* Newspaper Masthead */}
         <Masthead
@@ -132,6 +132,8 @@ const NewspaperApp: React.FC = () => {
           isLiveFeed={isLiveFeed}
           totalStoriesCount={totalStoriesCount}
           readStoriesCount={readStoriesCount}
+          viewMode={viewMode}
+          onToggleViewMode={(mode) => setViewMode(mode)}
         />
 
         {/* Live Market Data Ticker */}
@@ -178,6 +180,7 @@ const NewspaperApp: React.FC = () => {
             viewMode={viewMode}
             onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
             onRefresh={handleRefresh}
+            onToggleViewMode={(mode) => setViewMode(mode)}
           />
         )}
       </div>

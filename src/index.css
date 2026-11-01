@@ -2,42 +2,45 @@
 
 @layer base {
   :root {
-    /* Expressive Pinterest-meets-Gen Z Editorial Palette */
-    --paper-cream: #faf7f2;
+    /* Gen Z Editorial Palette: Warm Peach & Beige Paper with Teal & Icy-Blue Accents */
+    --paper-cream: #faf6f0;
     --paper-card: #ffffff;
-    --paper-blush: #fbeae5;
-    --paper-blush-subtle: #fdf5f2;
+    --paper-beige: #f4eee5;
+    --paper-beige-subtle: #f9f5ef;
     
-    /* Lavender & Lilac Accents */
-    --paper-lavender: #eee8f8;
-    --paper-lavender-subtle: #f7f4fc;
-    --lavender-accent: #7b5ea7;
-    --lavender-border: #ded4f0;
+    /* Warm Peach Paper Tones */
+    --paper-peach: #fde8df;
+    --paper-peach-soft: #fff5f0;
+    --peach-border: #f5cbbe;
+    --peach-text: #9e4429;
+    --peach-dark: #82351f;
 
-    /* Sage & Soft Green */
-    --paper-sage: #e3ece5;
-    --sage-dark: #3b5744;
-    --sage-soft: #edf4ee;
-    --sage-border: #cbe0d0;
+    /* Crisp Teal Accents */
+    --teal: #0f766e;
+    --teal-dark: #115e59;
+    --teal-soft: #f0fdfa;
+    --teal-border: #99f6e4;
+    --teal-vivid: #14b8a6;
 
-    /* Bold Coral & Berry Accents */
-    --coral: #e25c50;
-    --coral-dark: #c54338;
-    --coral-soft: #fdeee9;
-    --berry: #9b2c48;
-    --berry-dark: #781c34;
-    --berry-soft: #faebef;
-    --berry-border: #eec5cf;
+    /* Icy-Blue Accents */
+    --icy-blue: #0284c7;
+    --icy-blue-dark: #0369a1;
+    --icy-blue-soft: #f0f9ff;
+    --icy-blue-pill: #e0f2fe;
+    --icy-blue-border: #bae6fd;
 
-    /* Deep Ink for high contrast accessibility */
-    --ink: #181513;
-    --ink-muted: #544e47;
-    --ink-faint: #8a8278;
-    --border-subtle: #e8ded4;
-    --border-accent: #181513;
+    /* Deep Ink for high contrast editorial readability */
+    --ink: #191715;
+    --ink-muted: #5c554e;
+    --ink-faint: #8c8278;
+    --border-subtle: #e7ded3;
+    --border-hairline: #ede5da;
+    --border-accent: #191715;
 
-    /* Typography */
+    /* Expressive Typography */
+    --font-display: 'Fraunces', 'Newsreader', Georgia, serif;
     --font-serif: 'Newsreader', Georgia, serif;
+    --font-kicker: 'Syne', 'Plus Jakarta Sans', sans-serif;
     --font-masthead: 'Cinzel', serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
@@ -48,14 +51,24 @@
     background-color: var(--paper-cream);
     color: var(--ink);
     background-image: 
-      radial-gradient(#e8dfd5 0.75px, transparent 0.75px),
-      radial-gradient(#f2e8de 0.75px, #faf7f2 0.75px);
+      radial-gradient(#e5ddd2 0.75px, transparent 0.75px),
+      radial-gradient(#ede3d8 0.75px, #faf6f0 0.75px);
     background-size: 32px 32px;
     background-position: 0 0, 16px 16px;
   }
 
   h1, h2, h3, .font-serif-editorial {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .font-classic-serif {
     font-family: var(--font-serif);
+  }
+
+  .font-kicker {
+    font-family: var(--font-kicker);
+    letter-spacing: 0.06em;
   }
 
   .font-masthead {

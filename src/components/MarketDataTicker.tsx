@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, AlertCircle, Clock, ShieldCheck } from 'lucide-react';
+import { TrendingUp, AlertCircle, Clock } from 'lucide-react';
 
 export const MarketDataTicker: React.FC = () => {
   const [marketInfo, setMarketInfo] = useState<{
@@ -35,29 +35,29 @@ export const MarketDataTicker: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-[#ffffff] border-y border-[#e4dcd3] py-2 px-4 mb-4 text-xs font-mono-meta flex flex-wrap items-center justify-between gap-2 shadow-2xs">
+    <div className="bg-[#ffffff] border-y border-[#e7ded3] py-2 px-4 mb-5 text-xs font-mono-meta flex flex-wrap items-center justify-between gap-2 shadow-2xs">
       <div className="flex items-center gap-2">
-        <TrendingUp className="w-3.5 h-3.5 text-[#e25c50]" />
-        <span className="font-bold text-[#181513] uppercase tracking-wider text-[11px]">
+        <TrendingUp className="w-3.5 h-3.5 text-[#0f766e]" />
+        <span className="font-bold text-[#191715] uppercase tracking-wider text-[11px]">
           Financial Markets:
         </span>
         {marketInfo.connected ? (
-          <span className="text-[#3e5f49] bg-[#e3ece5] px-2 py-0.5 rounded-full text-[10px] font-bold">
+          <span className="text-[#0f766e] bg-[#f0fdfa] border border-[#99f6e4] px-2 py-0.5 rounded-full text-[10px] font-bold">
             Live Provider Active ({marketInfo.provider})
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 text-[#8f887d] bg-[#faf7f2] border border-[#e4dcd3] px-2 py-0.5 rounded-full text-[10px]">
-            <AlertCircle className="w-3 h-3 text-[#e25c50]" />
-            <span>Live market quotes unavailable (Provider unconfigured)</span>
+          <span className="inline-flex items-center gap-1.5 text-[#82351f] bg-[#fde8df] border border-[#f5cbbe] px-2.5 py-0.5 rounded-full text-[10px] font-medium">
+            <AlertCircle className="w-3 h-3 text-[#9e4429]" />
+            <span>Live market quotes unconfigured (Requires MARKET_DATA_API_KEY)</span>
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-3 text-[11px] text-[#6e685f]">
-        <span>Zero synthetic prices policy</span>
+      <div className="flex items-center gap-3 text-[11px] text-[#5c554e]">
+        <span className="font-medium text-[#0f766e]">Zero synthetic prices policy</span>
         <span>•</span>
-        <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3 text-[#8f887d]" />
+        <span className="flex items-center gap-1 text-[#8c8278]">
+          <Clock className="w-3 h-3 text-[#8c8278]" />
           <span>As of: {marketInfo.asOf}</span>
         </span>
       </div>

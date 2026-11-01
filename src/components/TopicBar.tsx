@@ -17,14 +17,14 @@ interface TopicBarProps {
 }
 
 const TOPIC_LABELS: Record<TopicCategory, { label: string; activeClass: string }> = {
-  finance: { label: 'Finance & Markets', activeClass: 'bg-[#e25c50] text-[#ffffff] border-[#e25c50]' },
-  economy: { label: 'Markets & Economy', activeClass: 'bg-[#e25c50] text-[#ffffff] border-[#e25c50]' },
-  tech: { label: 'Technology & AI', activeClass: 'bg-[#7c66dc] text-[#ffffff] border-[#7c66dc]' },
-  policy: { label: 'Policy & Governance', activeClass: 'bg-[#b35a20] text-[#ffffff] border-[#b35a20]' },
-  world: { label: 'World Intelligence', activeClass: 'bg-[#9b2c48] text-[#ffffff] border-[#9b2c48]' },
-  climate: { label: 'Climate & Energy', activeClass: 'bg-[#3e5f49] text-[#ffffff] border-[#3e5f49]' },
-  science: { label: 'Science & Space', activeClass: 'bg-[#2458b8] text-[#ffffff] border-[#2458b8]' },
-  sports_culture: { label: 'Sports & Culture', activeClass: 'bg-[#bc4b25] text-[#ffffff] border-[#bc4b25]' },
+  finance: { label: 'Finance & Markets', activeClass: 'bg-[#0f766e] text-[#ffffff] border-[#0f766e]' },
+  economy: { label: 'Markets & Economy', activeClass: 'bg-[#0f766e] text-[#ffffff] border-[#0f766e]' },
+  tech: { label: 'Technology & AI', activeClass: 'bg-[#0284c7] text-[#ffffff] border-[#0284c7]' },
+  policy: { label: 'Policy & Governance', activeClass: 'bg-[#82351f] text-[#ffffff] border-[#82351f]' },
+  world: { label: 'World Intelligence', activeClass: 'bg-[#191715] text-[#ffffff] border-[#191715]' },
+  climate: { label: 'Climate & Energy', activeClass: 'bg-[#047857] text-[#ffffff] border-[#047857]' },
+  science: { label: 'Science & Space', activeClass: 'bg-[#0369a1] text-[#ffffff] border-[#0369a1]' },
+  sports_culture: { label: 'Sports & Culture', activeClass: 'bg-[#9e4429] text-[#ffffff] border-[#9e4429]' },
 };
 
 const FINANCE_SUBCATEGORIES: FinanceSubcategory[] = [
@@ -111,32 +111,35 @@ export const TopicBar: React.FC<TopicBarProps> = ({
           </button>
         </div>
 
-        {/* View Mode Toggle: Broadsheet vs Playcards */}
+        {/* High-Visibility View Mode Switcher: Broadsheet vs Playcards */}
         {onToggleViewMode && (
-          <div className="flex items-center bg-[#ffffff] border border-[#d8ccc0] rounded-full p-0.5 shadow-2xs">
+          <div className="flex items-center bg-[#ffffff] border-2 border-[#e7ded3] rounded-2xl p-1 shadow-xs shrink-0">
             <button
               onClick={() => onToggleViewMode('broadsheet')}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 viewMode === 'broadsheet'
-                  ? 'bg-[#181513] text-[#ffffff]'
-                  : 'text-[#6e685f] hover:text-[#181513]'
+                  ? 'bg-[#191715] text-[#ffffff] shadow-2xs'
+                  : 'text-[#5c554e] hover:text-[#191715] hover:bg-[#faf6f0]'
               }`}
-              title="Broadsheet Newspaper View"
+              title="Classic Broadsheet Newspaper View"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Broadsheet</span>
+              <span>Broadsheet</span>
             </button>
             <button
               onClick={() => onToggleViewMode('playcard')}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 viewMode === 'playcard'
-                  ? 'bg-[#e25c50] text-[#ffffff]'
-                  : 'text-[#6e685f] hover:text-[#181513]'
+                  ? 'bg-[#0f766e] text-[#ffffff] shadow-2xs ring-1 ring-[#99f6e4]'
+                  : 'text-[#9e4429] bg-[#fde8df]/60 hover:bg-[#fde8df] hover:text-[#82351f]'
               }`}
-              title="Interactive Playcards Deck"
+              title="Modern Interactive Playcards Deck"
             >
-              <Layers className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Playcards</span>
+              <Layers className="w-3.5 h-3.5 text-[#0f766e]" />
+              <span>Playcards</span>
+              <span className="text-[9px] bg-[#0f766e] text-[#ffffff] px-1.5 py-0.2 rounded-full uppercase font-mono-meta tracking-wider">
+                Deck
+              </span>
             </button>
           </div>
         )}
@@ -145,7 +148,7 @@ export const TopicBar: React.FC<TopicBarProps> = ({
       {/* Second Row: Finance Subcategories Sub-Filter (when finance is relevant) */}
       {isFinanceRelevant && onSelectFinanceSubcategory && (
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 text-xs animate-paper-fade">
-          <span className="text-[11px] font-mono-meta text-[#8f887d] uppercase tracking-wider shrink-0 mr-1">
+          <span className="text-[11px] font-mono-meta text-[#8c8278] uppercase tracking-wider shrink-0 mr-1">
             Finance Focus:
           </span>
           {FINANCE_SUBCATEGORIES.map((sub) => {
@@ -156,8 +159,8 @@ export const TopicBar: React.FC<TopicBarProps> = ({
                 onClick={() => onSelectFinanceSubcategory(sub)}
                 className={`px-2.5 py-1 text-[11px] font-mono-meta rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   isSubActive
-                    ? 'bg-[#fbeae5] text-[#9b2c48] font-bold border border-[#f3c8bc]'
-                    : 'text-[#6e685f] hover:bg-[#ffffff] hover:text-[#181513]'
+                    ? 'bg-[#fde8df] text-[#82351f] font-bold border border-[#f5cbbe]'
+                    : 'text-[#5c554e] hover:bg-[#ffffff] hover:text-[#191715]'
                 }`}
               >
                 {FINANCE_SUBCATEGORY_LABELS[sub]}
