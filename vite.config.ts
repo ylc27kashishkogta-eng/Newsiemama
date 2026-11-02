@@ -16,7 +16,7 @@ function apiServerPlugin(env: Record<string, string>): Plugin {
             geminiConnected: Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0),
             imageGenConfigured: true,
             imageGenType: 'procedural-svg',
-            imageGenModel: 'moodpaper-vector-engine',
+            imageGenModel: 'newsimama-vector-engine',
             marketConnected: Boolean(env.MARKET_DATA_API_KEY && env.MARKET_DATA_API_KEY.trim().length > 0),
             newsApiConnected: Boolean(env.NEWS_API_KEY && env.NEWS_API_KEY.trim().length > 0),
             provider: env.MARKET_DATA_PROVIDER || 'alphavantage'
@@ -89,7 +89,7 @@ function apiServerPlugin(env: Record<string, string>): Plugin {
               const payload = JSON.parse(body || '{}');
               const { story, preset, ageRange, slangLevel } = payload;
 
-              const prompt = `You are Moodpaper's editorial narrative engine. You are explaining a real news article that was just retrieved from a live wire.
+              const prompt = `You are Newsimama's editorial narrative engine. You are explaining a real news article that was just retrieved from a live wire.
 Article Title: ${story.title}
 Publisher: ${story.sourceName}
 Article Content: ${story.content}
@@ -173,7 +173,7 @@ Return ONLY the raw JSON object without markdown fences.`;
                 `[Source ${idx + 1}] Title: "${s.title}" | Publisher: ${s.sourceName} | Published: ${s.publishedAt} | URL: ${s.canonicalUrl}\nExcerpt: ${s.content || s.deck}`
               ).join('\n\n');
 
-              const prompt = `You are Moodpaper's Visual AI News & Business Intelligence Agent.
+              const prompt = `You are Newsimama's Visual AI News & Business Intelligence Agent.
 The user is asking: "${query}"
 
 Here are the real articles currently retrieved in the reader's edition:
@@ -260,9 +260,9 @@ Return ONLY raw JSON matching this structure.`;
             success: true,
             configured: true,
             type: 'procedural-svg',
-            model: 'moodpaper-vector-engine',
-            attribution: 'Template-generated Moodpaper visual (Procedural SVG)',
-            message: 'Moodpaper uses procedural SVG graphics generated directly in the browser. Zero external API calls are made.'
+            model: 'newsimama-vector-engine',
+            attribution: 'Template-generated Newsimama visual (Procedural SVG)',
+            message: 'Newsimama uses procedural SVG graphics generated directly in the browser. Zero external API calls are made.'
           }));
           return;
         }

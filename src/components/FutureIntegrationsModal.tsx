@@ -143,7 +143,7 @@ export const FutureIntegrationsModal: React.FC<FutureIntegrationsModalProps> = (
               <span>Architectural Transparency</span>
             </div>
             <p className="text-[11px] leading-relaxed text-[#5c5449]">
-              • Moodpaper never claims to scrape or secretly access private ChatGPT chats.<br />
+              • Newsimama never claims to scrape or secretly access private ChatGPT chats.<br />
               • Live custom AI calls will use standard, user-provided OpenAI API keys stored client-side.<br />
               • For today’s demo, the three built-in narrative engines (Quick Brief, Friendly Explainer, Storyteller) run 100% locally with zero API cost.
             </p>
@@ -166,3 +166,4 @@ export const FutureIntegrationsModal: React.FC<FutureIntegrationsModalProps> = (
     </div>
   );
 };
+

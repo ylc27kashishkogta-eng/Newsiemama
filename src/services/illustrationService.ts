@@ -30,8 +30,9 @@ export const illustrationService = {
       configured: true,
       type: 'procedural-svg',
       theme,
-      attribution: 'Template-generated Moodpaper visual (Procedural SVG)',
+      attribution: 'Template-generated Newsimama visual (Procedural SVG)',
       disclaimer: 'Procedurally generated with SVG & CSS from reported facts. Not an AI-generated image.'
     };
   }
 };
+

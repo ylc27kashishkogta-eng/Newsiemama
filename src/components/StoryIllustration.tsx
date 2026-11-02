@@ -63,7 +63,7 @@ export const StoryIllustration: React.FC<StoryIllustrationProps> = ({
         {/* Honest Template-Generated Indicator */}
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#191715]/90 text-[#ffffff] text-[10px] font-mono-meta font-bold tracking-wider uppercase backdrop-blur-md border border-[#ffffff]/20 shadow-xs pointer-events-auto">
           <Sparkles className="w-3 h-3 text-[#99f6e4]" />
-          <span>Moodpaper Editorial Visual</span>
+          <span>Newsimama Editorial Visual</span>
         </div>
 
         {/* Dynamic Category/Motif Badge */}
@@ -172,3 +172,4 @@ export const StoryIllustration: React.FC<StoryIllustrationProps> = ({
     </figure>
   );
 };
+

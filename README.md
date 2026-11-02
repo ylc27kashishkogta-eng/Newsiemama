@@ -1,4 +1,4 @@
-# Curio Dispatch 📰
+# Newsimama 📰
 > *A personalized, distraction-free digital newspaper delivering calm morning editions tailored to your topics and explained in your conversational voice.*
 
 ---
@@ -79,7 +79,7 @@ src/
 
 ## Pre-seeded Reader Personas
 
-Curio Dispatch includes two pre-configured reader profiles to test multi-reader isolation immediately:
+Newsimama includes two pre-configured reader profiles to test multi-reader isolation immediately:
 
 1. **Aarav Sharma:**
    - **Topics:** Markets & Economy, Technology & AI
@@ -109,3 +109,5 @@ Click the reader name in the masthead to switch profiles or create a new edition
   - [ ] Activate Microsoft Clarity project tracking ([Guide](docs/integrations-oct31.md)).
   - [ ] Verify domain on Google Search Console ([Guide](docs/integrations-oct31.md)).
   - [ ] Conduct Apify actor benchmarks on non-paywalled media archives ([Investigation](docs/apify-investigation.md)).
+
+

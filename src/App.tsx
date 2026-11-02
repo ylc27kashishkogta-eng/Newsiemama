@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
 import { Story, TopicCategory, FinanceSubcategory } from './types';
 import { feedService, FeedResponse } from './services/feedService';
@@ -17,8 +17,11 @@ import { MarketDataTicker } from './components/MarketDataTicker';
 import { VisualBusinessAgent } from './components/VisualBusinessAgent';
 import { APP_NAME } from './config';
 import { Newspaper } from 'lucide-react';
+import { NewsimamaIntro } from './components/NewsimamaIntro';
 
 const NewspaperApp: React.FC = () => {
+  const [showIntro, setShowIntro] = useState(true);
+  const completeIntro = useCallback(() => setShowIntro(false), []);
   const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
   const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all' | 'saved'>('all');
   const [selectedFinanceSubcategory, setSelectedFinanceSubcategory] = useState<FinanceSubcategory>('all');
@@ -250,6 +253,8 @@ const NewspaperApp: React.FC = () => {
           </p>
         </div>
       </footer>
+
+      {showIntro && <NewsimamaIntro onComplete={completeIntro} />}
     </div>
   );
 };
@@ -261,3 +266,5 @@ export default function App() {
     </ProfileProvider>
   );
 }
+
+
