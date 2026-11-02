@@ -143,6 +143,26 @@
   }
 }
 
+@keyframes moodpaperDrift {
+  0%, 100% {
+    transform: rotate(-12deg) scale(1);
+  }
+  50% {
+    transform: rotate(-10deg) scale(1.015);
+  }
+}
+
+@keyframes moodpaperPulse {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
 .animate-paper-fade {
   animation: paperFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -157,6 +177,16 @@
 
 .animate-image-reveal {
   animation: imageReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-moodpaper-drift {
+  animation: moodpaperDrift 14s ease-in-out infinite;
+  transform-origin: 440px 195px;
+}
+
+.animate-moodpaper-pulse {
+  animation: moodpaperPulse 4s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .animate-companion-bob {

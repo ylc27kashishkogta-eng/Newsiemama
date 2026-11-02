@@ -14,8 +14,9 @@ function apiServerPlugin(env: Record<string, string>): Plugin {
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({
             geminiConnected: Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0),
-            imageGenConfigured: Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0),
-            imageGenModel: 'gemini-nano-banana-2.1',
+            imageGenConfigured: true,
+            imageGenType: 'procedural-svg',
+            imageGenModel: 'moodpaper-vector-engine',
             marketConnected: Boolean(env.MARKET_DATA_API_KEY && env.MARKET_DATA_API_KEY.trim().length > 0),
             newsApiConnected: Boolean(env.NEWS_API_KEY && env.NEWS_API_KEY.trim().length > 0),
             provider: env.MARKET_DATA_PROVIDER || 'alphavantage'
@@ -252,128 +253,17 @@ Return ONLY raw JSON matching this structure.`;
           return;
         }
 
-        // AI Editorial Illustration Endpoint (Server-Side gemini-nano-banana-2.1)
-        if (url.pathname === '/api/gemini/illustrate' && req.method === 'POST') {
-          let body = '';
-          req.on('data', chunk => { body += chunk; });
-          req.on('end', async () => {
-            const geminiKey = env.GEMINI_API_KEY?.trim();
-            res.setHeader('Content-Type', 'application/json');
-
-            if (!geminiKey) {
-              res.end(JSON.stringify({
-                success: false,
-                configured: false,
-                model: 'gemini-nano-banana-2.1',
-                message: 'AI Image Generation provider is unconfigured. Set GEMINI_API_KEY in local .env to enable on-demand editorial illustrations with gemini-nano-banana-2.1.',
-                setupInstructions: [
-                  'Create a .env file in the project root (copied from .env.example)',
-                  'Set GEMINI_API_KEY=your_key_here from Google AI Studio (https://aistudio.google.com/)',
-                  'Restart the dev server: npm run dev'
-                ]
-              }));
-              return;
-            }
-
-            try {
-              const payload = JSON.parse(body || '{}');
-              const { story } = payload;
-              if (!story || !story.title) {
-                res.statusCode = 400;
-                res.end(JSON.stringify({ success: false, error: 'Missing story details' }));
-                return;
-              }
-
-              // Consistent Art Direction:
-              // - Warm peach, beige paper, rich teal, and ice-blue palette
-              // - Conceptual artwork, paper collage, geometric 3D shapes
-              // - Strict negative constraints: NO realistic photos, NO documentary scenes, NO human portraits, NO text, NO logos
-              const prompt = `A modern conceptual editorial magazine illustration for an article titled "${story.title}".
-Factual Context: "${story.deck || story.content?.slice(0, 200) || ''}".
-Artistic Style: Imaginative editorial collage, layered paper textures, geometric architectural forms, and stylized 3D sculptural graphics in the style of The New Yorker and Wired magazine covers.
-Color Scheme: Warm peach (#FDE8DF), beige paper tones (#FAF6F0), rich teal (#0F766E), and crisp ice-blue (#E0F2FE).
-Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO realistic human faces, NO photojournalistic photography, NO disaster scenes, NO readable typography or letters, NO corporate logos, NO charts or fake data graphs.`;
-
-              const geminiRes = await fetch(
-                'https://generativelanguage.googleapis.com/v1/models/gemini-nano-banana-2.1:generateContent',
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': geminiKey
-                  },
-                  body: JSON.stringify({
-                    contents: [
-                      {
-                        role: 'user',
-                        parts: [{ text: prompt }]
-                      }
-                    ],
-                    generationConfig: {
-                      responseModalities: ['IMAGE'],
-                      imageConfig: {
-                        aspectRatio: '16:9',
-                        imageSize: '1K'
-                      }
-                    }
-                  }),
-                  signal: AbortSignal.timeout(35000)
-                }
-              );
-
-              if (!geminiRes.ok) {
-                const errText = await geminiRes.text();
-                let userFriendlyMessage = `Gemini API returned ${geminiRes.status}: ${geminiRes.statusText}`;
-                try {
-                  const errJson = JSON.parse(errText);
-                  if (geminiRes.status === 429) {
-                    userFriendlyMessage = "Quota Exceeded (HTTP 429): Google's Free Tier sets the quota for gemini-nano-banana-2.1 to 0 requests. A linked billing account / Pay-As-You-Go plan in Google AI Studio is required for image generation.";
-                  } else if (errJson.error?.message) {
-                    userFriendlyMessage = errJson.error.message;
-                  }
-                } catch {}
-
-                res.end(JSON.stringify({
-                  success: false,
-                  configured: true,
-                  model: 'gemini-nano-banana-2.1',
-                  status: geminiRes.status,
-                  message: userFriendlyMessage
-                }));
-                return;
-              }
-
-              const data = await geminiRes.json();
-              const candidateParts = data.candidates?.[0]?.content?.parts || [];
-              const imagePart = candidateParts.find((p: any) => p.inlineData || p.inline_data);
-              const inline = imagePart?.inlineData || imagePart?.inline_data;
-              const base64Data = inline?.data || data.predictions?.[0]?.bytesBase64Encoded;
-              const mimeType = inline?.mimeType || inline?.mime_type || 'image/jpeg';
-
-              if (base64Data) {
-                res.end(JSON.stringify({
-                  success: true,
-                  configured: true,
-                  model: 'gemini-nano-banana-2.1',
-                  imageUrl: `data:${mimeType};base64,${base64Data}`,
-                  promptUsed: prompt,
-                  attribution: 'AI-generated illustration via Google gemini-nano-banana-2.1',
-                  disclaimer: 'Imaginative editorial artwork conceptualized from headline facts. Not a documentary photograph.'
-                }));
-                return;
-              }
-
-              res.end(JSON.stringify({
-                success: false,
-                configured: true,
-                model: 'gemini-nano-banana-2.1',
-                message: 'No image data returned from provider.'
-              }));
-            } catch (err: any) {
-              res.statusCode = 500;
-              res.end(JSON.stringify({ success: false, configured: true, model: 'gemini-nano-banana-2.1', error: err.message }));
-            }
-          });
+        // Procedural SVG Visual System (Automatic, 100% Free, Zero External API Calls)
+        if (url.pathname === '/api/gemini/illustrate') {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({
+            success: true,
+            configured: true,
+            type: 'procedural-svg',
+            model: 'moodpaper-vector-engine',
+            attribution: 'Template-generated Moodpaper visual (Procedural SVG)',
+            message: 'Moodpaper uses procedural SVG graphics generated directly in the browser. Zero external API calls are made.'
+          }));
           return;
         }
 

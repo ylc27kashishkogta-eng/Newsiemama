@@ -1,81 +1,37 @@
 import { Story } from '../types';
+import { getStoryVisualTheme, StoryVisualTheme } from './editorialVisualService';
 
 export interface IllustrationResponse {
   success: boolean;
   configured: boolean;
-  imageUrl?: string;
-  promptUsed?: string;
-  attribution?: string;
-  disclaimer?: string;
-  message?: string;
-  setupInstructions?: string[];
-  error?: string;
+  type: 'procedural-svg';
+  theme: StoryVisualTheme;
+  attribution: string;
+  disclaimer: string;
 }
 
-// In-memory cache keyed by story ID to avoid redundant generation calls
-const illustrationCache = new Map<string, IllustrationResponse>();
-
+/**
+ * Editorial Visual Service - 100% Automatic, Zero-Cost, Procedural SVG System.
+ * Replaces external paid image-generation APIs with native, accessible vector graphics.
+ */
 export const illustrationService = {
-  /**
-   * Check if a cached illustration already exists for this story.
-   */
-  getCached(storyId: string): IllustrationResponse | undefined {
-    return illustrationCache.get(storyId);
+  getVisualTheme(story: Story): StoryVisualTheme {
+    return getStoryVisualTheme(story);
   },
 
   /**
-   * Explicitly generate an editorial illustration on demand.
-   * Calls the server-side proxy which holds the provider key securely.
+   * Compatibility method for procedural rendering.
+   * Resolves immediately with zero network latency, zero costs, and zero quota restrictions.
    */
-  async generateIllustration(story: {
-    id: string;
-    title: string;
-    deck?: string;
-    content?: string;
-    category?: string;
-    sourceName?: string;
-  }): Promise<IllustrationResponse> {
-    const cached = illustrationCache.get(story.id);
-    if (cached && cached.success) {
-      return cached;
-    }
-
-    try {
-      const res = await fetch('/api/gemini/illustrate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          story: {
-            id: story.id,
-            title: story.title,
-            deck: story.deck,
-            content: story.content,
-            category: story.category,
-            sourceName: story.sourceName
-          }
-        })
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        return {
-          success: false,
-          configured: true,
-          error: `Server responded with status ${res.status}: ${errorText}`
-        };
-      }
-
-      const result: IllustrationResponse = await res.json();
-      if (result.success && result.imageUrl) {
-        illustrationCache.set(story.id, result);
-      }
-      return result;
-    } catch (err: any) {
-      return {
-        success: false,
-        configured: false,
-        error: err?.message || 'Network error reaching illustration service.'
-      };
-    }
+  async generateIllustration(story: Story): Promise<IllustrationResponse> {
+    const theme = getStoryVisualTheme(story);
+    return {
+      success: true,
+      configured: true,
+      type: 'procedural-svg',
+      theme,
+      attribution: 'Template-generated Moodpaper visual (Procedural SVG)',
+      disclaimer: 'Procedurally generated with SVG & CSS from reported facts. Not an AI-generated image.'
+    };
   }
 };

@@ -14,6 +14,7 @@ import {
   Radio
 } from 'lucide-react';
 import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
+import { StoryIllustration } from './StoryIllustration';
 
 interface StoryCardProps {
   story: Story;
@@ -149,6 +150,9 @@ export const StoryCard: React.FC<StoryCardProps> = ({
         >
           {story.title}
         </h3>
+
+        {/* Procedural Moodpaper Editorial Visual */}
+        <StoryIllustration story={story} layout="compact" className="my-2.5" />
 
         {/* Vibe / Deck content */}
         {isVibe && story.vibeSummary ? (
