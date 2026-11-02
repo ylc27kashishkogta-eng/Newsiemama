@@ -323,12 +323,22 @@ Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO re
 
               if (!geminiRes.ok) {
                 const errText = await geminiRes.text();
+                let userFriendlyMessage = `Gemini API returned ${geminiRes.status}: ${geminiRes.statusText}`;
+                try {
+                  const errJson = JSON.parse(errText);
+                  if (geminiRes.status === 429) {
+                    userFriendlyMessage = "Quota Exceeded (HTTP 429): Google's Free Tier sets the quota for gemini-nano-banana-2.1 to 0 requests. A linked billing account / Pay-As-You-Go plan in Google AI Studio is required for image generation.";
+                  } else if (errJson.error?.message) {
+                    userFriendlyMessage = errJson.error.message;
+                  }
+                } catch {}
+
                 res.end(JSON.stringify({
                   success: false,
                   configured: true,
                   model: 'gemini-nano-banana-2.1',
-                  message: `Gemini API returned ${geminiRes.status}: ${geminiRes.statusText}`,
-                  details: errText
+                  status: geminiRes.status,
+                  message: userFriendlyMessage
                 }));
                 return;
               }

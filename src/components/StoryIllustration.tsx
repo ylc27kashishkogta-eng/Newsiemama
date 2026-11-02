@@ -168,23 +168,46 @@ export const StoryIllustration: React.FC<StoryIllustrationProps> = ({
     );
   }
 
-  // 4. Provider Error State (when configured but upstream returned an error)
+  // 4. Provider Error State (when configured but upstream returned an error or quota limit)
   if (result && !result.success && result.configured) {
+    const isQuota = result.message?.includes('429') || result.message?.includes('Quota');
     return (
-      <div className={`my-4 bg-[#fde8df] border border-[#f5cbbe] rounded-2xl p-4 text-xs text-[#82351f] ${className}`}>
+      <div className={`my-4 bg-[#fde8df] border-2 border-[#f5cbbe] rounded-2xl p-4 text-xs text-[#82351f] shadow-2xs ${className}`}>
         <div className="flex items-center justify-between">
-          <span className="font-bold">Provider returned an error:</span>
-          <button onClick={() => setResult(null)} className="p-1 hover:text-[#191715]">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-[#82351f] shrink-0" />
+            <span className="font-bold">
+              {isQuota ? 'Image Generation Quota Limit (Free Tier)' : 'Provider Notice:'}
+            </span>
+          </div>
+          <button onClick={() => setResult(null)} className="p-1 text-[#82351f] hover:text-[#191715] cursor-pointer">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="font-mono-meta text-[11px] mt-1">{result.message || result.error}</p>
-        <button
-          onClick={handleGenerate}
-          className="mt-2 text-xs font-bold text-[#0f766e] hover:underline cursor-pointer"
-        >
-          Try Again
-        </button>
+        <p className="font-mono-meta text-[11px] mt-1.5 leading-relaxed text-[#2a241f] bg-[#ffffff] p-2.5 rounded-lg border border-[#f5cbbe]">
+          {result.message || result.error}
+        </p>
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#f5cbbe]/60 text-[11px]">
+          {isQuota ? (
+            <a
+              href="https://aistudio.google.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[#0f766e] font-bold hover:underline"
+            >
+              <span>Manage Plan in Google AI Studio</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          ) : (
+            <span />
+          )}
+          <button
+            onClick={handleGenerate}
+            className="text-xs font-bold text-[#0f766e] hover:underline cursor-pointer"
+          >
+            Retry Request
+          </button>
+        </div>
       </div>
     );
   }
