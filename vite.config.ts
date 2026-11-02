@@ -112,10 +112,13 @@ Instructions:
 Return ONLY the raw JSON object without markdown fences.`;
 
               const geminiRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
                 {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': geminiKey
+                  },
                   body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
                     generationConfig: { responseMimeType: 'application/json' }
@@ -188,10 +191,13 @@ STRICT OPERATIONAL CONSTRAINTS:
 Return ONLY raw JSON matching this structure.`;
 
               const geminiRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
                 {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': geminiKey
+                  },
                   body: JSON.stringify({
                     contents: [{ parts: [{ text: prompt }] }],
                     generationConfig: { responseMimeType: 'application/json' }
@@ -289,10 +295,13 @@ Color Scheme: Warm peach (#FDE8DF), beige paper tones (#FAF6F0), rich teal (#0F7
 Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO realistic human faces, NO photojournalistic photography, NO disaster scenes, NO readable typography or letters, NO corporate logos, NO charts or fake data graphs.`;
 
               const geminiRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${geminiKey}`,
+                'https://generativelanguage.googleapis.com/v1/models/gemini-nano-banana-2.1:generateContent',
                 {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': geminiKey
+                  },
                   body: JSON.stringify({
                     contents: [
                       {
@@ -325,9 +334,11 @@ Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO re
               }
 
               const data = await geminiRes.json();
-              const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
-              const base64Data = imagePart?.inlineData?.data || data.predictions?.[0]?.bytesBase64Encoded;
-              const mimeType = imagePart?.inlineData?.mimeType || 'image/jpeg';
+              const candidateParts = data.candidates?.[0]?.content?.parts || [];
+              const imagePart = candidateParts.find((p: any) => p.inlineData || p.inline_data);
+              const inline = imagePart?.inlineData || imagePart?.inline_data;
+              const base64Data = inline?.data || data.predictions?.[0]?.bytesBase64Encoded;
+              const mimeType = inline?.mimeType || inline?.mime_type || 'image/jpeg';
 
               if (base64Data) {
                 res.end(JSON.stringify({
