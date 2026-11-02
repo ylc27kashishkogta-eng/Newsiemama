@@ -102,7 +102,7 @@ export const StoryIllustration: React.FC<StoryIllustrationProps> = ({
           Synthesizing Editorial Artwork...
         </h4>
         <p className="text-xs text-[#5c554e] font-mono-meta mt-1 max-w-md mx-auto">
-          Contacting server-side Imagen 3 proxy. Generating conceptual artwork for "{story.title.slice(0, 60)}..."
+          Contacting server-side Gemini image proxy (gemini-nano-banana-2.1). Generating conceptual artwork for "{story.title.slice(0, 60)}..."
         </p>
       </div>
     );
@@ -122,7 +122,7 @@ export const StoryIllustration: React.FC<StoryIllustrationProps> = ({
                 AI Image Generation Unconfigured
               </h4>
               <p className="text-xs text-[#9e4429] font-sans">
-                Moodpaper uses Google AI Studio's Imagen 3 API via a server-side proxy to protect API keys.
+                Moodpaper uses Google's supported gemini-nano-banana-2.1 model via a server-side proxy to protect API keys.
               </p>
             </div>
           </div>

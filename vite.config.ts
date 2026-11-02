@@ -15,6 +15,7 @@ function apiServerPlugin(env: Record<string, string>): Plugin {
           res.end(JSON.stringify({
             geminiConnected: Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0),
             imageGenConfigured: Boolean(env.GEMINI_API_KEY && env.GEMINI_API_KEY.trim().length > 0),
+            imageGenModel: 'gemini-nano-banana-2.1',
             marketConnected: Boolean(env.MARKET_DATA_API_KEY && env.MARKET_DATA_API_KEY.trim().length > 0),
             newsApiConnected: Boolean(env.NEWS_API_KEY && env.NEWS_API_KEY.trim().length > 0),
             provider: env.MARKET_DATA_PROVIDER || 'alphavantage'
@@ -245,7 +246,7 @@ Return ONLY raw JSON matching this structure.`;
           return;
         }
 
-        // AI Editorial Illustration Endpoint (Server-Side Imagen 3)
+        // AI Editorial Illustration Endpoint (Server-Side gemini-nano-banana-2.1)
         if (url.pathname === '/api/gemini/illustrate' && req.method === 'POST') {
           let body = '';
           req.on('data', chunk => { body += chunk; });
@@ -257,7 +258,8 @@ Return ONLY raw JSON matching this structure.`;
               res.end(JSON.stringify({
                 success: false,
                 configured: false,
-                message: 'AI Image Generation provider is unconfigured. Set GEMINI_API_KEY in local .env to enable on-demand editorial illustrations with Imagen 3.',
+                model: 'gemini-nano-banana-2.1',
+                message: 'AI Image Generation provider is unconfigured. Set GEMINI_API_KEY in local .env to enable on-demand editorial illustrations with gemini-nano-banana-2.1.',
                 setupInstructions: [
                   'Create a .env file in the project root (copied from .env.example)',
                   'Set GEMINI_API_KEY=your_key_here from Google AI Studio (https://aistudio.google.com/)',
@@ -286,43 +288,55 @@ Artistic Style: Imaginative editorial collage, layered paper textures, geometric
 Color Scheme: Warm peach (#FDE8DF), beige paper tones (#FAF6F0), rich teal (#0F766E), and crisp ice-blue (#E0F2FE).
 Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO realistic human faces, NO photojournalistic photography, NO disaster scenes, NO readable typography or letters, NO corporate logos, NO charts or fake data graphs.`;
 
-              const imagenRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${geminiKey}`,
+              const geminiRes = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-nano-banana-2.1:generateContent?key=${geminiKey}`,
                 {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    instances: [{ prompt }],
-                    parameters: {
-                      sampleCount: 1,
-                      aspectRatio: '16:9',
-                      outputMimeType: 'image/jpeg'
+                    contents: [
+                      {
+                        role: 'user',
+                        parts: [{ text: prompt }]
+                      }
+                    ],
+                    generationConfig: {
+                      responseModalities: ['IMAGE'],
+                      imageConfig: {
+                        aspectRatio: '16:9',
+                        imageSize: '1K'
+                      }
                     }
                   }),
-                  signal: AbortSignal.timeout(25000)
+                  signal: AbortSignal.timeout(35000)
                 }
               );
 
-              if (!imagenRes.ok) {
-                const errText = await imagenRes.text();
+              if (!geminiRes.ok) {
+                const errText = await geminiRes.text();
                 res.end(JSON.stringify({
                   success: false,
                   configured: true,
-                  message: `Imagen API returned ${imagenRes.status}: ${imagenRes.statusText}`,
+                  model: 'gemini-nano-banana-2.1',
+                  message: `Gemini API returned ${geminiRes.status}: ${geminiRes.statusText}`,
                   details: errText
                 }));
                 return;
               }
 
-              const data = await imagenRes.json();
-              const base64Data = data.predictions?.[0]?.bytesBase64Encoded;
+              const data = await geminiRes.json();
+              const imagePart = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+              const base64Data = imagePart?.inlineData?.data || data.predictions?.[0]?.bytesBase64Encoded;
+              const mimeType = imagePart?.inlineData?.mimeType || 'image/jpeg';
+
               if (base64Data) {
                 res.end(JSON.stringify({
                   success: true,
                   configured: true,
-                  imageUrl: `data:image/jpeg;base64,${base64Data}`,
+                  model: 'gemini-nano-banana-2.1',
+                  imageUrl: `data:${mimeType};base64,${base64Data}`,
                   promptUsed: prompt,
-                  attribution: 'AI-generated illustration via Google Imagen 3',
+                  attribution: 'AI-generated illustration via Google gemini-nano-banana-2.1',
                   disclaimer: 'Imaginative editorial artwork conceptualized from headline facts. Not a documentary photograph.'
                 }));
                 return;
@@ -331,11 +345,12 @@ Strict Prohibitions: Purely abstract, conceptual, and symbolic. Absolutely NO re
               res.end(JSON.stringify({
                 success: false,
                 configured: true,
+                model: 'gemini-nano-banana-2.1',
                 message: 'No image data returned from provider.'
               }));
             } catch (err: any) {
               res.statusCode = 500;
-              res.end(JSON.stringify({ success: false, configured: true, error: err.message }));
+              res.end(JSON.stringify({ success: false, configured: true, model: 'gemini-nano-banana-2.1', error: err.message }));
             }
           });
           return;
