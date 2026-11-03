@@ -6,29 +6,12 @@ type NewsimamaIntroProps = {
   onComplete: () => void;
 };
 
-const INTRO_HOLD_MS = 2100;
 const EXIT_MS = 750;
 
 export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) => {
   const { reducedMotion } = useProfile();
   const [leaving, setLeaving] = useState(false);
   const completed = useRef(false);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      // In reduced-motion mode, transition swiftly without prolonged animation delays
-      const timer = window.setTimeout(() => {
-        if (!completed.current) {
-          completed.current = true;
-          onComplete();
-        }
-      }, 900);
-      return () => window.clearTimeout(timer);
-    }
-
-    const timer = window.setTimeout(() => setLeaving(true), INTRO_HOLD_MS);
-    return () => window.clearTimeout(timer);
-  }, [reducedMotion, onComplete]);
 
   useEffect(() => {
     if (!leaving || completed.current) return;
@@ -49,6 +32,17 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        enterNow();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [reducedMotion, leaving]);
+
   return (
     <div
       className={`newsimama-intro${leaving ? ' newsimama-intro--leaving' : ''}${reducedMotion ? ' newsimama-intro--reduced-motion' : ''}`}
@@ -62,7 +56,7 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
       <div className="newsimama-intro__orbit newsimama-intro__orbit--one" aria-hidden="true" />
       <div className="newsimama-intro__orbit newsimama-intro__orbit--two" aria-hidden="true" />
 
-      <div className="newsimama-intro__content" onClick={(event) => event.stopPropagation()}>
+      <div className="newsimama-intro__content">
         <div className="newsimama-intro__seal" aria-hidden="true">
           <Newspaper strokeWidth={1.4} />
         </div>
@@ -79,6 +73,7 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
         >
           Enter the edition <ArrowUpRight size={15} aria-hidden="true" />
         </button>
+        <span className="newsimama-intro__hint">Take your time - tap anywhere when ready</span>
       </div>
       <span className="sr-only">Opening Newsimama personalized newspaper.</span>
     </div>

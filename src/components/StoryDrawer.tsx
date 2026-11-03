@@ -185,7 +185,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 space-y-6">
+          <div key={story.id} className="p-6 sm:p-8 space-y-6 news-story-reveal">
             {/* Embedded Read Aloud Audio Player (when opened) */}
             {showAudioPlayer && (
               <ReadAloudPlayer

@@ -168,7 +168,7 @@ export const PlaycardDeck: React.FC<PlaycardDeckProps> = ({
       </div>
 
       {/* Main Full-Card Container */}
-      <div className="relative bg-[#ffffff] rounded-3xl border-2 border-[#e7ded3] shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+      <div key={`${activeStory.id}-${currentSlideIndex}`} className="relative bg-[#ffffff] rounded-3xl border-2 border-[#e7ded3] shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden news-story-reveal">
         {/* Editorial Top Accent Strip: Peach to Icy-Blue gradient */}
         <div className="h-2 w-full bg-gradient-to-r from-[#fde8df] via-[#bae6fd] to-[#99f6e4]" />
 

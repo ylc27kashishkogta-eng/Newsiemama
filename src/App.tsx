@@ -44,7 +44,7 @@ const NewspaperApp: React.FC = () => {
   const [isBusinessAgentOpen, setIsBusinessAgentOpen] = useState(false);
 
   // Metadata states
-  const [refreshedAt, setRefreshedAt] = useState('06:30 AM');
+  const [refreshedAt, setRefreshedAt] = useState('');
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [sourceNote, setSourceNote] = useState('');
 
@@ -71,7 +71,7 @@ const NewspaperApp: React.FC = () => {
       if (isCurrent) {
         setStories(res.stories);
         setRefreshedAt(res.refreshedAt);
-        setIsLiveFeed(res.isLive);
+        setIsLiveFeed(res.isLive && res.liveCount > 0);
         setSourceNote(res.sourceNote);
         setIsLoading(false);
       }
@@ -89,7 +89,7 @@ const NewspaperApp: React.FC = () => {
       const res = await feedService.getEditionStories(currentProfile.topics, true, selectedFinanceSubcategory);
       setStories(res.stories);
       setRefreshedAt(res.refreshedAt);
-      setIsLiveFeed(res.isLive);
+      setIsLiveFeed(res.isLive && res.liveCount > 0);
       setSourceNote(res.sourceNote);
     } catch (err) {
       console.warn('Refresh error:', err);
