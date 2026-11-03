@@ -277,6 +277,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
+    base: '/Newsiemama/',
     plugins: [
       react(),
       tailwindcss(),

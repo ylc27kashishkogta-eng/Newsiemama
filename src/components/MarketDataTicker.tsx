@@ -15,7 +15,10 @@ export const MarketDataTicker: React.FC = () => {
 
   useEffect(() => {
     fetch('/api/market')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         setMarketInfo({
           connected: Boolean(data.connected),
@@ -26,10 +29,13 @@ export const MarketDataTicker: React.FC = () => {
         });
       })
       .catch(() => {
+        const isStaticHost = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
         setMarketInfo({
           connected: false,
           asOf: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          message: 'Market data service is unreachable.',
+          message: isStaticHost
+            ? 'Live quotes unavailable on static GitHub Pages (Requires backend server)'
+            : 'Live market data service unconfigured (Set MARKET_DATA_API_KEY in .env)',
         });
       });
   }, []);
@@ -48,7 +54,7 @@ export const MarketDataTicker: React.FC = () => {
         ) : (
           <span className="inline-flex items-center gap-1.5 text-[#82351f] bg-[#fde8df] border border-[#f5cbbe] px-2.5 py-0.5 rounded-full text-[10px] font-medium">
             <AlertCircle className="w-3 h-3 text-[#9e4429]" />
-            <span>Live market quotes unconfigured (Requires MARKET_DATA_API_KEY)</span>
+            <span>{marketInfo.message || 'Live market quotes unavailable without server backend'}</span>
           </span>
         )}
       </div>

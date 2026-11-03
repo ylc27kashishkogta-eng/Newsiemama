@@ -193,81 +193,11 @@ export const feedService = {
 
     const collectedStories: Story[] = [];
 
-    // Attempt fetching feeds concurrently with a timeout
+    // Attempt fetching feeds concurrently with resilient fallback
     const fetchPromises = matchingFeeds.slice(0, 6).map(async (feed) => {
       try {
-        const xmlText = await this.fetchFeedXml(feed.url);
-        if (!xmlText) return [];
-
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-        const items = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 5);
-
-        const parsed: Story[] = [];
-        items.forEach((item, idx) => {
-          const rawTitle = item.querySelector('title')?.textContent || '';
-          const cleanTitle = rawTitle.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
-
-          const rawDesc = item.querySelector('description')?.textContent || '';
-          const cleanDesc = rawDesc
-            .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
-            .replace(/<[^>]+>/g, '')
-            .replace(/&nbsp;/g, ' ')
-            .trim();
-
-          const rawLink = item.querySelector('link')?.textContent || '';
-          const cleanLink = rawLink.trim();
-
-          const pubDate = item.querySelector('pubDate')?.textContent || new Date().toISOString();
-          const relativeTime = this.formatRelativeTime(pubDate);
-
-          if (cleanTitle && cleanLink && cleanLink !== '#') {
-            const keyBullets = this.extractRealKeyPoints(cleanDesc || cleanTitle);
-            const playcardSlides = [
-              {
-                label: 'The Fact',
-                title: 'What Happened?',
-                body: cleanDesc.slice(0, 220) || cleanTitle,
-                type: 'what' as const
-              },
-              {
-                label: 'Significance',
-                title: 'Why It Matters',
-                body: `Reported by ${feed.source} on ${relativeTime}. Follow direct source reporting for full editorial context.`,
-                type: 'why' as const
-              },
-              {
-                label: 'Forward Look',
-                title: 'What Could Happen Next (Analysis)',
-                body: 'Ongoing developments will be tracked as primary statements and follow-up dispatches emerge.',
-                type: 'next' as const
-              }
-            ];
-
-            parsed.push({
-              id: `real-${feed.category}-${idx}-${Date.now().toString(36)}`,
-              title: cleanTitle,
-              deck: cleanDesc.slice(0, 180) + (cleanDesc.length > 180 ? '...' : ''),
-              content: cleanDesc || cleanTitle,
-              sourceName: feed.source,
-              canonicalUrl: cleanLink,
-              publishedAt: pubDate,
-              timeAgo: relativeTime,
-              category: feed.category,
-              financeSubcategory: feed.subcategory,
-              readingMinutes: Math.max(1, Math.ceil(cleanDesc.length / 350)),
-              sourceMode: 'rss',
-              isDemoStory: false,
-              editorialNature: 'live_syndication',
-              sourceTypeLabel: 'Live Article (Official Syndication)',
-              curatedReason: `Direct dispatch from ${feed.source} because you follow ${TOPIC_NAMES[feed.category] || feed.category}`,
-              keyBullets,
-              playcards: playcardSlides,
-            });
-          }
-        });
-
-        return parsed;
+        const stories = await this.fetchFeedArticles(feed);
+        return stories;
       } catch (err) {
         console.warn(`Feed fetch error for ${feed.source}:`, err);
         return [];
@@ -294,30 +224,193 @@ export const feedService = {
   },
 
   /**
-   * Resilient XML retrieval:
-   * First tries local Node server proxy `/api/rss?url=...` (zero CORS blockers).
-   * Falls back to public CORS proxy if running without local server.
+   * Resilient feed retriever that works across:
+   * 1. Local development server proxy (/api/rss)
+   * 2. Client-side CORS RSS API (rss2json) for static hosting
+   * 3. Public CORS XML proxy fallback (allorigins)
+   */
+  async fetchFeedArticles(feed: typeof PUBLIC_RSS_FEEDS[number]): Promise<Story[]> {
+    const isLocalHost = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    // 1. If in local dev environment with Vite middleware, try local proxy first
+    if (isLocalHost) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`/api/rss?url=${encodeURIComponent(feed.url)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const xmlText = await res.text();
+          const parsed = this.parseXmlToStories(xmlText, feed);
+          if (parsed.length > 0) return parsed;
+        }
+      } catch {
+        // Fall through to public RSS API
+      }
+    }
+
+    // 2. Direct client-side RSS-to-JSON endpoint (handles CORS reliably on static GitHub Pages)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.status === 'ok' && Array.isArray(json.items) && json.items.length > 0) {
+          const parsed: Story[] = [];
+          json.items.slice(0, 5).forEach((item: any, idx: number) => {
+            const rawTitle = item.title || '';
+            const rawDesc = item.description || item.content || '';
+            const rawLink = item.link || '';
+            const rawDate = item.pubDate || '';
+            const story = this.buildStoryFromRaw(feed, rawTitle, rawDesc, rawLink, rawDate, idx);
+            if (story) parsed.push(story);
+          });
+          if (parsed.length > 0) return parsed;
+        }
+      }
+    } catch {
+      // Fall through to XML proxy fallback
+    }
+
+    // 3. Public XML CORS proxy fallback
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.contents) {
+          const parsed = this.parseXmlToStories(json.contents, feed);
+          if (parsed.length > 0) return parsed;
+        }
+      }
+    } catch {
+      // Return empty on total timeout
+    }
+
+    return [];
+  },
+
+  parseXmlToStories(xmlText: string, feed: typeof PUBLIC_RSS_FEEDS[number]): Story[] {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+      const items = Array.from(xmlDoc.querySelectorAll('item')).slice(0, 5);
+      const parsed: Story[] = [];
+
+      items.forEach((item, idx) => {
+        const rawTitle = item.querySelector('title')?.textContent || '';
+        const rawDesc = item.querySelector('description')?.textContent || '';
+        const rawLink = item.querySelector('link')?.textContent || '';
+        const rawDate = item.querySelector('pubDate')?.textContent || '';
+        const story = this.buildStoryFromRaw(feed, rawTitle, rawDesc, rawLink, rawDate, idx);
+        if (story) parsed.push(story);
+      });
+
+      return parsed;
+    } catch {
+      return [];
+    }
+  },
+
+  buildStoryFromRaw(
+    feed: typeof PUBLIC_RSS_FEEDS[number],
+    rawTitle: string,
+    rawDesc: string,
+    rawLink: string,
+    rawDate: string,
+    idx: number
+  ): Story | null {
+    const cleanTitle = rawTitle.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').replace(/<[^>]+>/g, '').trim();
+    const cleanDesc = rawDesc
+      .replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .trim();
+    const cleanLink = rawLink.trim();
+    const pubDate = rawDate || new Date().toISOString();
+    const relativeTime = this.formatRelativeTime(pubDate);
+
+    if (!cleanTitle || !cleanLink || cleanLink === '#') return null;
+
+    const keyBullets = this.extractRealKeyPoints(cleanDesc || cleanTitle);
+    const playcardSlides = [
+      {
+        label: 'The Fact',
+        title: 'What Happened?',
+        body: cleanDesc.slice(0, 220) || cleanTitle,
+        type: 'what' as const
+      },
+      {
+        label: 'Significance',
+        title: 'Why It Matters',
+        body: `Reported by ${feed.source} on ${relativeTime}. Follow direct source reporting for full editorial context.`,
+        type: 'why' as const
+      },
+      {
+        label: 'Forward Look',
+        title: 'What Could Happen Next (Analysis)',
+        body: 'Ongoing developments will be tracked as primary statements and follow-up dispatches emerge.',
+        type: 'next' as const
+      }
+    ];
+
+    return {
+      id: `real-${feed.category}-${idx}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      title: cleanTitle,
+      deck: cleanDesc.slice(0, 180) + (cleanDesc.length > 180 ? '...' : ''),
+      content: cleanDesc || cleanTitle,
+      sourceName: feed.source,
+      canonicalUrl: cleanLink,
+      publishedAt: pubDate,
+      timeAgo: relativeTime,
+      category: feed.category,
+      financeSubcategory: feed.subcategory,
+      readingMinutes: Math.max(1, Math.ceil(cleanDesc.length / 350)),
+      sourceMode: 'rss',
+      isDemoStory: false,
+      editorialNature: 'live_syndication',
+      sourceTypeLabel: 'Live Article (Official Syndication)',
+      curatedReason: `Direct dispatch from ${feed.source} because you follow ${TOPIC_NAMES[feed.category] || feed.category}`,
+      keyBullets,
+      playcards: playcardSlides,
+    };
+  },
+
+  /**
+   * Resilient XML retrieval fallback (used for compatibility)
    */
   async fetchFeedXml(url: string): Promise<string | null> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-    // 1. Try local server endpoint first
-    try {
-      const localProxyUrl = `/api/rss?url=${encodeURIComponent(url)}`;
-      const res = await fetch(localProxyUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (res.ok) {
-        const text = await res.text();
-        if (text && text.includes('<rss') || text.includes('<xml') || text.includes('<feed')) {
-          return text;
+    const isLocalHost = typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    if (isLocalHost) {
+      try {
+        const localProxyUrl = `/api/rss?url=${encodeURIComponent(url)}`;
+        const res = await fetch(localProxyUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const text = await res.text();
+          if (text && (text.includes('<rss') || text.includes('<xml') || text.includes('<feed'))) {
+            return text;
+          }
         }
+      } catch {
+        // Fall through
       }
-    } catch {
-      // Fall through to public proxy fallback
     }
 
-    // 2. Fallback to public CORS proxy
     try {
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
       const res = await fetch(proxyUrl);

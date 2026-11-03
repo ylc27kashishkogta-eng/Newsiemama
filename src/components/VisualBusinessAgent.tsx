@@ -45,7 +45,10 @@ export const VisualBusinessAgent: React.FC<VisualBusinessAgentProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetch('/api/status')
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           setApiStatus({
             geminiConnected: Boolean(data.geminiConnected),
@@ -54,7 +57,7 @@ export const VisualBusinessAgent: React.FC<VisualBusinessAgentProps> = ({
           });
         })
         .catch(() => {
-          setApiStatus({ geminiConnected: false, marketConnected: false, provider: 'alphavantage' });
+          setApiStatus({ geminiConnected: false, marketConnected: false, provider: 'none' });
         });
     }
   }, [isOpen]);
@@ -68,7 +71,12 @@ export const VisualBusinessAgent: React.FC<VisualBusinessAgentProps> = ({
     setIsLoading(true);
     setResponse(null);
 
-    // Call server-side agent endpoint (server holds key safely)
+    const isStaticHost = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+    const honestNotice = isStaticHost
+      ? 'Live generative AI synthesis requires a backend server. On static GitHub Pages hosting, answers are grounded directly in the verified dispatches of your current edition with zero invented facts.'
+      : 'Live generative AI synthesis is unconfigured. Set GEMINI_API_KEY in your local .env to enable server-side generative responses.';
+
+    // Call server-side agent endpoint when available (e.g. local dev with server)
     try {
       const res = await fetch('/api/gemini/agent', {
         method: 'POST',
@@ -86,6 +94,10 @@ export const VisualBusinessAgent: React.FC<VisualBusinessAgentProps> = ({
         }),
       });
 
+      if (!res.ok) {
+        throw new Error(`Server endpoint returned ${res.status}`);
+      }
+
       const json = await res.json();
 
       if (json.connected && json.response) {
@@ -97,35 +109,30 @@ export const VisualBusinessAgent: React.FC<VisualBusinessAgentProps> = ({
           connected: true,
           asOf: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         });
-      } else {
-        // Fallback when GEMINI_API_KEY is not configured
-        const matched = activeStories.filter((s) =>
-          s.title.toLowerCase().includes(trimmed.toLowerCase()) ||
-          s.content.toLowerCase().includes(trimmed.toLowerCase())
-        );
-
-        setResponse({
-          directAnswer: matched.length > 0
-            ? `Found ${matched.length} relevant live article(s) in your current edition. Review the exact source links below for verified reporting.`
-            : `No matching articles for "${trimmed}" in today's active dispatches. Live AI synthesis is not connected.`,
-          businessAnalysis: matched.length > 0
-            ? `Reported developments from ${matched.map((m) => m.sourceName).join(', ')}. Full business model and capex data require the primary publisher dispatches cited below.`
-            : undefined,
-          sourcesCited: matched.map((m) => ({
-            title: m.title,
-            publisher: m.sourceName,
-            publishedAt: m.publishedAt,
-            url: m.canonicalUrl,
-          })),
-          unknownNotice: 'Live generative AI synthesis and stock price lookups are not connected. Set GEMINI_API_KEY and MARKET_DATA_API_KEY in your local .env to enable server-side generative responses.',
-          connected: false,
-          asOf: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        });
+        return;
       }
-    } catch (err: any) {
+      throw new Error(json.message || 'Unconnected');
+    } catch {
+      // Grounded fallback: search active stories for relevant dispatches
+      const matched = activeStories.filter((s) =>
+        s.title.toLowerCase().includes(trimmed.toLowerCase()) ||
+        s.content.toLowerCase().includes(trimmed.toLowerCase())
+      );
+
       setResponse({
-        directAnswer: `Query processing encountered an error: ${err.message}`,
-        sourcesCited: [],
+        directAnswer: matched.length > 0
+          ? `Found ${matched.length} relevant live article(s) in your current edition. Review the exact source links below for verified reporting.`
+          : `No matching articles for "${trimmed}" in today's active dispatches. Live AI synthesis is not available on static hosting.`,
+        businessAnalysis: matched.length > 0
+          ? `Reported developments from ${matched.map((m) => m.sourceName).join(', ')}. Full business model and capex data require the primary publisher dispatches cited below.`
+          : undefined,
+        sourcesCited: matched.map((m) => ({
+          title: m.title,
+          publisher: m.sourceName,
+          publishedAt: m.publishedAt,
+          url: m.canonicalUrl,
+        })),
+        unknownNotice: honestNotice,
         connected: false,
         asOf: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });

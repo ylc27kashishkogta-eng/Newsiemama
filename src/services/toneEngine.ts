@@ -96,6 +96,11 @@ export const toneEngine = {
 
     const realVisual = this.buildRealArticleVisual(story);
 
+    const isStaticHost = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+    const aiNotice = isStaticHost
+      ? 'Live AI generation requires a backend server. On static GitHub Pages hosting, verified factual extraction from the original reporting is shown.'
+      : 'AI explanations are unconfigured in local dev. Add GEMINI_API_KEY in local .env to enable on-demand generative synthesis.';
+
     return {
       headline: story.title,
       coreSummary: story.deck || firstPoint,
@@ -115,7 +120,7 @@ export const toneEngine = {
       ageAdaptedNote,
       predictionDisclaimer: 'Forward analysis reflects currently reported developments. Not a guaranteed forecast.',
       isAiConnected: false,
-      aiNotice: 'AI explanations are currently unconfigured. Add GEMINI_API_KEY in local .env to enable on-demand generative synthesis.',
+      aiNotice,
     };
   },
 
