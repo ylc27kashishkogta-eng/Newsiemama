@@ -4,7 +4,7 @@ import { APP_NAME, APP_TAGLINE } from '../config';
 import {
   RefreshCw, Users, Mic, Sparkles, SlidersHorizontal, Check, RotateCcw,
   BookOpen, Gauge, Pencil, X, Mail, Gamepad2, Layers, Menu, ChevronRight,
-  Settings2, Heart, Newspaper
+  Settings2, Heart, Newspaper, Briefcase
 } from 'lucide-react';
 
 interface MastheadProps {
@@ -16,6 +16,7 @@ interface MastheadProps {
   onOpenRoadmap?: () => void;
   onOpenNewsQuest?: () => void;
   onOpenBusinessAgent?: () => void;
+  onOpenCareer?: () => void;
   onEditSetup: () => void;
   refreshedAt: string;
   isLiveFeed: boolean;
@@ -27,7 +28,7 @@ interface MastheadProps {
 
 export const Masthead: React.FC<MastheadProps> = ({
   onRefresh, isRefreshing, onOpenProfiles, onOpenVoiceSettings, onOpenSupporter,
-  onOpenRoadmap, onOpenNewsQuest, onOpenBusinessAgent, onEditSetup,
+  onOpenRoadmap, onOpenNewsQuest, onOpenBusinessAgent, onOpenCareer, onEditSetup,
   refreshedAt, isLiveFeed, totalStoriesCount, readStoriesCount,
   viewMode = 'broadsheet', onToggleViewMode,
 }) => {
@@ -114,6 +115,7 @@ export const Masthead: React.FC<MastheadProps> = ({
             {onToggleViewMode && menuButton(<Layers size={17} />, viewMode === 'broadsheet' ? 'Switch to Playcards' : 'Back to newspaper', () => onToggleViewMode(viewMode === 'broadsheet' ? 'playcard' : 'broadsheet'), 'Flip through stories one beat at a time', 'text-[#b4533c]')}
             {onOpenNewsQuest && menuButton(<Gamepad2 size={17} />, 'News Quest', onOpenNewsQuest, `${currentProfile.questProgress?.totalPoints || 0} learning points`, 'text-[#0284c7]')}
             {onOpenBusinessAgent && menuButton(<Sparkles size={17} />, 'Ask the news guide', onOpenBusinessAgent, 'Ask about a company, market, or headline')}
+            {onOpenCareer && menuButton(<Briefcase size={17} />, 'Career & LinkedIn Hub', onOpenCareer, 'Discover field insights & open job roles', 'text-[#0a66c2]')}
           </div>
           <div className="news-menu__section"><span>MAKE IT YOURS</span>
             {menuButton(<SlidersHorizontal size={17} />, 'Edit my edition', onEditSetup, 'Name, age, interests and reading style', 'text-[#b4533c]')}

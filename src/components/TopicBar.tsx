@@ -1,11 +1,11 @@
 import React from 'react';
-import { TopicCategory, FinanceSubcategory } from '../types';
-import { SlidersHorizontal, Bookmark, Layers, LayoutGrid, ChevronDown } from 'lucide-react';
+import { TopicCategory, FinanceSubcategory, MainNavigationTab } from '../types';
+import { SlidersHorizontal, Bookmark, Layers, LayoutGrid, ChevronDown, Briefcase } from 'lucide-react';
 import { FINANCE_SUBCATEGORY_LABELS } from '../services/feedService';
 
 interface TopicBarProps {
-  selectedTopic: TopicCategory | 'all' | 'saved';
-  onSelectTopic: (topic: TopicCategory | 'all' | 'saved') => void;
+  selectedTopic: MainNavigationTab;
+  onSelectTopic: (topic: MainNavigationTab) => void;
   availableTopics: TopicCategory[];
   totalStoriesCount: number;
   savedStoriesCount: number;
@@ -58,7 +58,7 @@ export const TopicBar: React.FC<TopicBarProps> = ({
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <button
             onClick={() => onSelectTopic('all')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold rounded-full border transition-all cursor-pointer ${
               selectedTopic === 'all'
                 ? 'bg-[#181513] text-[#ffffff] border-[#181513] shadow-2xs'
                 : 'bg-[#ffffff] text-[#5c5449] border-[#d8ccc0] hover:border-[#181513] hover:text-[#181513]'
@@ -75,7 +75,7 @@ export const TopicBar: React.FC<TopicBarProps> = ({
               <button
                 key={topic}
                 onClick={() => onSelectTopic(topic)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold rounded-full border transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? `${info.activeClass} shadow-2xs`
                     : 'bg-[#ffffff] text-[#5c5449] border-[#d8ccc0] hover:border-[#181513] hover:text-[#181513]'
@@ -89,7 +89,7 @@ export const TopicBar: React.FC<TopicBarProps> = ({
           {/* Saved for Later Filter Pill */}
           <button
             onClick={() => onSelectTopic('saved')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold rounded-full border transition-all cursor-pointer ${
               selectedTopic === 'saved'
                 ? 'bg-[#e25c50] text-[#ffffff] border-[#e25c50] shadow-2xs'
                 : 'bg-[#ffffff] text-[#5c5449] border-[#d8ccc0] hover:border-[#e25c50] hover:text-[#e25c50]'
@@ -100,10 +100,24 @@ export const TopicBar: React.FC<TopicBarProps> = ({
             <span>Saved ({savedStoriesCount})</span>
           </button>
 
+          {/* Career & LinkedIn Main Tab */}
+          <button
+            onClick={() => onSelectTopic('career')}
+            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold rounded-full border transition-all cursor-pointer ${
+              selectedTopic === 'career'
+                ? 'bg-[#0a66c2] text-[#ffffff] border-[#0a66c2] shadow-2xs'
+                : 'bg-[#ffffff] text-[#0a66c2] border-[#b9d6f3] hover:bg-[#0a66c2] hover:text-[#ffffff] hover:border-[#0a66c2]'
+            }`}
+            title="Explore LinkedIn career posts, hiring updates, and verified job roles"
+          >
+            <Briefcase className="w-3.5 h-3.5" />
+            <span>Career &amp; LinkedIn</span>
+          </button>
+
           {/* Customize Topics Pill */}
           <button
             onClick={onOpenCustomizeTopics}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-dashed border-[#cbbfb0] text-[#5c5449] bg-[#f7efe9] hover:bg-[#ede5dc] hover:border-[#8f887d] hover:text-[#181513] transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold rounded-full border border-dashed border-[#cbbfb0] text-[#5c5449] bg-[#f7efe9] hover:bg-[#ede5dc] hover:border-[#8f887d] hover:text-[#181513] transition-all cursor-pointer"
             title="Add or remove topics for your personal edition"
           >
             <SlidersHorizontal className="w-3 h-3 text-[#e25c50]" />

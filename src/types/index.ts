@@ -8,6 +8,8 @@ export type TopicCategory =
   | 'science'
   | 'sports_culture';
 
+export type MainNavigationTab = TopicCategory | 'all' | 'saved' | 'career';
+
 export type FinanceSubcategory =
   | 'all'
   | 'stocks'

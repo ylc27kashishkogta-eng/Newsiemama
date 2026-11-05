@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
-import { Story, TopicCategory, FinanceSubcategory } from './types';
+import { Story, TopicCategory, FinanceSubcategory, MainNavigationTab } from './types';
 import { feedService, FeedResponse } from './services/feedService';
 import { Masthead } from './components/Masthead';
 import { TopicBar } from './components/TopicBar';
@@ -18,12 +18,15 @@ import { VisualBusinessAgent } from './components/VisualBusinessAgent';
 import { APP_NAME } from './config';
 import { Newspaper } from 'lucide-react';
 import { NewsimamaIntro } from './components/NewsimamaIntro';
+import { TradingViewMarketsSection } from './components/TradingViewMarketsSection';
+import { CareerLinkedInHub } from './components/CareerLinkedInHub';
 
 const NewspaperApp: React.FC = () => {
   const [showIntro, setShowIntro] = useState(true);
   const completeIntro = useCallback(() => setShowIntro(false), []);
+  const [isMarketsSectionOpen, setIsMarketsSectionOpen] = useState(true);
   const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
-  const [selectedTopic, setSelectedTopic] = useState<TopicCategory | 'all' | 'saved'>('all');
+  const [selectedTopic, setSelectedTopic] = useState<MainNavigationTab>('all');
   const [selectedFinanceSubcategory, setSelectedFinanceSubcategory] = useState<FinanceSubcategory>('all');
   const [viewMode, setViewMode] = useState<'broadsheet' | 'playcard'>('broadsheet');
 
@@ -99,7 +102,7 @@ const NewspaperApp: React.FC = () => {
   };
 
   // Filter stories by current topic selection (including 'saved' for later)
-  const filteredStories = selectedTopic === 'all'
+  const filteredStories = selectedTopic === 'all' || selectedTopic === 'career'
     ? stories
     : selectedTopic === 'saved'
     ? stories.filter((s) => (currentProfile.savedArticleIds || []).includes(s.id))
@@ -116,7 +119,7 @@ const NewspaperApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#faf6f0] text-[#191715] flex flex-col justify-between selection:bg-[#ffedd5] selection:text-[#0f766e]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-4">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 w-full py-3 sm:py-4 max-w-full overflow-x-hidden">
         {/* Newspaper Masthead */}
         <Masthead
           onRefresh={handleRefresh}
@@ -127,6 +130,7 @@ const NewspaperApp: React.FC = () => {
           onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
           onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
           onOpenBusinessAgent={() => setIsBusinessAgentOpen(true)}
+          onOpenCareer={() => setSelectedTopic('career')}
           onEditSetup={() => {
             setIsWelcomeEditMode(true);
             setIsWelcomeModalOpen(true);
@@ -140,7 +144,15 @@ const NewspaperApp: React.FC = () => {
         />
 
         {/* Live Market Data Ticker */}
-        <MarketDataTicker />
+        <MarketDataTicker
+          isDetailedViewOpen={isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy'}
+          onToggleDetailedView={() => setIsMarketsSectionOpen((prev) => !prev)}
+        />
+
+        {/* Dedicated Indian Markets & Watchlist Overview (TradingView) */}
+        {(isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy') && (
+          <TradingViewMarketsSection />
+        )}
 
         {/* Topic Filter Ribbon & Customizer */}
         <TopicBar
@@ -162,7 +174,12 @@ const NewspaperApp: React.FC = () => {
         />
 
         {/* Main Broadsheet Front Page or Playcard Deck */}
-        {isLoading ? (
+        {selectedTopic === 'career' ? (
+          <CareerLinkedInHub
+            initialTopicCategory={currentProfile.topics[0]}
+            onBackToNews={() => setSelectedTopic('all')}
+          />
+        ) : isLoading ? (
           <div className="py-24 text-center">
             <Newspaper className="w-8 h-8 text-[#e25c50] animate-bounce mx-auto mb-3" />
             <div className="font-serif-editorial text-lg text-[#181513] font-semibold">
