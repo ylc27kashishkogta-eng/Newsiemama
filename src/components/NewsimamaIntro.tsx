@@ -48,7 +48,7 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
       className={`newsimama-intro${leaving ? ' newsimama-intro--leaving' : ''}${reducedMotion ? ' newsimama-intro--reduced-motion' : ''}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Newsimama newspaper opening cover"
+      aria-label="Newsiemama newspaper opening cover"
       onClick={enterNow}
     >
       <div className="newsimama-intro__paper" aria-hidden="true" />
@@ -61,7 +61,7 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
           <Newspaper strokeWidth={1.4} />
         </div>
         <div className="newsimama-intro__eyebrow">YOUR WORLD, YOUR EDITION</div>
-        <h1 className="newsimama-intro__wordmark">Newsimama</h1>
+        <h1 className="newsimama-intro__wordmark">Newsiemama</h1>
         <div className="newsimama-intro__rule" aria-hidden="true">
           <span />
         </div>
@@ -75,7 +75,7 @@ export const NewsimamaIntro: React.FC<NewsimamaIntroProps> = ({ onComplete }) =>
         </button>
         <span className="newsimama-intro__hint">Take your time - tap anywhere when ready</span>
       </div>
-      <span className="sr-only">Opening Newsimama personalized newspaper.</span>
+      <span className="sr-only">Opening Newsiemama personalized newspaper.</span>
     </div>
   );
 };

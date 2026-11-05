@@ -93,7 +93,7 @@ export const SupporterModal: React.FC<SupporterModalProps> = ({ isOpen, onClose 
             </div>
             <h4 className="font-bold text-[#1e1b18] text-base">Patron Supporter Tier Activated!</h4>
             <p className="text-xs text-[#6e685f]">
-              Thank you for supporting Newsimama. Your edition now features priority broadsheet indexing.
+              Thank you for supporting Newsiemama. Your edition now features priority broadsheet indexing.
             </p>
           </div>
         )}

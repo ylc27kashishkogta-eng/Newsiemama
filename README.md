@@ -1,4 +1,4 @@
-# Newsimama 📰
+# Newsiemama 📰
 > *A personalized, distraction-free digital newspaper delivering calm morning editions tailored to your topics and explained in your conversational voice.*
 
 ---

@@ -145,7 +145,7 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
           <div className="space-y-4">
             <div>
               <p className="text-xs text-[#5c5449] leading-relaxed mb-3">
-                Paste 1–2 paragraphs (~100 words) of an email, memo, or note you wrote. Newsimama will analyze your sentence cadence, brevity, and tone markers to adapt story explanations to your natural communication style.
+                Paste 1–2 paragraphs (~100 words) of an email, memo, or note you wrote. Newsiemama will analyze your sentence cadence, brevity, and tone markers to adapt story explanations to your natural communication style.
               </p>
               <textarea
                 rows={4}
@@ -183,7 +183,7 @@ export const VoiceSettingsModal: React.FC<VoiceSettingsModalProps> = ({ isOpen, 
         {activeTab === 'byok' && (
           <div className="space-y-4 text-xs text-[#5c5449]">
             <div className="bg-[#fbf4eb] border border-[#edd8be] rounded-xl p-3 text-[#7a481c] leading-relaxed">
-              <strong>100% Optional:</strong> Newsimama runs completely without an API key using our built-in tone engine. If you want to experiment with live streaming LLM calls, you can paste your own Gemini or OpenAI key below. It is stored exclusively in your browser’s LocalStorage.
+              <strong>100% Optional:</strong> Newsiemama runs completely without an API key using our built-in tone engine. If you want to experiment with live streaming LLM calls, you can paste your own Gemini or OpenAI key below. It is stored exclusively in your browser’s LocalStorage.
             </div>
 
             <div>

@@ -315,7 +315,7 @@ export const TradingViewMarketsSection: React.FC<TradingViewMarketsSectionProps>
         </div>
         <p className="text-[9px] sm:text-[10px] text-[#8c8278] leading-relaxed">
           Market prices shown are 15-minute delayed exchange quotes (NSE &amp; BSE) for educational and personal tracking.
-          Newsimama does not provide financial advisory, broker services, or simulated prices.
+          Newsiemama does not provide financial advisory, broker services, or simulated prices.
         </p>
       </div>
     </div>

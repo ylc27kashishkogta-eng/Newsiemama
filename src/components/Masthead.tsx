@@ -108,7 +108,7 @@ export const Masthead: React.FC<MastheadProps> = ({
       </div>
 
       {menuOpen && <div className="news-menu-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setMenuOpen(false); }}>
-        <aside className="news-menu" role="dialog" aria-modal="true" aria-label="Newsimama menu">
+        <aside className="news-menu" role="dialog" aria-modal="true" aria-label="Newsiemama menu">
           <div className="news-menu__header"><div><span className="news-menu__eyebrow">YOUR EDITION</span><h2>Little extras</h2></div><button onClick={() => setMenuOpen(false)} className="news-menu__close" aria-label="Close menu"><X size={19} /></button></div>
           <div className="news-menu__reader"><span className="news-menu__avatar">{currentProfile.name.slice(0,1).toUpperCase()}</span><div><strong>{currentProfile.name}</strong><small>{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset} · {currentProfile.topics.length} interests</small></div><button onClick={() => closeAfter(onOpenProfiles)} aria-label="Switch reader"><ChevronRight size={18} /></button></div>
           <div className="news-menu__section"><span>READ & PLAY</span>

@@ -483,7 +483,7 @@ export const StoryDrawer: React.FC<StoryDrawerProps> = ({ story, onClose }) => {
                     Shape your future editions:
                   </span>
                   <span className="text-[11px] text-[#6e685f]">
-                    Help Newsimama understand which topics matter most to you.
+                    Help Newsiemama understand which topics matter most to you.
                   </span>
                 </div>
 

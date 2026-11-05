@@ -53,7 +53,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
         <Bookmark className="w-10 h-10 text-[#0f766e] mx-auto mb-3 opacity-60" />
         <h3 className="font-serif-editorial text-2xl font-bold text-[#191715] mb-2">No Stories in This View</h3>
         <p className="text-sm text-[#5c554e] max-w-md mx-auto mb-5 leading-relaxed font-sans">
-          If you selected Saved Stories, bookmark any article across your edition to read it here. If a live category has no articles currently syndicated, Newsimama never invents fictional filler news.
+          If you selected Saved Stories, bookmark any article across your edition to read it here. If a live category has no articles currently syndicated, Newsiemama never invents fictional filler news.
         </p>
         {onRefresh && (
           <button
@@ -273,7 +273,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
               <span>Provenance & Attribution</span>
             </h4>
             <p className="leading-relaxed text-[11px]">
-              Every story is directly syndicated from official publisher RSS feeds with exact headlines, publication timestamps, and direct canonical links. Newsimama never fabricates news or generates fictional filler articles.
+              Every story is directly syndicated from official publisher RSS feeds with exact headlines, publication timestamps, and direct canonical links. Newsiemama never fabricates news or generates fictional filler articles.
             </p>
             <div className="pt-2 text-[10px] text-[#8c8278] font-mono-meta border-t border-[#e7ded3]">
               Status: {sourceNote}
