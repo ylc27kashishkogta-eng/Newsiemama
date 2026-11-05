@@ -13,6 +13,7 @@ import { SupporterModal } from './components/SupporterModal';
 import { CustomizeTopicsModal } from './components/CustomizeTopicsModal';
 import { WelcomeSetupModal } from './components/WelcomeSetupModal';
 import { NewsQuestDrawer } from './components/NewsQuestDrawer';
+import { GamesDrawer } from './components/GamesDrawer';
 import { FutureIntegrationsModal } from './components/FutureIntegrationsModal';
 import { MarketDataTicker } from './components/MarketDataTicker';
 import { VisualBusinessAgent } from './components/VisualBusinessAgent';
@@ -43,6 +44,7 @@ const NewspaperApp: React.FC = () => {
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [isSupporterModalOpen, setIsSupporterModalOpen] = useState(false);
   const [isCustomizeTopicsOpen, setIsCustomizeTopicsOpen] = useState(false);
+  const [isGamesDrawerOpen, setIsGamesDrawerOpen] = useState(false);
   const [isNewsQuestDrawerOpen, setIsNewsQuestDrawerOpen] = useState(false);
   const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
   const [isBusinessAgentOpen, setIsBusinessAgentOpen] = useState(false);
@@ -139,11 +141,8 @@ const NewspaperApp: React.FC = () => {
               onRefresh={handleRefresh}
               isRefreshing={isRefreshing}
               onOpenProfiles={() => setIsProfileModalOpen(true)}
-              onOpenVoiceSettings={() => setIsVoiceModalOpen(true)}
-              onOpenSupporter={() => setIsSupporterModalOpen(true)}
-              onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
-              onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
-              onOpenBusinessAgent={() => setIsBusinessAgentOpen(true)}
+              onOpenGames={() => setIsGamesDrawerOpen(true)}
+              onOpenNewsQuest={() => setIsGamesDrawerOpen(true)}
               onOpenCareer={() => setSelectedTopic('career')}
               onEditSetup={() => {
                 setIsWelcomeEditMode(true);
@@ -212,7 +211,7 @@ const NewspaperApp: React.FC = () => {
                 activePreset={currentProfile.voicePreset}
                 sourceNote={sourceNote}
                 viewMode={viewMode}
-                onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
+                onOpenNewsQuest={() => setIsGamesDrawerOpen(true)}
                 onRefresh={handleRefresh}
                 onToggleViewMode={(mode) => setViewMode(mode)}
               />
@@ -223,7 +222,7 @@ const NewspaperApp: React.FC = () => {
           <footer className="bg-[#ffffff] border-t border-[#e4dcd3] py-8 px-4 text-center text-xs text-[#6e685f] mt-12 shadow-inner">
             <div className="max-w-4xl mx-auto space-y-2">
               <p className="font-serif-editorial italic text-[#3a332a]">
-                {APP_NAME} is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, Mint, India Today, and BBC News.
+                {APP_NAME} is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, Mint, Business Standard, The Indian Express, India Today, and BBC News.
               </p>
               <p className="font-mono-meta text-[11px] text-[#8f887d]">
                 Built with React 19, Vite, and Tailwind CSS • On-device LocalStorage profile isolation • WCAG AA contrast compliant
@@ -269,9 +268,12 @@ const NewspaperApp: React.FC = () => {
         onClose={() => setIsSupporterModalOpen(false)}
       />
 
-      <NewsQuestDrawer
-        isOpen={isNewsQuestDrawerOpen}
-        onClose={() => setIsNewsQuestDrawerOpen(false)}
+      <GamesDrawer
+        isOpen={isGamesDrawerOpen || isNewsQuestDrawerOpen}
+        onClose={() => {
+          setIsGamesDrawerOpen(false);
+          setIsNewsQuestDrawerOpen(false);
+        }}
         stories={stories}
         onOpenStory={(s) => setActiveStory(s)}
       />

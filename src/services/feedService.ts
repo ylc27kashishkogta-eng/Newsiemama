@@ -33,7 +33,7 @@ export const FINANCE_SUBCATEGORY_LABELS: Record<FinanceSubcategory, string> = {
 
 // Curated public RSS endpoints of reputable publishers with official syndication
 const PUBLIC_RSS_FEEDS: { category: TopicCategory; source: string; url: string; subcategory?: FinanceSubcategory }[] = [
-  // Finance & Markets
+  // Finance & Markets (The Economic Times, Mint, Business Standard, The Indian Express Business)
   {
     category: 'finance',
     subcategory: 'economy',
@@ -48,9 +48,39 @@ const PUBLIC_RSS_FEEDS: { category: TopicCategory; source: string; url: string; 
   },
   {
     category: 'finance',
+    subcategory: 'stocks',
+    source: 'Mint Markets',
+    url: 'https://www.livemint.com/rss/markets'
+  },
+  {
+    category: 'finance',
     subcategory: 'startups',
     source: 'Mint Companies',
     url: 'https://www.livemint.com/rss/companies'
+  },
+  {
+    category: 'finance',
+    subcategory: 'stocks',
+    source: 'Business Standard Markets',
+    url: 'https://www.business-standard.com/rss/markets-106.rss'
+  },
+  {
+    category: 'finance',
+    subcategory: 'economy',
+    source: 'Business Standard Finance',
+    url: 'https://www.business-standard.com/rss/finance-103.rss'
+  },
+  {
+    category: 'finance',
+    subcategory: 'business',
+    source: 'The Indian Express Business',
+    url: 'https://indianexpress.com/section/business/feed/'
+  },
+  {
+    category: 'finance',
+    subcategory: 'stocks',
+    source: 'The Indian Express Markets',
+    url: 'https://indianexpress.com/section/business/market/feed/'
   },
   // Technology & AI
   {
@@ -194,7 +224,7 @@ export const feedService = {
     const collectedStories: Story[] = [];
 
     // Attempt fetching feeds concurrently with resilient fallback
-    const fetchPromises = matchingFeeds.slice(0, 6).map(async (feed) => {
+    const fetchPromises = matchingFeeds.slice(0, 10).map(async (feed) => {
       try {
         const stories = await this.fetchFeedArticles(feed);
         return stories;
@@ -250,7 +280,34 @@ export const feedService = {
       }
     }
 
-    // 2. Direct client-side RSS-to-JSON endpoint (handles CORS reliably on static GitHub Pages)
+    // 2. High-speed JSON Feed conversion (handles CORS reliably for Business Standard, Mint, ET)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`https://feed2json.org/convert?url=${encodeURIComponent(feed.url)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json.items) && json.items.length > 0) {
+          const parsed: Story[] = [];
+          json.items.slice(0, 5).forEach((item: any, idx: number) => {
+            const rawTitle = item.title || '';
+            const rawDesc = item.summary || item.content_text || item.content_html || '';
+            const rawLink = item.url || item.link || '';
+            const rawDate = item.date_published || item.date_modified || '';
+            const story = this.buildStoryFromRaw(feed, rawTitle, rawDesc, rawLink, rawDate, idx);
+            if (story) parsed.push(story);
+          });
+          if (parsed.length > 0) return parsed;
+        }
+      }
+    } catch {
+      // Fall through to rss2json
+    }
+
+    // 3. Direct client-side RSS-to-JSON endpoint (handles CORS reliably on static GitHub Pages)
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);

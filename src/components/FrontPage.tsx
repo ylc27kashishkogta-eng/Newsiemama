@@ -114,31 +114,31 @@ export const FrontPage: React.FC<FrontPageProps> = ({
     <main className="animate-paper-fade space-y-8">
       {/* Switch to One-Story Reader Feature Teaser Banner */}
       {onToggleViewMode && (
-        <div className="bg-[#fde8df] border-2 border-[#f5cbbe] rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 transition-all hover:border-[#0f766e]">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-[#0f766e] text-[#ffffff] flex items-center justify-center shrink-0 shadow-2xs">
-              <Layers className="w-5 h-5" />
+        <div className="bg-[#fde8df] border-2 border-[#f5cbbe] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-[#0f766e]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-[#0f766e] text-[#ffffff] flex items-center justify-center shrink-0 shadow-2xs">
+              <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif-editorial text-base sm:text-lg font-bold text-[#191715]">
+                <span className="font-serif-editorial text-sm sm:text-base font-bold text-[#191715]">
                   Experience Inshorts-Style Story Mode
                 </span>
-                <span className="text-[10px] font-mono-meta font-bold bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded-full border border-[#bae6fd]">
-                  Focused
+                <span className="text-[9px] sm:text-[10px] font-mono-meta font-bold bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded-full border border-[#bae6fd]">
+                  Optional
                 </span>
               </div>
-              <p className="text-xs text-[#5c554e] font-sans mt-0.5">
-                Prefer focused, swipeable reading? Read one full-screen story at a time with smooth gesture navigation and quick takeaway cards.
+              <p className="text-[11px] sm:text-xs text-[#5c554e] font-sans mt-0.5">
+                Prefer one story at a time? Read full-screen with vertical swipe gestures and takeaway breakdowns.
               </p>
             </div>
           </div>
           <button
             onClick={() => onToggleViewMode('reader')}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0f766e] hover:bg-[#115e59] text-[#ffffff] text-xs font-bold shadow-sm transition-all cursor-pointer whitespace-nowrap"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#0f766e] hover:bg-[#115e59] text-[#ffffff] text-xs font-bold shadow-sm transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Enter Story Mode</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       )}
@@ -229,47 +229,41 @@ export const FrontPage: React.FC<FrontPageProps> = ({
           )}
         </div>
 
-        {/* Right Rail Sidebar Column (Companion + News Quest + Quick Ticker + Provenance) */}
+        {/* Right Rail Sidebar Column (Games + Quick Ticker + Provenance) */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Animated Editorial Companion ("Pip") */}
-          {currentProfile.companionEnabled !== false && (
-            <EditorialCompanion
-              mood="thoughtful"
-              category={leadStory?.category}
-              slangLevel={currentProfile.slangLevel}
-            />
-          )}
+          {/* Animated Editorial Companion code preserved; hidden for simplified decluttered layout */}
 
-          {/* Sidebar News Quest Controller Launcher */}
+          {/* Sidebar Games Launcher */}
           <div className="bg-[#ffffff] border-2 border-[#e7ded3] rounded-3xl p-5 sm:p-6 shadow-sm space-y-3 animate-card-stagger stagger-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#f0fdfa] text-[#0f766e] border border-[#99f6e4] flex items-center justify-center">
                   <Gamepad2 className="w-4.5 h-4.5" />
                 </div>
                 <div>
                   <h4 className="font-serif-editorial text-base font-bold text-[#191715]">
-                    News Quest
+                    Games
                   </h4>
                   <p className="text-[11px] font-mono-meta text-[#5c554e]">
-                    Today's 3-Question Quiz
+                    Daily Quiz &amp; News Through the Years
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-mono-meta font-bold text-[#0369a1] bg-[#e0f2fe] px-2.5 py-1 rounded-full border border-[#bae6fd]">
+              <span className="text-xs font-mono-meta font-bold text-[#0f766e] bg-[#f0fdfa] px-2.5 py-1 rounded-full border border-[#99f6e4]">
                 {currentProfile.questProgress?.totalPoints || 0} pts
               </span>
             </div>
 
             <p className="text-xs text-[#5c554e] leading-relaxed font-sans">
-              Test your understanding of today's verified stories. 100% voluntary, no penalties for missed days, and all answers link back to source facts.
+              Fun daily news puzzle based on today's verified stories, plus dated milestones in News Through the Years. 100% voluntary, zero pressure, and no missed-day penalties.
             </p>
 
             <button
               onClick={onOpenNewsQuest}
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0f766e] hover:bg-[#115e59] text-[#ffffff] font-bold text-xs shadow-xs transition-colors cursor-pointer"
             >
-              <span>Play News Quest</span>
+              <Gamepad2 className="w-3.5 h-3.5" />
+              <span>Play Games</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
