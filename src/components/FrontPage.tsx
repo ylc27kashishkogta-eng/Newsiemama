@@ -5,6 +5,7 @@ import { LeadStoryCard } from './LeadStoryCard';
 import { StoryCard } from './StoryCard';
 import { QuickTicker } from './QuickTicker';
 import { PlaycardDeck } from './PlaycardDeck';
+import { SingleStoryReader } from './SingleStoryReader';
 import { EditorialCompanion } from './EditorialCompanion';
 import {
   CheckCircle2,
@@ -27,10 +28,10 @@ interface FrontPageProps {
   onToggleSave: (storyId: string) => void;
   activePreset: VoicePreset;
   sourceNote: string;
-  viewMode?: 'broadsheet' | 'playcard';
+  viewMode?: 'broadsheet' | 'reader' | 'playcard';
   onOpenNewsQuest: () => void;
   onRefresh?: () => void;
-  onToggleViewMode?: (mode: 'broadsheet' | 'playcard') => void;
+  onToggleViewMode?: (mode: 'broadsheet' | 'reader') => void;
 }
 
 export const FrontPage: React.FC<FrontPageProps> = ({
@@ -67,6 +68,19 @@ export const FrontPage: React.FC<FrontPageProps> = ({
     );
   }
 
+  // Responsive Full-Screen Story Mode
+  if (viewMode === 'reader') {
+    return (
+      <SingleStoryReader
+        stories={stories}
+        onExit={() => onToggleViewMode?.('broadsheet')}
+        isSaved={isSaved}
+        onToggleSave={onToggleSave}
+        activePreset={activePreset}
+      />
+    );
+  }
+
   // Interactive Playcard View Mode
   if (viewMode === 'playcard') {
     return (
@@ -98,7 +112,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
 
   return (
     <main className="animate-paper-fade space-y-8">
-      {/* Editorial Playcards Feature Teaser Banner */}
+      {/* Switch to One-Story Reader Feature Teaser Banner */}
       {onToggleViewMode && (
         <div className="bg-[#fde8df] border-2 border-[#f5cbbe] rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 transition-all hover:border-[#0f766e]">
           <div className="flex items-center gap-3.5">
@@ -108,22 +122,22 @@ export const FrontPage: React.FC<FrontPageProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-serif-editorial text-base sm:text-lg font-bold text-[#191715]">
-                  Experience Modern Playcards Mode
+                  Experience Inshorts-Style Story Mode
                 </span>
                 <span className="text-[10px] font-mono-meta font-bold bg-[#e0f2fe] text-[#0369a1] px-2 py-0.5 rounded-full border border-[#bae6fd]">
-                  Interactive
+                  Focused
                 </span>
               </div>
               <p className="text-xs text-[#5c554e] font-sans mt-0.5">
-                Prefer quick, focused reading? Tap to flip through bite-sized narrative cards with key takeaways and progress tracking.
+                Prefer focused, swipeable reading? Read one full-screen story at a time with smooth gesture navigation and quick takeaway cards.
               </p>
             </div>
           </div>
           <button
-            onClick={() => onToggleViewMode('playcard')}
+            onClick={() => onToggleViewMode('reader')}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0f766e] hover:bg-[#115e59] text-[#ffffff] text-xs font-bold shadow-sm transition-all cursor-pointer whitespace-nowrap"
           >
-            <span>Switch to Playcards</span>
+            <span>Enter Story Mode</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -270,7 +284,7 @@ export const FrontPage: React.FC<FrontPageProps> = ({
           <div className="bg-[#f4eee5] border-2 border-[#e7ded3] rounded-3xl p-5 text-xs text-[#5c554e] space-y-2.5 animate-card-stagger stagger-4">
             <h4 className="font-mono-meta font-bold uppercase tracking-wider text-[#191715] flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-[#0f766e]" />
-              <span>Provenance & Attribution</span>
+              <span>Provenance &amp; Attribution</span>
             </h4>
             <p className="leading-relaxed text-[11px]">
               Every story is directly syndicated from official publisher RSS feeds with exact headlines, publication timestamps, and direct canonical links. Newsiemama never fabricates news or generates fictional filler articles.
@@ -292,5 +306,3 @@ export const FrontPage: React.FC<FrontPageProps> = ({
     </main>
   );
 };
-
-

@@ -22,8 +22,8 @@ interface MastheadProps {
   isLiveFeed: boolean;
   totalStoriesCount: number;
   readStoriesCount: number;
-  viewMode?: 'broadsheet' | 'playcard';
-  onToggleViewMode?: (mode: 'broadsheet' | 'playcard') => void;
+  viewMode?: 'broadsheet' | 'reader' | 'playcard';
+  onToggleViewMode?: (mode: 'broadsheet' | 'reader') => void;
 }
 
 export const Masthead: React.FC<MastheadProps> = ({
@@ -112,7 +112,7 @@ export const Masthead: React.FC<MastheadProps> = ({
           <div className="news-menu__header"><div><span className="news-menu__eyebrow">YOUR EDITION</span><h2>Little extras</h2></div><button onClick={() => setMenuOpen(false)} className="news-menu__close" aria-label="Close menu"><X size={19} /></button></div>
           <div className="news-menu__reader"><span className="news-menu__avatar">{currentProfile.name.slice(0,1).toUpperCase()}</span><div><strong>{currentProfile.name}</strong><small>{voiceLabels[currentProfile.voicePreset] || currentProfile.voicePreset} · {currentProfile.topics.length} interests</small></div><button onClick={() => closeAfter(onOpenProfiles)} aria-label="Switch reader"><ChevronRight size={18} /></button></div>
           <div className="news-menu__section"><span>READ & PLAY</span>
-            {onToggleViewMode && menuButton(<Layers size={17} />, viewMode === 'broadsheet' ? 'Switch to Playcards' : 'Back to newspaper', () => onToggleViewMode(viewMode === 'broadsheet' ? 'playcard' : 'broadsheet'), 'Flip through stories one beat at a time', 'text-[#b4533c]')}
+            {onToggleViewMode && menuButton(<Layers size={17} />, viewMode === 'reader' ? 'Switch to Broadsheet' : 'Switch to Story Reader', () => onToggleViewMode(viewMode === 'reader' ? 'broadsheet' : 'reader'), viewMode === 'reader' ? 'Read in classic multi-story newspaper grid' : 'Read one focused story at a time with swipe navigation', 'text-[#b4533c]')}
             {onOpenNewsQuest && menuButton(<Gamepad2 size={17} />, 'News Quest', onOpenNewsQuest, `${currentProfile.questProgress?.totalPoints || 0} learning points`, 'text-[#0284c7]')}
             {onOpenBusinessAgent && menuButton(<Sparkles size={17} />, 'Ask the news guide', onOpenBusinessAgent, 'Ask about a company, market, or headline')}
             {onOpenCareer && menuButton(<Briefcase size={17} />, 'Career & LinkedIn Hub', onOpenCareer, 'Discover field insights & open job roles', 'text-[#0a66c2]')}

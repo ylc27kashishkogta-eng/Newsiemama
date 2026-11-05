@@ -6,6 +6,7 @@ import { Masthead } from './components/Masthead';
 import { TopicBar } from './components/TopicBar';
 import { FrontPage } from './components/FrontPage';
 import { StoryDrawer } from './components/StoryDrawer';
+import { SingleStoryReader } from './components/SingleStoryReader';
 import { ProfileModal } from './components/ProfileModal';
 import { VoiceSettingsModal } from './components/VoiceSettingsModal';
 import { SupporterModal } from './components/SupporterModal';
@@ -24,11 +25,11 @@ import { CareerLinkedInHub } from './components/CareerLinkedInHub';
 const NewspaperApp: React.FC = () => {
   const [showIntro, setShowIntro] = useState(true);
   const completeIntro = useCallback(() => setShowIntro(false), []);
-  const [isMarketsSectionOpen, setIsMarketsSectionOpen] = useState(true);
+  const [isMarketsSectionOpen, setIsMarketsSectionOpen] = useState(false);
   const { currentProfile, isArticleSaved, toggleSaveArticle, hasCompletedOnboarding } = useProfile();
   const [selectedTopic, setSelectedTopic] = useState<MainNavigationTab>('all');
   const [selectedFinanceSubcategory, setSelectedFinanceSubcategory] = useState<FinanceSubcategory>('all');
-  const [viewMode, setViewMode] = useState<'broadsheet' | 'playcard'>('broadsheet');
+  const [viewMode, setViewMode] = useState<'reader' | 'broadsheet'>('broadsheet');
 
   const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,93 +118,120 @@ const NewspaperApp: React.FC = () => {
   const readStoriesCount = stories.filter((s) => (currentProfile.readStoryIds || []).includes(s.id)).length;
   const savedStoriesCount = (currentProfile.savedArticleIds || []).length;
 
+  const isStoryMode = viewMode === 'reader' && selectedTopic !== 'career';
+
   return (
     <div className="min-h-screen bg-[#faf6f0] text-[#191715] flex flex-col justify-between selection:bg-[#ffedd5] selection:text-[#0f766e]">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 w-full py-3 sm:py-4 max-w-full overflow-x-hidden">
-        {/* Newspaper Masthead */}
-        <Masthead
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-          onOpenProfiles={() => setIsProfileModalOpen(true)}
-          onOpenVoiceSettings={() => setIsVoiceModalOpen(true)}
-          onOpenSupporter={() => setIsSupporterModalOpen(true)}
-          onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
-          onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
-          onOpenBusinessAgent={() => setIsBusinessAgentOpen(true)}
-          onOpenCareer={() => setSelectedTopic('career')}
-          onEditSetup={() => {
-            setIsWelcomeEditMode(true);
-            setIsWelcomeModalOpen(true);
-          }}
-          refreshedAt={refreshedAt}
-          isLiveFeed={isLiveFeed}
-          totalStoriesCount={totalStoriesCount}
-          readStoriesCount={readStoriesCount}
-          viewMode={viewMode}
-          onToggleViewMode={(mode) => setViewMode(mode)}
+      {/* Immersive Full-Screen Story Mode (Inshorts-style: Hides Masthead, TopicBar, Market Ticker, and Footer) */}
+      {isStoryMode ? (
+        <SingleStoryReader
+          stories={filteredStories}
+          onExit={() => setViewMode('broadsheet')}
+          isSaved={isArticleSaved}
+          onToggleSave={toggleSaveArticle}
+          activePreset={currentProfile.voicePreset}
         />
+      ) : (
+        <>
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 w-full py-3 sm:py-4 max-w-full overflow-x-hidden">
+            {/* Newspaper Masthead */}
+            <Masthead
+              onRefresh={handleRefresh}
+              isRefreshing={isRefreshing}
+              onOpenProfiles={() => setIsProfileModalOpen(true)}
+              onOpenVoiceSettings={() => setIsVoiceModalOpen(true)}
+              onOpenSupporter={() => setIsSupporterModalOpen(true)}
+              onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
+              onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
+              onOpenBusinessAgent={() => setIsBusinessAgentOpen(true)}
+              onOpenCareer={() => setSelectedTopic('career')}
+              onEditSetup={() => {
+                setIsWelcomeEditMode(true);
+                setIsWelcomeModalOpen(true);
+              }}
+              refreshedAt={refreshedAt}
+              isLiveFeed={isLiveFeed}
+              totalStoriesCount={totalStoriesCount}
+              readStoriesCount={readStoriesCount}
+              viewMode={viewMode}
+              onToggleViewMode={(mode) => setViewMode(mode)}
+            />
 
-        {/* Live Market Data Ticker */}
-        <MarketDataTicker
-          isDetailedViewOpen={isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy'}
-          onToggleDetailedView={() => setIsMarketsSectionOpen((prev) => !prev)}
-        />
+            {/* Live Market Data Ticker */}
+            <MarketDataTicker
+              isDetailedViewOpen={isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy'}
+              onToggleDetailedView={() => setIsMarketsSectionOpen((prev) => !prev)}
+            />
 
-        {/* Dedicated Indian Markets & Watchlist Overview (TradingView) */}
-        {(isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy') && (
-          <TradingViewMarketsSection />
-        )}
+            {/* Dedicated Indian Markets & Watchlist Overview (TradingView) */}
+            {(isMarketsSectionOpen || selectedTopic === 'finance' || selectedTopic === 'economy') && (
+              <TradingViewMarketsSection />
+            )}
 
-        {/* Topic Filter Ribbon & Customizer */}
-        <TopicBar
-          selectedTopic={selectedTopic}
-          onSelectTopic={(t) => {
-            setSelectedTopic(t);
-            if (t !== 'all' && t !== 'finance' && t !== 'economy') {
-              setSelectedFinanceSubcategory('all');
-            }
-          }}
-          availableTopics={currentProfile.topics}
-          totalStoriesCount={totalStoriesCount}
-          savedStoriesCount={savedStoriesCount}
-          onOpenCustomizeTopics={() => setIsCustomizeTopicsOpen(true)}
-          selectedFinanceSubcategory={selectedFinanceSubcategory}
-          onSelectFinanceSubcategory={(sub) => setSelectedFinanceSubcategory(sub)}
-          viewMode={viewMode}
-          onToggleViewMode={(mode) => setViewMode(mode)}
-        />
+            {/* Topic Filter Ribbon & Customizer */}
+            <TopicBar
+              selectedTopic={selectedTopic}
+              onSelectTopic={(t) => {
+                setSelectedTopic(t);
+                if (t !== 'all' && t !== 'finance' && t !== 'economy') {
+                  setSelectedFinanceSubcategory('all');
+                }
+              }}
+              availableTopics={currentProfile.topics}
+              totalStoriesCount={totalStoriesCount}
+              savedStoriesCount={savedStoriesCount}
+              onOpenCustomizeTopics={() => setIsCustomizeTopicsOpen(true)}
+              selectedFinanceSubcategory={selectedFinanceSubcategory}
+              onSelectFinanceSubcategory={(sub) => setSelectedFinanceSubcategory(sub)}
+              viewMode={viewMode}
+              onToggleViewMode={(mode) => setViewMode(mode)}
+            />
 
-        {/* Main Broadsheet Front Page or Playcard Deck */}
-        {selectedTopic === 'career' ? (
-          <CareerLinkedInHub
-            initialTopicCategory={currentProfile.topics[0]}
-            onBackToNews={() => setSelectedTopic('all')}
-          />
-        ) : isLoading ? (
-          <div className="py-24 text-center">
-            <Newspaper className="w-8 h-8 text-[#e25c50] animate-bounce mx-auto mb-3" />
-            <div className="font-serif-editorial text-lg text-[#181513] font-semibold">
-              Compiling {currentProfile.name}'s Edition...
-            </div>
-            <p className="text-xs text-[#6e685f] mt-1 font-mono-meta">
-              Curating sections & personalizing narrative explainers
-            </p>
+            {/* Main Broadsheet Front Page or Career Hub */}
+            {selectedTopic === 'career' ? (
+              <CareerLinkedInHub
+                initialTopicCategory={currentProfile.topics[0]}
+                onBackToNews={() => setSelectedTopic('all')}
+              />
+            ) : isLoading ? (
+              <div className="py-24 text-center">
+                <Newspaper className="w-8 h-8 text-[#e25c50] animate-bounce mx-auto mb-3" />
+                <div className="font-serif-editorial text-lg text-[#181513] font-semibold">
+                  Compiling {currentProfile.name}'s Edition...
+                </div>
+                <p className="text-xs text-[#6e685f] mt-1 font-mono-meta">
+                  Curating sections & personalizing narrative explainers
+                </p>
+              </div>
+            ) : (
+              <FrontPage
+                stories={filteredStories}
+                onOpenExplainer={(story) => setActiveStory(story)}
+                isSaved={isArticleSaved}
+                onToggleSave={toggleSaveArticle}
+                activePreset={currentProfile.voicePreset}
+                sourceNote={sourceNote}
+                viewMode={viewMode}
+                onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
+                onRefresh={handleRefresh}
+                onToggleViewMode={(mode) => setViewMode(mode)}
+              />
+            )}
           </div>
-        ) : (
-          <FrontPage
-            stories={filteredStories}
-            onOpenExplainer={(story) => setActiveStory(story)}
-            isSaved={isArticleSaved}
-            onToggleSave={toggleSaveArticle}
-            activePreset={currentProfile.voicePreset}
-            sourceNote={sourceNote}
-            viewMode={viewMode}
-            onOpenNewsQuest={() => setIsNewsQuestDrawerOpen(true)}
-            onRefresh={handleRefresh}
-            onToggleViewMode={(mode) => setViewMode(mode)}
-          />
-        )}
-      </div>
+
+          {/* Educational & Publisher Attribution Footer */}
+          <footer className="bg-[#ffffff] border-t border-[#e4dcd3] py-8 px-4 text-center text-xs text-[#6e685f] mt-12 shadow-inner">
+            <div className="max-w-4xl mx-auto space-y-2">
+              <p className="font-serif-editorial italic text-[#3a332a]">
+                {APP_NAME} is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, Mint, India Today, and BBC News.
+              </p>
+              <p className="font-mono-meta text-[11px] text-[#8f887d]">
+                Built with React 19, Vite, and Tailwind CSS • On-device LocalStorage profile isolation • WCAG AA contrast compliant
+              </p>
+            </div>
+          </footer>
+        </>
+      )}
 
       {/* Global Interactive Modals & Drawers */}
       <WelcomeSetupModal
@@ -259,18 +287,6 @@ const NewspaperApp: React.FC = () => {
         onClose={() => setIsRoadmapModalOpen(false)}
       />
 
-      {/* Educational & Publisher Attribution Footer */}
-      <footer className="bg-[#ffffff] border-t border-[#e4dcd3] py-8 px-4 text-center text-xs text-[#6e685f] mt-12 shadow-inner">
-        <div className="max-w-4xl mx-auto space-y-2">
-          <p className="font-serif-editorial italic text-[#3a332a]">
-            {APP_NAME} is an educational digital newspaper prototype. News headlines and summaries are syndications of official public RSS feeds from The Economic Times, The Indian Express, Mint, India Today, and BBC News.
-          </p>
-          <p className="font-mono-meta text-[11px] text-[#8f887d]">
-            Built with React 19, Vite, and Tailwind CSS • On-device LocalStorage profile isolation • WCAG AA contrast compliant
-          </p>
-        </div>
-      </footer>
-
       {showIntro && <NewsimamaIntro onComplete={completeIntro} />}
     </div>
   );
@@ -283,5 +299,3 @@ export default function App() {
     </ProfileProvider>
   );
 }
-
-

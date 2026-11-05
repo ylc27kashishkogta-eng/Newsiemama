@@ -12,8 +12,8 @@ interface TopicBarProps {
   onOpenCustomizeTopics: () => void;
   selectedFinanceSubcategory?: FinanceSubcategory;
   onSelectFinanceSubcategory?: (sub: FinanceSubcategory) => void;
-  viewMode?: 'broadsheet' | 'playcard';
-  onToggleViewMode?: (mode: 'broadsheet' | 'playcard') => void;
+  viewMode?: 'broadsheet' | 'reader' | 'playcard';
+  onToggleViewMode?: (mode: 'broadsheet' | 'reader') => void;
 }
 
 const TOPIC_LABELS: Record<TopicCategory, { label: string; activeClass: string }> = {
@@ -129,6 +129,18 @@ export const TopicBar: React.FC<TopicBarProps> = ({
         {onToggleViewMode && (
           <div className="flex items-center bg-[#ffffff] border-2 border-[#e7ded3] rounded-2xl p-1 shadow-xs shrink-0">
             <button
+              onClick={() => onToggleViewMode('reader')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                viewMode === 'reader'
+                  ? 'bg-[#0f766e] text-[#ffffff] shadow-2xs ring-1 ring-[#99f6e4]'
+                  : 'text-[#5c554e] hover:text-[#191715] hover:bg-[#faf6f0]'
+              }`}
+              title="Modern One-Story Reader (Swipe & Focused)"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Story Reader</span>
+            </button>
+            <button
               onClick={() => onToggleViewMode('broadsheet')}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 viewMode === 'broadsheet'
@@ -139,21 +151,6 @@ export const TopicBar: React.FC<TopicBarProps> = ({
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Broadsheet</span>
-            </button>
-            <button
-              onClick={() => onToggleViewMode('playcard')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                viewMode === 'playcard'
-                  ? 'bg-[#0f766e] text-[#ffffff] shadow-2xs ring-1 ring-[#99f6e4]'
-                  : 'text-[#9e4429] bg-[#fde8df]/60 hover:bg-[#fde8df] hover:text-[#82351f]'
-              }`}
-              title="Modern Interactive Playcards Deck"
-            >
-              <Layers className="w-3.5 h-3.5 text-[#0f766e]" />
-              <span>Playcards</span>
-              <span className="text-[9px] bg-[#0f766e] text-[#ffffff] px-1.5 py-0.2 rounded-full uppercase font-mono-meta tracking-wider">
-                Deck
-              </span>
             </button>
           </div>
         )}
