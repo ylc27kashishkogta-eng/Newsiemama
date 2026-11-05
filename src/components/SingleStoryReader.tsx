@@ -17,7 +17,12 @@ import {
   HelpCircle,
   TrendingUp,
   CheckCircle2,
-  BookOpen
+  BookOpen,
+  MessageSquareText,
+  Lightbulb,
+  Calendar,
+  Scale,
+  ShieldCheck
 } from 'lucide-react';
 import { StoryIllustration } from './StoryIllustration';
 import { VisualExplainer } from './VisualExplainer';
@@ -321,6 +326,21 @@ export const SingleStoryReader: React.FC<SingleStoryReaderProps> = ({
     );
   }
 
+  const formatPublishedDate = (dateStr?: string) => {
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   const categoryTheme = CATEGORY_THEMES[activeStory.category] || CATEGORY_THEMES.finance;
   const isSavedStory = isSaved(activeStory.id);
   const progressPercent = Math.round(((currentIndex + 1) / totalStories) * 100);
@@ -468,29 +488,115 @@ export const SingleStoryReader: React.FC<SingleStoryReaderProps> = ({
             </div>
           ) : (
             <div className="space-y-4 pt-1">
-              {/* 1. What Happened? (Core Facts) */}
-              <div className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border border-[#ede5dc] space-y-2 shadow-2xs">
-                <div className="flex items-center justify-between">
+              {/* Dedicated Conversational Storytelling Card ("The Story in Plain English") */}
+              <section
+                aria-label="The Story in Plain English"
+                className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border-2 border-[#ede5dc] space-y-3.5 shadow-xs relative overflow-hidden"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#f0eae1] pb-2.5">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0f766e] font-mono-meta">
-                    <HelpCircle className="w-4 h-4" />
+                    <MessageSquareText className="w-4 h-4 text-[#0f766e]" />
+                    <span>The Story in Plain English</span>
+                  </div>
+                  <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#f0fdfa] text-[#0f766e] border border-[#99f6e4] font-bold">
+                    Conversational Breakdown
+                  </span>
+                </div>
+
+                {/* Narrative Lead in Plain English */}
+                <p className="text-xs sm:text-sm text-[#26221d] leading-relaxed font-serif-editorial">
+                  {explanation?.easyReadingText || activeStory.deck || activeStory.content.slice(0, 240)}
+                </p>
+
+                {/* Relatable Everyday Analogy */}
+                {explanation?.everydayAnalogy && (
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-[#f0fdfa] border border-[#99f6e4] space-y-1">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0f766e] font-mono-meta uppercase tracking-wider">
+                      <Lightbulb className="w-3.5 h-3.5 text-[#0f766e]" />
+                      <span>Everyday Analogy</span>
+                    </div>
+                    <p className="text-xs text-[#134e48] leading-relaxed font-serif-editorial italic">
+                      "{explanation.everydayAnalogy}"
+                    </p>
+                  </div>
+                )}
+
+                {/* In Plain Terms Takeaway */}
+                {explanation?.conversationalTakeaway && (
+                  <div className="p-3 sm:p-3.5 rounded-xl bg-[#fdf2f0] border border-[#f5cbbe] space-y-1">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#82351f] font-mono-meta uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-[#82351f]" />
+                      <span>In Plain Terms</span>
+                    </div>
+                    <p className="text-xs text-[#4a1d12] leading-relaxed font-sans">
+                      {explanation.conversationalTakeaway}
+                    </p>
+                  </div>
+                )}
+
+                {/* Transparent Attribution / Factual Synthesis Notice */}
+                <div className="pt-1 flex items-center justify-between text-[10px] text-[#8c8278] font-mono-meta border-t border-[#f4eee5]">
+                  <span className="flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-[#0f766e]" />
+                    <span>Sourced from {activeStory.sourceName}</span>
+                  </span>
+                  <span>{explanation?.isAiConnected ? 'AI Synthesis Connected' : 'Grounded Editorial Synthesis'}</span>
+                </div>
+              </section>
+
+              {/* Fact vs Analysis Ledger Banner */}
+              <div className="flex items-center justify-between pt-1 pb-0.5 px-1">
+                <div className="flex items-center gap-1.5">
+                  <Scale className="w-3.5 h-3.5 text-[#5c554e]" />
+                  <span className="font-mono-meta text-[11px] font-bold uppercase tracking-wider text-[#5c554e]">
+                    Fact vs. Analysis Ledger
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono-meta text-[#8c8278]">
+                  Verified facts strictly separated from scenarios
+                </span>
+              </div>
+
+              {/* 1. What Happened? (Core Facts) */}
+              <div className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border border-[#ede5dc] space-y-2.5 shadow-2xs">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#047857] font-mono-meta">
+                    <HelpCircle className="w-4 h-4 text-[#047857]" />
                     <span>1. What happened?</span>
                   </div>
-                  <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#e3ece5] text-[#3e5f49] font-bold">
-                    Reported Facts
+                  <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#ecfdf5] text-[#047857] border border-[#a7f3d0] font-bold">
+                    Reported Facts Directly from {activeStory.sourceName}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
                   {explanation?.whatHappened || activeStory.content}
                 </p>
+
+                {/* Publication Date & Wire Attribution */}
+                <div className="pt-2 border-t border-[#f4eee5] flex flex-wrap items-center justify-between gap-2 text-[10px] text-[#78716c] font-mono-meta">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-[#047857]" />
+                    <span>Published: {formatPublishedDate(activeStory.publishedAt) || 'Current Edition'}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    <span>{activeStory.timeAgo || 'Recent wire'}</span>
+                  </span>
+                </div>
               </div>
 
               {/* 2. Why It Matters (Key Takeaways) */}
               {((explanation?.whyItMatters && explanation.whyItMatters.length > 0) ||
                 (activeStory.keyBullets && activeStory.keyBullets.length > 0)) && (
                 <div className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border border-[#ede5dc] space-y-2.5 shadow-2xs">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0284c7] font-mono-meta">
-                    <TrendingUp className="w-4 h-4" />
-                    <span>2. Why it matters</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0284c7] font-mono-meta">
+                      <TrendingUp className="w-4 h-4" />
+                      <span>2. Why it matters</span>
+                    </div>
+                    <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#f0f9ff] text-[#0284c7] font-bold">
+                      Key Takeaways
+                    </span>
                   </div>
                   <ul className="space-y-2">
                     {(explanation?.whyItMatters || activeStory.keyBullets || []).map((point, i) => (
@@ -505,19 +611,22 @@ export const SingleStoryReader: React.FC<SingleStoryReaderProps> = ({
 
               {/* 3. What Could Happen Next (Forward Scenario Analysis) */}
               {explanation?.whatCouldHappenNext && (
-                <div className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border border-[#ede5dc] space-y-2 shadow-2xs">
-                  <div className="flex items-center justify-between">
+                <div className="bg-[#ffffff] p-4 sm:p-5 rounded-2xl border border-[#ede5dc] space-y-2.5 shadow-2xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#82351f] font-mono-meta">
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-4 h-4 text-[#82351f]" />
                       <span>3. What could happen next?</span>
                     </div>
-                    <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#fdf2f0] text-[#82351f] font-bold">
-                      Forward Scenario
+                    <span className="text-[10px] font-mono-meta uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-[#fdf2f0] text-[#82351f] border border-[#f5cbbe] font-bold">
+                      Forward Scenario • Analytical Perspective
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-[#38322a] leading-relaxed font-serif-editorial">
                     {explanation.whatCouldHappenNext}
                   </p>
+                  <div className="p-2.5 rounded-xl bg-[#faf6f0] border border-[#ede5dc] text-[10px] text-[#6e685f] font-mono-meta leading-snug">
+                    Notice: Forward scenario reflects potential sector developments based on reported reporting. Not financial advice or a guaranteed forecast.
+                  </div>
                 </div>
               )}
 
@@ -532,7 +641,7 @@ export const SingleStoryReader: React.FC<SingleStoryReaderProps> = ({
 
           {/* Prominent "Read Original" Canonical Link Button */}
           {activeStory.canonicalUrl && (
-            <div className="pt-2 pb-4">
+            <div className="pt-2 pb-4 space-y-1.5">
               <a
                 href={activeStory.canonicalUrl}
                 target="_blank"
@@ -543,8 +652,8 @@ export const SingleStoryReader: React.FC<SingleStoryReaderProps> = ({
                 <span>Read original on {activeStory.sourceName}</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
-              <p className="text-center text-[10px] text-[#8c8278] font-mono-meta mt-1.5">
-                Direct syndicated wire coverage • Official publisher source
+              <p className="text-center text-[10px] text-[#8c8278] font-mono-meta">
+                Direct syndicated wire coverage • Published by {activeStory.sourceName} {formatPublishedDate(activeStory.publishedAt) ? `on ${formatPublishedDate(activeStory.publishedAt)}` : ''}
               </p>
             </div>
           )}
